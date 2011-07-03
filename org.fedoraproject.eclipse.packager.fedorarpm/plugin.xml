@@ -3,10 +3,16 @@
 <plugin>
    <extension
          point="org.eclipse.ui.newWizards">
-      <category
-            id="org.fedoraproject.eclipse.packager.fedorarpm.category.wizards"
-            name="fedorarpm">
-      </category>
-   </extension>
+		<category 
+			id="org.fedoraproject.eclipse.packager.fedorarpm.category.wizards" 
+			name="Fedora">
+		</category>
+		<wizard 
+			category="org.fedoraproject.eclipse.packager.fedorarpm.category.wizards" 
+			class="org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMProjectWizard" 
+			icon="icons/fedora16x16.png" id="org.fedoraproject.eclipse.packager.fedorarpm.newprojectwizard" 
+			name="Fedora RPM Project">
+		</wizard>
+	</extension>
 
 </plugin>
