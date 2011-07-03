@@ -1,4 +1,4 @@
-package org.fedoraproject.eclipse.packager.fedorarpm;
+package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
