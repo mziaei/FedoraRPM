@@ -1,5 +1,6 @@
 package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
@@ -7,7 +8,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 public class FedoraRPMProjectPageTwo extends WizardPage {
 	private Composite composite;
@@ -25,10 +25,10 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 	 */
 	public FedoraRPMProjectPageTwo(String pageName) {
 		super(pageName);
-//		setTitle(FedoraRPMMessages.FedoraRPMProject_title); //$NON-NLS-1$
-//		setDescription(FedoraRPMMessages.FedoraRPMProject_description); //$NON-NLS-1$
-//		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
-//			"/icons/fedora48x48.png")); //$NON-NLS-1$
+		setTitle(FedoraRPMMessages.FedoraRPMProject_title); //$NON-NLS-1$
+		setDescription(FedoraRPMMessages.FedoraRPMProject_description); //$NON-NLS-1$
+		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
+			"/icons/fedora48x48.png")); //$NON-NLS-1$
 	}
 
 	/**
@@ -77,11 +77,9 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
         GridLayout layout = new GridLayout();
          layout.numColumns = 2;
          composite.setLayout(layout);
+ 		btnNewMaintainer = new Button(composite, SWT.RADIO);
+ 		btnNewMaintainer.setText("test");
          setControl(composite);
-         new Label(composite,SWT.NONE).setText("First Name");
-         Text firstNameText = new Text(composite,SWT.NONE);
-         new Label(composite,SWT.NONE).setText("Last Name");
-         Text secondNameText = new Text(composite,SWT.NONE);
 
 	}
 }

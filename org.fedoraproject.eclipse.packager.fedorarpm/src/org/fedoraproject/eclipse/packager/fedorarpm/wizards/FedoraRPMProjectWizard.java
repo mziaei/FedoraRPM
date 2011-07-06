@@ -3,7 +3,6 @@ package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.linuxtools.rpm.core.RPMProjectCreator;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
@@ -57,8 +56,8 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	}
 
 	protected void createProject(IProgressMonitor monitor) {
-		RPMProjectCreator rpmProjectCreator = new RPMProjectCreator();
-		rpmProjectCreator.create(pageOne.getProjectName(), pageOne.getLocationPath(), monitor);
+//		RPMProjectCreator rpmProjectCreator = new RPMProjectCreator();
+//		rpmProjectCreator.create(pageOne.getProjectName(), pageOne.getLocationPath(), monitor);
 	}
 
 }
