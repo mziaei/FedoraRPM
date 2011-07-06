@@ -19,6 +19,8 @@ public class FedoraRPMMessages extends NLS {
 	public static String FedoraRPMProjectPageTwo_btnRadioExistMaintainer;
 	public static String FedoraRPMProjectPageTwo_grpAccountSetup;
 	public static String FedoraRPMProjectPageTwo_btnNewButton_text;
+	public static String FedoraRPMProjectPageTwo_group_text;
+	public static String FedoraRPMProjectPageTwo_btnNewButton_text_1;
 
 	static {
 		// initialize resource bundle

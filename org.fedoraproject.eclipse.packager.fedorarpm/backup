@@ -42,83 +42,71 @@ public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
 	 */
 	@Override
 	public void createControl(Composite parent) {
-		super.createControl(parent);
-//		Composite container = (Composite) getControl();
+		
+		Composite container = new Composite(parent, SWT.NULL);
+		GridLayout layout = new GridLayout();
+		container.setLayout(layout);
+		layout.numColumns = 1;
+		layout.verticalSpacing = 9;
 
-//
-////		grpFedora = new Group(container, SWT.NONE);
-////		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-////		layoutData.horizontalSpan = 3;
-////		grpFedora.setLayoutData(layoutData);
-////		grpFedora.setFont(container.getFont());
-////		grpFedora.setLayout(new GridLayout(1, false));
-//
-//		composite = new Composite(container, SWT.NONE);
-//		GridData layoutComposite = new GridData(GridData.FILL_HORIZONTAL);
-//		layoutComposite.horizontalSpan = 3;
-//		composite.setLayoutData(layoutComposite);
-//		composite.setLayout(new GridLayout(1, false));
-//
-//		Button btnRadioNew = new Button(composite, SWT.RADIO);
-//		btnRadioNew.setText(FedoraRPMMessages.FedoraRPMProjectPageOne_btnRadioButton_text_1);
-//
-//		grpAccount = new Group(composite, SWT.NONE);
-//		grpAccount.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-//		grpAccount.setLayout(new GridLayout(1, false));
-//		grpAccount.setText(FedoraRPMMessages.FedoraRPMProjectPageOne_grpAccountSetup_text);
-//		grpAccount.setFont(container.getFont());
-//
-//		btnAccount1 = new Button(grpAccount, SWT.CHECK);
-//		btnAccount1.setText(FedoraRPMMessages.FedoraRPMProjectPageOne_btnCheckButton_text_1);
-//
-//		btnAccount2 = new Button(grpAccount, SWT.CHECK);
-//		btnAccount2.setText(FedoraRPMMessages.FedoraRPMProjectPageOne_btnCheckButton_text_2);
-//
-//		btnAccount3 = new Button(grpAccount, SWT.CHECK);
-//		btnAccount3.setText(FedoraRPMMessages.FedoraRPMProjectPageOne_btnCheckButton_1_text);
-//
-//		btnAccount4 = new Button(grpAccount, SWT.CHECK);
-//		btnAccount4.setText(FedoraRPMMessages.FedoraRPMProjectPageOne_btnCheckButton_2_text);
-//
-//		lblAccount5 = new Label(grpAccount, SWT.NONE);
-//		lblAccount5.setText(FedoraRPMMessages.FedoraRPMProjectPageOne_lblNewLabel_1_text_1);
-//		new Label(grpAccount, SWT.NONE);
-//
-//		Button btnRadioExist = new Button(composite, SWT.RADIO);
-//		btnRadioExist.setText(FedoraRPMMessages.FedoraRPMProjectPageOne_btnRadioButton_1_text_1);
-//
-//
-//
-////		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-////		layoutData.horizontalSpan = 3;
-////		fGroup.setLayoutData(layoutData);
-////		fGroup.setLayout(new GridLayout(3, false));
-////		fGroup.setText(FedoraRPMMessages.FedoraRPMProject_2);
-////
-////		GridData textLayout = new GridData(SWT.FILL, SWT.CENTER, true, false);
-////
-////		gitInit = createButton(fGroup, SWT.CHECK, FedoraRPMMessages.FedoraRPMProject_3);
-////		gitInitURL = createText(fGroup, SWT.BORDER | SWT.SINGLE);
-////		gitInitURL.setLayoutData(textLayout);
-////		gitBrowse = createButton(fGroup, SWT.PUSH, "Local repository...");
-////
-////		packagerExist = createButton(fGroup, SWT.CHECK, FedoraRPMMessages.FedoraRPMProject_4);
-////		packagerExist.setLayoutData(layoutData);
-////		gitExist = createLabel(fGroup, SWT.NONE, FedoraRPMMessages.FedoraRPMProject_5);
-////		gitExist.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-////		gitExistURL = createText(fGroup, SWT.BORDER | SWT.SINGLE);
-////		gitExistURL.setLayoutData(textLayout);
-////
-////		packagerExist.addSelectionListener(new SelectionAdapter() {
-////			@Override
-////			public void widgetSelected(SelectionEvent e) {
-////				selectControl();
-////			}
-////		});
-////
-////		selectControl();
-//		setControl(container);
-		setControl(parent);
+		btnExistingMaintainer = new Button(container, SWT.RADIO);
+		btnExistingMaintainer.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnRadioExistMaintainer);
+		
+		btnNewMaintainer = new Button(container, SWT.RADIO);
+		btnNewMaintainer.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnRadioNewMaintainer);
 
+		grpAccount = new Group(container, SWT.NONE);
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+//		layoutData.horizontalSpan = 5;
+		layoutData.horizontalIndent = 20;
+		grpAccount.setLayoutData(layoutData);
+		grpAccount.setLayout(new GridLayout(1, false));
+		grpAccount.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_grpAccountSetup);
+	    
+		btnCheckFAS = new Button(grpAccount, SWT.CHECK);
+		btnCheckFAS.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckFAS);
+		
+		btnCheckBugzilla = new Button(grpAccount, SWT.CHECK);
+		btnCheckBugzilla.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckBugzilla);
+		
+		btnCheckInitial = new Button(grpAccount, SWT.CHECK);
+		btnCheckInitial.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckInitial);
+	
+		btnCheckIntroduce = new Button(grpAccount, SWT.CHECK);
+		btnCheckIntroduce.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckIntroduce);
+		
+		lblNoteGit = new Label(grpAccount, SWT.NONE);
+		lblNoteGit.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblNoteGit);
+	    
+		btnNewMaintainer.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectControl();
+			}
+		});
+		
+		selectControl();
+		setControl(container);
+		
 	}
+	
+	protected void selectControl() {
+		if(btnNewMaintainer.getSelection()){
+		    grpAccount.setEnabled(true);
+		    btnCheckBugzilla.setEnabled(true);
+		    btnCheckFAS.setEnabled(true);
+		    btnCheckInitial.setEnabled(true);
+		    btnCheckIntroduce.setEnabled(true);
+		    lblNoteGit.setEnabled(true);
+		}
+		else {
+		    grpAccount.setEnabled(false);
+		    btnCheckBugzilla.setEnabled(false);
+		    btnCheckFAS.setEnabled(false);
+		    btnCheckInitial.setEnabled(false);
+		    btnCheckIntroduce.setEnabled(false);
+		    lblNoteGit.setEnabled(false);
+		}
+	}
+
 }
