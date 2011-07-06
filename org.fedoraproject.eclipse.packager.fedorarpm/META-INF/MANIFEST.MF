@@ -12,5 +12,4 @@ Import-Package:  org.eclipse.ui.actions,
  org.eclipse.ui.dialogs,
  org.eclipse.linuxtools.rpm.core,
  org.eclipse.core.resources
-Bundle-ClassPath: .,
- swing2swt.jar
+
