@@ -1,0 +1,112 @@
+pageOne:
+package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
+
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
+
+
+public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
+	private Text containerText;
+	private Button packagerExist;
+	private Label gitExist;
+	private Text gitExistURL;
+	private Group grpFedora, grpAccount;
+	private Button gitInit;
+	private Text gitInitURL;
+	private Button gitBrowse;
+	private Button btnAccount1;
+	private Label lblAccount5;
+	private Button btnAccount2;
+	private Button btnAccount3;
+	private Button btnAccount4;
+	private Composite composite;
+	/**
+	 * Create the wizard.
+	 */
+	public FedoraRPMProjectPageOne(String pageName) {
+		super(pageName);
+		setTitle(FedoraRPMMessages.FedoraRPMProject_title); //$NON-NLS-1$
+		setDescription(FedoraRPMMessages.FedoraRPMProject_description); //$NON-NLS-1$
+		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
+			"/icons/fedora48x48.png")); //$NON-NLS-1$
+	}
+
+	/**
+	 * Create contents of the wizard.
+	 * @param parent
+	 */
+	@Override
+	public void createControl(Composite parent) {
+		
+		Composite container = new Composite(parent, SWT.NULL);
+		GridLayout layout = new GridLayout();
+		container.setLayout(layout);
+		layout.numColumns = 1;
+		layout.verticalSpacing = 9;
+
+		btnExistingMaintainer = new Button(container, SWT.RADIO);
+		btnExistingMaintainer.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnRadioExistMaintainer);
+		
+		btnNewMaintainer = new Button(container, SWT.RADIO);
+		btnNewMaintainer.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnRadioNewMaintainer);
+
+		grpAccount = new Group(container, SWT.NONE);
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+//		layoutData.horizontalSpan = 5;
+		layoutData.horizontalIndent = 20;
+		grpAccount.setLayoutData(layoutData);
+		grpAccount.setLayout(new GridLayout(1, false));
+		grpAccount.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_grpAccountSetup);
+	    
+		btnCheckFAS = new Button(grpAccount, SWT.CHECK);
+		btnCheckFAS.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckFAS);
+		
+		btnCheckBugzilla = new Button(grpAccount, SWT.CHECK);
+		btnCheckBugzilla.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckBugzilla);
+		
+		btnCheckInitial = new Button(grpAccount, SWT.CHECK);
+		btnCheckInitial.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckInitial);
+	
+		btnCheckIntroduce = new Button(grpAccount, SWT.CHECK);
+		btnCheckIntroduce.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckIntroduce);
+		
+		lblNoteGit = new Label(grpAccount, SWT.NONE);
+		lblNoteGit.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblNoteGit);
+	    
+		btnNewMaintainer.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectControl();
+			}
+		});
+		
+		selectControl();
+		setControl(container);
+		
+	}
+	
+	protected void selectControl() {
+		if(btnNewMaintainer.getSelection()){
+		    grpAccount.setEnabled(true);
+		    btnCheckBugzilla.setEnabled(true);
+		    btnCheckFAS.setEnabled(true);
+		    btnCheckInitial.setEnabled(true);
+		    btnCheckIntroduce.setEnabled(true);
+		    lblNoteGit.setEnabled(true);
+		}
+		else {
+		    grpAccount.setEnabled(false);
+		    btnCheckBugzilla.setEnabled(false);
+		    btnCheckFAS.setEnabled(false);
+		    btnCheckInitial.setEnabled(false);
+		    btnCheckIntroduce.setEnabled(false);
+		    lblNoteGit.setEnabled(false);
+		}
+	}
+
+}
