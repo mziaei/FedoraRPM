@@ -10,17 +10,17 @@ public class FedoraRPMMessages extends NLS {
 	public static String FedoraRPMProject_3;
 	public static String FedoraRPMProject_4;
 	public static String FedoraRPMProject_5;
-	public static String FedoraRPMProjectPageTwo_btnCheckFAS;
-	public static String FedoraRPMProjectPageTwo_btnCheckBugzilla;
-	public static String FedoraRPMProjectPageTwo_btnCheckInitial;
-	public static String FedoraRPMProjectPageTwo_btnCheckIntroduce;
+	public static String FedoraRPMProjectPageTwo_lblCheckFAS;
+	public static String FedoraRPMProjectPageTwo_lblCheckBugzilla;
+	public static String FedoraRPMProjectPageTwo_lblCheckInitial;
+	public static String FedoraRPMProjectPageTwo_lblCheckIntroduce;
 	public static String FedoraRPMProjectPageTwo_lblNoteGit;
 	public static String FedoraRPMProjectPageTwo_btnRadioNewMaintainer;
 	public static String FedoraRPMProjectPageTwo_btnRadioExistMaintainer;
 	public static String FedoraRPMProjectPageTwo_grpAccountSetup;
-	public static String FedoraRPMProjectPageTwo_btnNewButton_text;
-	public static String FedoraRPMProjectPageTwo_group_text;
-	public static String FedoraRPMProjectPageTwo_btnNewButton_text_1;
+	public static String FedoraRPMProjectPageThree_btnCheckFeature;
+	public static String FedoraRPMProjectPageThree_textFeature;
+	public static String FedoraRPMProjectPageThree_btnFeatureBrowse;
 
 	static {
 		// initialize resource bundle

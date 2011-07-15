@@ -14,15 +14,15 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public class FedoraRPMProjectPageTwo extends WizardPage {
-	private Composite composite;
 	private Group grpAccount;
 	private Button btnNewMaintainer;
 	private Button btnExistingMaintainer;
 	private Label lblNoteGit;
-	private Button btnCheckIntroduce;
-	private Button btnCheckInitial;
-	private Button btnCheckBugzilla;
-	private Button btnCheckFAS;
+	private Label lblCheckIntroduce;
+	private Label lblCheckInitial;
+	private Label lblCheckBugzilla;
+	private Label lblCheckFAS;
+	private Text textFAS;
 
 	/**
 	 * Create the wizard.
@@ -50,7 +50,6 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 
 		grpAccount = new Group(container, SWT.NONE);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.horizontalSpan = 5;
 		grpAccount.setLayoutData(layoutData);
 		grpAccount.setLayout(new GridLayout(1, false));
 		grpAccount.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_grpAccountSetup);
@@ -61,21 +60,25 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		btnNewMaintainer = new Button(grpAccount, SWT.RADIO);
 		btnNewMaintainer.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnRadioNewMaintainer);
 		
-		btnCheckFAS = new Button(grpAccount, SWT.CHECK);
-		btnCheckFAS.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckFAS);
-        setLayout(btnCheckFAS);
+		lblCheckFAS = new Label(grpAccount, SWT.CHECK);
+		lblCheckFAS.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblCheckFAS);
+        textFAS = new Text(grpAccount, SWT.BORDER | SWT.SINGLE);
+        GridData gd = new GridData(GridData.FILL);
+        gd.horizontalIndent = 30;
+        textFAS.setLayoutData(gd);
+        setLayout(lblCheckFAS);
         
-		btnCheckBugzilla = new Button(grpAccount, SWT.CHECK);
-		btnCheckBugzilla.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckBugzilla);
-        setLayout(btnCheckBugzilla);
+		lblCheckBugzilla = new Label(grpAccount, SWT.NONE);
+		lblCheckBugzilla.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblCheckBugzilla);
+        setLayout(lblCheckBugzilla);
         
-		btnCheckInitial = new Button(grpAccount, SWT.CHECK);
-		btnCheckInitial.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckInitial);
-        setLayout(btnCheckInitial);
+		lblCheckInitial = new Label(grpAccount, SWT.NONE);
+		lblCheckInitial.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblCheckInitial);
+        setLayout(lblCheckInitial);
         
-		btnCheckIntroduce = new Button(grpAccount, SWT.CHECK);
-		btnCheckIntroduce.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnCheckIntroduce);
-        setLayout(btnCheckIntroduce);
+		lblCheckIntroduce = new Label(grpAccount, SWT.NONE);
+		lblCheckIntroduce.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblCheckIntroduce);
+        setLayout(lblCheckIntroduce);
         
 		lblNoteGit = new Label(grpAccount, SWT.NONE);
 		lblNoteGit.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblNoteGit);
@@ -86,8 +89,7 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 				selectControl();
 			}
 		});
-		
-		
+				
 		selectControl();
 		setControl(container);
 		
@@ -95,25 +97,27 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 	
 	protected void selectControl() {
 		if(btnNewMaintainer.getSelection()){
-		    btnCheckBugzilla.setEnabled(true);
-		    btnCheckFAS.setEnabled(true);
-		    btnCheckInitial.setEnabled(true);
-		    btnCheckIntroduce.setEnabled(true);
+		    lblCheckBugzilla.setEnabled(true);
+		    lblCheckFAS.setEnabled(true);
+		    lblCheckInitial.setEnabled(true);
+		    lblCheckIntroduce.setEnabled(true);
 		    lblNoteGit.setEnabled(true);
+		    textFAS.setEnabled(true);
 		}
 		else {
-		    btnCheckBugzilla.setEnabled(false);
-		    btnCheckFAS.setEnabled(false);
-		    btnCheckInitial.setEnabled(false);
-		    btnCheckIntroduce.setEnabled(false);
+		    lblCheckBugzilla.setEnabled(false);
+		    lblCheckFAS.setEnabled(false);
+		    lblCheckInitial.setEnabled(false);
+		    lblCheckIntroduce.setEnabled(false);
 		    lblNoteGit.setEnabled(false);
+		    textFAS.setEnabled(false);
 		}
 	}
 	
-	protected void setLayout(Button button) {
+	protected void setLayout(Label label) {
         GridData layout = new GridData();
         layout.horizontalIndent = 20;
-        button.setLayoutData(layout);
+        label.setLayoutData(layout);
 	}
 
 }
