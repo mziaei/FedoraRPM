@@ -1,9 +1,9 @@
 package org.fedoraproject.eclipse.packager.fedorarpm.core;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -38,57 +38,20 @@ public class FedoraRPMProjectCreator {
 			project.open(monitor);
 
 			project.getFolder("temp").create(true, true, monitor);
-			project.getFile("sources").create(null, true, monitor);
-			project.getFile(".git").create(null, true, monitor);
-			writeFile("test", "testing");
-			
-			//project.getFile(".gitignore").create(getFile("test"), true, monitor);
 
-			
+			IFile sourcesFile = project.getFile("/sources");
+			String contents = "";
+			InputStream source = new ByteArrayInputStream(contents.getBytes());
+			sourcesFile.create(source, false, monitor);
+
+			IFile gitignoreFile = project.getFile("/.gitignore");
+			contents = "temp\n";
+			source = new ByteArrayInputStream(contents.getBytes());
+			gitignoreFile.create(source, false, monitor);
+
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
 	}
-	
-    /**
-     * Write file.
-     *
-     * @param filename the filename
-     * @param content the content
-     */
-    public void writeFile(final String filename, final String content) {
-        try {
-
-            FileWriter fstream = new FileWriter(filename);
-            BufferedWriter out = new BufferedWriter(fstream);
-            out.write(content);
-            // Close the output stream
-            out.close();
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage()); //$NON-NLS-1$
-        }
-
-    }
-    
-    /**
-     * Get file.
-     *
-     * @param filename the filename
-     */
-    public InputStream writeFile(final String filename) {
-    	InputStream is = null;
-        try {
-
-            FileWriter fstream = new FileWriter(filename);
-            BufferedWriter out = new BufferedWriter(fstream);
-
-            // Close the output stream
-            out.close();
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage()); //$NON-NLS-1$
-        }
-        return is;
-
-    }
 
 }
