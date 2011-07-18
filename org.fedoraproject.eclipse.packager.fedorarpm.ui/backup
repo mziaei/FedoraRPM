@@ -110,3 +110,23 @@ public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
 	}
 
 }
+
+PAGE _ TWO
+  /* (non-Javadoc)
+   * @see org.eclipse.jface.wizard.WizardPage#canFlipToNextPage()
+   */
+//  @Override
+//  public boolean canFlipToNextPage() {
+////    if (btnExistingMaintainer.getSelection()) {
+//    if (textFAS.getCharCount() != 0 || btnExistingMaintainer.getSelection()
+//      || isPageComplete()) {
+//      return true;
+//    }
+//    return false;
+////    return super.canFlipToNextPage();
+//  }
+//
+//  @Override
+//  public boolean isPageComplete() {
+//    return btnExistingMaintainer.getSelection() || textFAS.getCharCount() != 0;
+//  }

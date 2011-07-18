@@ -19,6 +19,7 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 	private Group grpAccount;
 	private Button btnNewMaintainer;
 	private Button btnExistingMaintainer;
+	private Label lblTextFAS;
 	private Label lblNoteGit;
 	private Label lblCheckIntroduce;
 	private Label lblCheckInitial;
@@ -49,35 +50,41 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		container.setLayout(layout);
 
 		grpAccount = new Group(container, SWT.NONE);
-		grpAccount.setLayout(new GridLayout(2, false));
+		grpAccount.setLayout(new GridLayout(3, false));
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		grpAccount.setLayoutData(layoutData);
 		grpAccount.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_grpAccountSetup);
 
 		btnExistingMaintainer = new Button(grpAccount, SWT.RADIO);
 		btnExistingMaintainer.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnRadioExistMaintainer);
-		layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.horizontalSpan = 2;
+		layoutData = new GridData();
+		layoutData.horizontalSpan = 3;
 		btnExistingMaintainer.setLayoutData(layoutData);
 
 		btnNewMaintainer = new Button(grpAccount, SWT.RADIO);
 		btnNewMaintainer.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_btnRadioNewMaintainer);
-		layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.horizontalSpan = 2;
+		layoutData = new GridData();
+		layoutData.horizontalSpan = 3;
 		btnNewMaintainer.setLayoutData(layoutData);
 
 		lblCheckFAS = new Label(grpAccount, SWT.NONE);
 		lblCheckFAS.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblCheckFAS);
+        setLayout(lblCheckFAS);
+        
 		Label lblBrowseFAS = new Label(grpAccount, SWT.NONE);
 		lblBrowseFAS.setText("Create FAS account");
 
+		lblTextFAS = new Label(grpAccount, SWT.NONE);
+		lblTextFAS.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblTextFAS);
+        layoutData = new GridData();
+        layoutData.horizontalIndent = 45;
+        lblTextFAS.setLayoutData(layoutData);
         textFAS = new Text(grpAccount, SWT.BORDER | SWT.SINGLE);
-        GridData gd = new GridData();
-        gd.widthHint = 100;
-        gd.horizontalSpan = 2;
-        gd.horizontalIndent = 45;
-        textFAS.setLayoutData(gd);
-        setLayout(lblCheckFAS);
+        layoutData = new GridData();
+        layoutData.widthHint = 100;
+        layoutData.horizontalSpan = 2;
+        textFAS.setLayoutData(layoutData);
+
 
 		lblCheckBugzilla = new Label(grpAccount, SWT.NONE);
 		lblCheckBugzilla.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblCheckBugzilla);
@@ -136,7 +143,7 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		    lblCheckIntroduce.setEnabled(true);
 		    lblNoteGit.setEnabled(true);
 		    textFAS.setEnabled(true);
-			
+		    lblTextFAS.setEnabled(true);			
 		}
 		else {
 		    lblCheckBugzilla.setEnabled(false);
@@ -145,35 +152,20 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		    lblCheckIntroduce.setEnabled(false);
 		    lblNoteGit.setEnabled(false);
 		    textFAS.setEnabled(false);
+		    lblTextFAS.setEnabled(false);
 		}
 	}
 
 	private void setLayout(Label label) {
         GridData layout = new GridData();
         layout.horizontalIndent = 20;
+        layout.horizontalSpan = 2;
         label.setLayoutData(layout);
 	}
 	
 	private boolean checkPageComplete() {
     	return (btnExistingMaintainer.getSelection()) || (textFAS.getText().length() > 0);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.WizardPage#canFlipToNextPage()
-	 */
-//	@Override
-//	public boolean canFlipToNextPage() {
-////		if (btnExistingMaintainer.getSelection()) {
-//		if (textFAS.getCharCount() != 0 || btnExistingMaintainer.getSelection()
-//			|| isPageComplete()) {
-//			return true;
-//		}
-//		return false;
-////		return super.canFlipToNextPage();
-//	}
-//
-//	@Override
-//	public boolean isPageComplete() {
-//		return btnExistingMaintainer.getSelection() || textFAS.getCharCount() != 0;
-//	}
 }
+
+

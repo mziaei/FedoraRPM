@@ -11,6 +11,7 @@ public class FedoraRPMMessages extends NLS {
 	public static String FedoraRPMProject_4;
 	public static String FedoraRPMProject_5;
 	public static String FedoraRPMProjectPageTwo_lblCheckFAS;
+	public static String FedoraRPMProjectPageTwo_lblTextFAS;
 	public static String FedoraRPMProjectPageTwo_lblCheckBugzilla;
 	public static String FedoraRPMProjectPageTwo_lblCheckInitial;
 	public static String FedoraRPMProjectPageTwo_lblCheckIntroduce;
