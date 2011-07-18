@@ -10,7 +10,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+
 import org.eclipse.swt.widgets.Text;
+
 
 public class FedoraRPMProjectPageThree extends WizardPage {
 	private Button btnCheckFeature;
@@ -45,17 +47,20 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 
 		btnCheckFeature = new Button(container, SWT.CHECK);
 		btnCheckFeature.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnCheckFeature);
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 3;
-		btnCheckFeature.setLayoutData(gd);
-
+		GridData layoutData = new GridData();
+		layoutData.horizontalSpan = 3;
+		btnCheckFeature.setLayoutData(layoutData);
+		
 		lblFeature = new Label(container, SWT.NONE);
 		lblFeature.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_lblFeature);
-
+		layoutData = new GridData();
+		layoutData.horizontalIndent = 25;
+		lblFeature.setLayoutData(layoutData);
+		
 		textFeature = new Text(container, SWT.BORDER | SWT.SINGLE);
-        gd = new GridData(GridData.FILL_HORIZONTAL);
-        textFeature.setLayoutData(gd);
-
+		layoutData = new GridData(GridData.FILL_HORIZONTAL);
+        textFeature.setLayoutData(layoutData);
+        
 		btnFeatureBrowse = new Button(container, SWT.PUSH);
 		btnFeatureBrowse.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnFeatureBrowse);
 
@@ -65,12 +70,12 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 				selectControl();
 			}
 		});
-
+		
 		selectControl();
 		setControl(container);
 
 	}
-
+	
 	protected void selectControl() {
 		if(btnCheckFeature.getSelection()){
 		    lblFeature.setEnabled(true);

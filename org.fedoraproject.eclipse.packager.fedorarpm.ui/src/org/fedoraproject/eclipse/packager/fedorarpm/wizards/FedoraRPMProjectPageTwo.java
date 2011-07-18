@@ -1,9 +1,10 @@
 package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 
+import java.net.URL;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -12,9 +13,14 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 
 public class FedoraRPMProjectPageTwo extends WizardPage {
 	private Group grpAccount;
@@ -22,12 +28,12 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 	private Button btnExistingMaintainer;
 	private Label lblTextFAS;
 	private Label lblNoteGit;
-	private Label lblCheckIntroduce;
-	private Label lblCheckInitial;
-	private Label lblCheckBugzilla;
-	private Label lblCheckFAS;
+	private Link linkIntroduce;
+	private Link linkInitial;
+	private Link linkBugzilla;
+	private Link linkFAS;
 	private Text textFAS;
-
+	
 	/**
 	 * Create the wizard.
 	 */
@@ -68,12 +74,9 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		layoutData.horizontalSpan = 3;
 		btnNewMaintainer.setLayoutData(layoutData);
 
-		lblCheckFAS = new Label(grpAccount, SWT.NONE);
-		lblCheckFAS.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblCheckFAS);
-        setLayout(lblCheckFAS);
-        
-		Label lblBrowseFAS = new Label(grpAccount, SWT.NONE);
-		lblBrowseFAS.setText("Create FAS account");
+        linkFAS = new Link(grpAccount, SWT.NONE);
+        linkFAS.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_linkFAS);
+        setLayout(linkFAS);
 
 		lblTextFAS = new Label(grpAccount, SWT.NONE);
 		lblTextFAS.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblTextFAS);
@@ -82,41 +85,35 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
         lblTextFAS.setLayoutData(layoutData);
         textFAS = new Text(grpAccount, SWT.BORDER | SWT.SINGLE);
         layoutData = new GridData();
-        layoutData.widthHint = 100;
         layoutData.horizontalSpan = 2;
+        layoutData.widthHint = 100;
         textFAS.setLayoutData(layoutData);
 
 
-		lblCheckBugzilla = new Label(grpAccount, SWT.NONE);
-		lblCheckBugzilla.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblCheckBugzilla);
-        setLayout(lblCheckBugzilla);
-		lblBrowseFAS = new Label(grpAccount, SWT.NONE);
-		lblBrowseFAS.setText("Create FAS account");
+		linkBugzilla = new Link(grpAccount, SWT.NONE);
+		linkBugzilla.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_linkBugzilla);
+        setLayout(linkBugzilla);
 
-		lblCheckInitial = new Label(grpAccount, SWT.NONE);
-		lblCheckInitial.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblCheckInitial);
-        setLayout(lblCheckInitial);
-		lblBrowseFAS = new Label(grpAccount, SWT.NONE);
-		lblBrowseFAS.setText("Create FAS account");
+		linkInitial = new Link(grpAccount, SWT.NONE);
+		linkInitial.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_linkInitial);
+        setLayout(linkInitial);
 
-		lblCheckIntroduce = new Label(grpAccount, SWT.NONE);
-		lblCheckIntroduce.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblCheckIntroduce);
-        setLayout(lblCheckIntroduce);
-		lblBrowseFAS = new Label(grpAccount, SWT.NONE);
-		lblBrowseFAS.setText("Create FAS account");
+		linkIntroduce = new Link(grpAccount, SWT.NONE);
+		linkIntroduce.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_linkIntroduce);
+        setLayout(linkIntroduce);
 
 		lblNoteGit = new Label(grpAccount, SWT.NONE);
 		lblNoteGit.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblNoteGit);
-		setLayout(lblNoteGit);
+        layoutData = new GridData();
+        layoutData.horizontalIndent = 20;
+        layoutData.horizontalSpan = 3;
+        lblNoteGit.setLayoutData(layoutData);
 
-		Browser browser = new Browser(grpAccount, SWT.NONE);
-		layoutData = new GridData(GridData.FILL_BOTH);
-		layoutData.horizontalSpan = 2;
-		layoutData.verticalSpan = 2;
-		browser.setLayoutData(layoutData);
-		browser.setUrl("http://www.google.com");
-
-		
+        addListener(linkFAS, FedoraRPMMessages.FedoraRPMProjectPageTwo_urlFAS);
+        addListener(linkBugzilla, FedoraRPMMessages.FedoraRPMProjectPageTwo_urlBugzilla);
+        addListener(linkInitial, FedoraRPMMessages.FedoraRPMProjectPageTwo_urlInitial);
+        addListener(linkIntroduce, FedoraRPMMessages.FedoraRPMProjectPageTwo_urlIntroduce);
+        		
 		btnNewMaintainer.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -143,33 +140,46 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		setControl(container);
 	}
 
+	private void addListener(Link link, final String url) {
+	    link.addListener(SWT.Selection, new Listener() {
+	        public void handleEvent(Event event) {
+			    try {
+			      IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
+			      support.getExternalBrowser().openURL(new URL(url));
+			    } catch (Exception e) {
+	
+			    }          
+			  }
+	      });
+//      GridDataFactory.fillDefaults().grab(true, false).hint(100, SWT.DEFAULT).applyTo(moreInfoLink);
+	}
 
 	protected void selectControl() {
 		if(btnNewMaintainer.getSelection()){
-		    lblCheckBugzilla.setEnabled(true);
-		    lblCheckFAS.setEnabled(true);
-		    lblCheckInitial.setEnabled(true);
-		    lblCheckIntroduce.setEnabled(true);
+		    linkBugzilla.setEnabled(true);
+		    linkFAS.setEnabled(true);
+		    linkInitial.setEnabled(true);
+		    linkIntroduce.setEnabled(true);
 		    lblNoteGit.setEnabled(true);
 		    textFAS.setEnabled(true);
 		    lblTextFAS.setEnabled(true);			
 		}
 		else {
-		    lblCheckBugzilla.setEnabled(false);
-		    lblCheckFAS.setEnabled(false);
-		    lblCheckInitial.setEnabled(false);
-		    lblCheckIntroduce.setEnabled(false);
+		    linkBugzilla.setEnabled(false);
+		    linkFAS.setEnabled(false);
+		    linkInitial.setEnabled(false);
+		    linkIntroduce.setEnabled(false);
 		    lblNoteGit.setEnabled(false);
 		    textFAS.setEnabled(false);
 		    lblTextFAS.setEnabled(false);
 		}
 	}
 
-	private void setLayout(Label label) {
+	private void setLayout(Link link) {
         GridData layout = new GridData();
         layout.horizontalIndent = 20;
-        layout.horizontalSpan = 2;
-        label.setLayoutData(layout);
+        layout.horizontalSpan = 3;
+        link.setLayoutData(layout);
 	}
 	
 	private boolean checkPageComplete() {

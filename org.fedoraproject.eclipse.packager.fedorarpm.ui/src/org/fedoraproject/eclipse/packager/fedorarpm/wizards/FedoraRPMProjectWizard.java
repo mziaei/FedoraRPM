@@ -81,14 +81,6 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 		}
 	}
 
-//	/* (non-Javadoc)
-//	 * @see org.eclipse.jface.wizard.Wizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
-//	 */
-//	@Override
-//	public IWizardPage getNextPage(IWizardPage page) {
-//		// TODO Auto-generated method stub
-//		return super.getNextPage(page);
-//	}
 
 	protected void createProject(IProgressMonitor monitor) {
 		FedoraRPMProjectCreator fedoraRPMProjectCreator = new FedoraRPMProjectCreator();
