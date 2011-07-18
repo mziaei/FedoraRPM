@@ -118,13 +118,11 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		textFAS.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				String name = textFAS.getText();
-				setPageComplete(name.length() > 0);
+				setPageComplete(textFAS.getText().length() > 0);
 			}
 		});
 
 		selectControl();
-		setPageComplete(false);
 		setControl(container);
 	}
 
@@ -137,7 +135,7 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		    lblCheckIntroduce.setEnabled(true);
 		    lblNoteGit.setEnabled(true);
 		    textFAS.setEnabled(true);
-		    setPageComplete(false);
+			setPageComplete(textFAS.getText().length() > 0);
 		}
 		else {
 		    lblCheckBugzilla.setEnabled(false);
@@ -146,7 +144,7 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		    lblCheckIntroduce.setEnabled(false);
 		    lblNoteGit.setEnabled(false);
 		    textFAS.setEnabled(false);
-		    setPageComplete(true);
+	    	setPageComplete(btnExistingMaintainer.getSelection());
 		}
 	}
 
