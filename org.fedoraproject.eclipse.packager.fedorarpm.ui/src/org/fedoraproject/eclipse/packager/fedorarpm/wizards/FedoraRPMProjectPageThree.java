@@ -44,7 +44,6 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		layout.numColumns = 3;
 		layout.verticalSpacing = 9;
 
-
 		btnCheckFeature = new Button(container, SWT.CHECK);
 		btnCheckFeature.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnCheckFeature);
 		GridData layoutData = new GridData();
@@ -70,10 +69,9 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 				selectControl();
 			}
 		});
-		
+
 		selectControl();
 		setControl(container);
-
 	}
 	
 	protected void selectControl() {
