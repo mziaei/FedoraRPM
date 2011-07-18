@@ -9,13 +9,14 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.fedoraproject.eclipse.packager.fedorarpm.core.*;;
+import org.fedoraproject.eclipse.packager.fedorarpm.core.FedoraRPMProjectCreator;
 
 public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
+
 	private static final String PAGE_ONE = "PageOne";
 	private static final String PAGE_TWO = "PageTwo";
 	private static final String PAGE_THREE = "PageThree";
-	
+
 	private FedoraRPMProjectPageOne pageOne;
 	private FedoraRPMProjectPageTwo pageTwo;
 	private FedoraRPMProjectPageThree pageThree;
@@ -44,6 +45,10 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 		addPage(pageThree);
 	}
 
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.wizard.Wizard#performFinish()
+	 */
 	@Override
 	public boolean performFinish() {
 		try {
@@ -62,6 +67,28 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 		}
 		return true;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.wizard.wizard#canFinish()
+	 */
+	@Override
+	public boolean canFinish() {
+		if (getContainer().getCurrentPage() == pageThree) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+//	/* (non-Javadoc)
+//	 * @see org.eclipse.jface.wizard.Wizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
+//	 */
+//	@Override
+//	public IWizardPage getNextPage(IWizardPage page) {
+//		// TODO Auto-generated method stub
+//		return super.getNextPage(page);
+//	}
 
 	protected void createProject(IProgressMonitor monitor) {
 		FedoraRPMProjectCreator fedoraRPMProjectCreator = new FedoraRPMProjectCreator();

@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 
 public class FedoraRPMProjectCreator {
-	private InputStream source;
 
 	/**
 	 * Creates a project with the given name in the given location.
@@ -39,19 +38,23 @@ public class FedoraRPMProjectCreator {
 
 			project.getFolder("temp").create(true, true, monitor);
 
-			IFile sourcesFile = project.getFile("/sources");
-			String contents = "";
-			InputStream source = new ByteArrayInputStream(contents.getBytes());
-			sourcesFile.create(source, false, monitor);
+			IFile sourcesFile = project.getFile("sources");
+			sourcesFile.create(addContentStream(""), false, monitor);
 
-			IFile gitignoreFile = project.getFile("/.gitignore");
-			contents = "temp\n";
-			source = new ByteArrayInputStream(contents.getBytes());
-			gitignoreFile.create(source, false, monitor);
+			IFile gitignoreFile = project.getFile(".gitignore");
+			gitignoreFile.create(addContentStream("temp\n"), false, monitor);
 
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
+	}
+
+
+	/**
+	 * Initialize file contents
+	 */
+	private InputStream addContentStream(String content) {
+		return new ByteArrayInputStream(content.getBytes());
 	}
 
 }

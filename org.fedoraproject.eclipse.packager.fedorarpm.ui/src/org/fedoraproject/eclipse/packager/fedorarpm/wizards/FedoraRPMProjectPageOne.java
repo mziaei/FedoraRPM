@@ -24,10 +24,12 @@ public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
 	 */
 	@Override
 	public void createControl(Composite parent) {
-		super.createControl(parent);   
+		super.createControl(parent);
 		Composite container = (Composite) getControl();
 
 		setControl(container);
-
 	}
+
+
+
 }
