@@ -111,18 +111,19 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		btnExistingMaintainer.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				selectControl();
+				setPageComplete(checkPageComplete());
 			}
 		});
 
 		textFAS.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				setPageComplete(textFAS.getText().length() > 0);
+				setPageComplete(checkPageComplete());
 			}
 		});
 
 		selectControl();
+		setPageComplete(checkPageComplete());
 		setControl(container);
 	}
 
@@ -135,7 +136,7 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		    lblCheckIntroduce.setEnabled(true);
 		    lblNoteGit.setEnabled(true);
 		    textFAS.setEnabled(true);
-			setPageComplete(textFAS.getText().length() > 0);
+			
 		}
 		else {
 		    lblCheckBugzilla.setEnabled(false);
@@ -144,14 +145,17 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		    lblCheckIntroduce.setEnabled(false);
 		    lblNoteGit.setEnabled(false);
 		    textFAS.setEnabled(false);
-	    	setPageComplete(btnExistingMaintainer.getSelection());
 		}
 	}
 
-	protected void setLayout(Label label) {
+	private void setLayout(Label label) {
         GridData layout = new GridData();
         layout.horizontalIndent = 20;
         label.setLayoutData(layout);
+	}
+	
+	private boolean checkPageComplete() {
+    	return (btnExistingMaintainer.getSelection()) || (textFAS.getText().length() > 0);
 	}
 
 	/* (non-Javadoc)
