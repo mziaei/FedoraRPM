@@ -3,6 +3,7 @@ package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -108,6 +109,14 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		lblNoteGit.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblNoteGit);
 		setLayout(lblNoteGit);
 
+		Browser browser = new Browser(grpAccount, SWT.NONE);
+		layoutData = new GridData(GridData.FILL_BOTH);
+		layoutData.horizontalSpan = 2;
+		layoutData.verticalSpan = 2;
+		browser.setLayoutData(layoutData);
+		browser.setUrl("http://www.google.com");
+
+		
 		btnNewMaintainer.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
