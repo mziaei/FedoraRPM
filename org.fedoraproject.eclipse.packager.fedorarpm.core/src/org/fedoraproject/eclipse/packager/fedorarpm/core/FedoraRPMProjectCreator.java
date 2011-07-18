@@ -39,7 +39,7 @@ public class FedoraRPMProjectCreator {
 			project.getFolder("temp").create(true, true, monitor);
 
 			IFile sourcesFile = project.getFile("sources");
-			sourcesFile.create(addContentStream(""), false, monitor);
+			sourcesFile.create(addContentStream(null), false, monitor);
 
 			IFile gitignoreFile = project.getFile(".gitignore");
 			gitignoreFile.create(addContentStream("temp\n"), false, monitor);
@@ -54,6 +54,9 @@ public class FedoraRPMProjectCreator {
 	 * Initialize file contents
 	 */
 	private InputStream addContentStream(String content) {
+		if (content == null) {
+			return new ByteArrayInputStream(new byte[0]);
+		}
 		return new ByteArrayInputStream(content.getBytes());
 	}
 
