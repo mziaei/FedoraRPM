@@ -27,8 +27,6 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -81,7 +79,11 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 		}
 	}
 
-
+	/**
+	 * Creates a new instance of the FedoraRPM project.
+	 *
+	 * @param monitor
+	 */
 	protected void createProject(IProgressMonitor monitor) {
 		FedoraRPMProjectCreator fedoraRPMProjectCreator = new FedoraRPMProjectCreator();
 		fedoraRPMProjectCreator.create(pageOne.getProjectName(), pageOne.getLocationPath(), monitor);

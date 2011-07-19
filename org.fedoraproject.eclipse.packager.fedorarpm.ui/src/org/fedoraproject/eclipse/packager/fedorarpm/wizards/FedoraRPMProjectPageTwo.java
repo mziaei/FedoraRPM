@@ -39,8 +39,8 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 	 */
 	public FedoraRPMProjectPageTwo(String pageName) {
 		super(pageName);
-		setTitle(FedoraRPMMessages.FedoraRPMProject_title); //$NON-NLS-1$
-		setDescription(FedoraRPMMessages.FedoraRPMProject_description); //$NON-NLS-1$
+		setTitle(FedoraRPMMessages.FedoraRPMProject_title); 
+		setDescription(FedoraRPMMessages.FedoraRPMProject_description);
 		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
 			"/icons/fedora48x48.png")); //$NON-NLS-1$
 	}
