@@ -3,10 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Fedorarpm
 Bundle-SymbolicName: org.fedoraproject.eclipse.packager.fedorarpm.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.fedoraproject.eclipse.packager.fedorarpm.Activator
+Bundle-Activator: org.fedoraproject.eclipse.packager.fedorarpm.todelete.FedorarpmPlugin
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.fedoraproject.eclipse.packager.fedorarpm.core
+ org.eclipse.core.runtime;bundle-version="3.5.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package:  org.eclipse.ui.actions,

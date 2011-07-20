@@ -6,6 +6,7 @@ public class FedoraRPMMessages extends NLS {
 	private static final String BUNDLE_NAME = "org.fedoraproject.eclipse.packager.fedorarpm.wizards.messages"; //$NON-NLS-1$
 	public static String FedoraRPMProject_title;
 	public static String FedoraRPMProject_description;
+	public static String FedoraRPMProject_image;
 	public static String FedoraRPMProject_2;
 	public static String FedoraRPMProject_3;
 	public static String FedoraRPMProject_4;
