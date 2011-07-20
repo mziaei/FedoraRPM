@@ -4,9 +4,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
 	private Label lblNoteGit;
@@ -34,7 +34,7 @@ public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
 		container.setLayout(layout);
 		lblNoteGit = new Label(container, SWT.NONE);
 		lblNoteGit.setText(FedoraRPMMessages.FedoraRPMProjectPageOne_lblNoteGit);
-		lblNoteGit.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
+		lblNoteGit.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 		GridData layoutData = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
         lblNoteGit.setLayoutData(layoutData);
         
