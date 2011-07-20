@@ -14,7 +14,6 @@ public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
 		setTitle(FedoraRPMMessages.FedoraRPMProject_title);
 		setDescription(FedoraRPMMessages.FedoraRPMProject_description);
 		FedorarpmPlugin.getImageDescriptor(FedoraRPMMessages.FedoraRPMProject_image);
-
 	}
 
 	/**

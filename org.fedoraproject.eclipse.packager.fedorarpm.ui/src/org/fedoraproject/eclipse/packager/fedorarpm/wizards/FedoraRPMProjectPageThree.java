@@ -1,6 +1,5 @@
 package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -27,8 +26,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		super(pageName);
 		setTitle(FedoraRPMMessages.FedoraRPMProject_title);
 		setDescription(FedoraRPMMessages.FedoraRPMProject_description);
-		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
-			"/icons/fedora48x48.png")); //$NON-NLS-1$
+		FedorarpmPlugin.getImageDescriptor(FedoraRPMMessages.FedoraRPMProject_image);
 	}
 
 	/**
