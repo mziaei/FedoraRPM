@@ -26,7 +26,6 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 	private Button btnNewMaintainer;
 	private Button btnExistingMaintainer;
 	private Label lblTextFAS;
-	private Label lblNoteGit;
 	private Link linkIntroduce;
 	private Link linkInitial;
 	private Link linkBugzilla;
@@ -100,13 +99,6 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		linkIntroduce.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_linkIntroduce);
         setLayout(linkIntroduce);
 
-		lblNoteGit = new Label(grpAccount, SWT.NONE);
-		lblNoteGit.setText(FedoraRPMMessages.FedoraRPMProjectPageTwo_lblNoteGit);
-        layoutData = new GridData();
-        layoutData.horizontalIndent = 20;
-        layoutData.horizontalSpan = 3;
-        lblNoteGit.setLayoutData(layoutData);
-
         addListener(linkFAS, FedoraRPMMessages.FedoraRPMProjectPageTwo_urlFAS);
         addListener(linkBugzilla, FedoraRPMMessages.FedoraRPMProjectPageTwo_urlBugzilla);
         addListener(linkInitial, FedoraRPMMessages.FedoraRPMProjectPageTwo_urlInitial);
@@ -149,7 +141,6 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 			    }          
 			  }
 	      });
-//      GridDataFactory.fillDefaults().grab(true, false).hint(100, SWT.DEFAULT).applyTo(moreInfoLink);
 	}
 
 	protected void selectControl() {
@@ -158,7 +149,6 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		    linkFAS.setEnabled(true);
 		    linkInitial.setEnabled(true);
 		    linkIntroduce.setEnabled(true);
-		    lblNoteGit.setEnabled(true);
 		    textFAS.setEnabled(true);
 		    lblTextFAS.setEnabled(true);			
 		}
@@ -167,7 +157,6 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		    linkFAS.setEnabled(false);
 		    linkInitial.setEnabled(false);
 		    linkIntroduce.setEnabled(false);
-		    lblNoteGit.setEnabled(false);
 		    textFAS.setEnabled(false);
 		    lblTextFAS.setEnabled(false);
 		}

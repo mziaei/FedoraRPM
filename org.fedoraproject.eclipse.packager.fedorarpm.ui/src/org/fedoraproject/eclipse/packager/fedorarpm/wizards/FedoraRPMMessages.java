@@ -7,6 +7,7 @@ public class FedoraRPMMessages extends NLS {
 	public static String FedoraRPMProject_title;
 	public static String FedoraRPMProject_description;
 	public static String FedoraRPMProject_image;
+	public static String FedoraRPMProjectPageOne_lblNoteGit;
 	public static String FedoraRPMProjectPageTwo_linkFAS;
 	public static String FedoraRPMProjectPageTwo_urlFAS;
 	public static String FedoraRPMProjectPageTwo_lblTextFAS;
@@ -16,7 +17,6 @@ public class FedoraRPMMessages extends NLS {
 	public static String FedoraRPMProjectPageTwo_urlInitial;
 	public static String FedoraRPMProjectPageTwo_linkIntroduce;
 	public static String FedoraRPMProjectPageTwo_urlIntroduce;
-	public static String FedoraRPMProjectPageTwo_lblNoteGit;
 	public static String FedoraRPMProjectPageTwo_btnRadioNewMaintainer;
 	public static String FedoraRPMProjectPageTwo_btnRadioExistMaintainer;
 	public static String FedoraRPMProjectPageTwo_grpAccountSetup;
