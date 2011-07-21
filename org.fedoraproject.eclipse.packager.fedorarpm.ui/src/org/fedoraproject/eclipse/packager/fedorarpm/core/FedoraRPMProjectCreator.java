@@ -16,16 +16,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.egit.core.op.ConnectProviderOperation;
 import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.FileUtils;
+import org.eclipse.ui.PlatformUI;
 
 public class FedoraRPMProjectCreator {
 	private IWorkspaceRoot root;
 	private IProject project;
 	private IProjectDescription description;
-	private static int testCount;
-	private final File trash = new File(new File("target"), "trash");
 	private final List<Repository> toClose = new ArrayList<Repository>();
 	
 	/**
@@ -43,58 +43,48 @@ public class FedoraRPMProjectCreator {
 					.newProjectDescription(project.getName());
 			if (!Platform.getLocation().equals(projectPath))
 				description.setLocation(projectPath);
-//			description
-//					.setNatureIds(new String[] { RPMProjectNature.RPM_NATURE_ID });
 			project.create(description, monitor);
-			monitor.worked(2);   //? TODO
-			project.open(monitor);  //?TODO
+			monitor.worked(2);   //? TODO - Do we need this
+			project.open(monitor);  //?TODO - Do we need this
 			
 			createLocalGitRepo(monitor);
-			project.getFolder("temp").create(true, true, monitor);
-			createFile("sources", "", null, monitor);
+			project.getFolder("temp").create(true, true, monitor);			
+			createFile("sources", null, monitor);
+			createFile(".gitignore", "/temp", monitor);
+			
+			ConnectProviderOperation connect = new ConnectProviderOperation(
+					project);
+			connect.execute(null);
+
+			// Finally show the Git Repositories view for convenience
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+					.getActivePage().showView(
+							"org.eclipse.egit.ui.RepositoriesView"); //$NON-NLS-1$
 
 		} catch (CoreException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	/**
 	 * Initialize a local git repository in project location
-	 * @throws IOException 
+	 *
+	 * @param IProgressMonitor
+	 * @throws IOException
 	 */
 	private void createLocalGitRepo(IProgressMonitor monitor) throws IOException {	
-		File directory = createGitDirectory(project.getName());		
+		String gitdirName = project.getLocation().toString();
+		File directory = new File(gitdirName);
+		FileUtils.mkdirs(directory, true);
+		directory.getCanonicalFile();
+		
 		InitCommand command = new InitCommand();
 		command.setDirectory(directory);
 		command.setBare(false);
 		Repository repository = command.call().getRepository();
 		addRepoToClose(repository);
-				
-//		String[] gitStrcuture = {".git", ".git/objects", ".git/refs", 
-//				".git/objects/info", ".git/objects/pack", ".git/refs/heads", ".git/refs/tags"};
-//		createFolders(gitStrcuture, monitor);
-//		createFile("HEAD", ".git/", "ref: refs/heads/master\n", monitor);
-//		createFile(".gitignore", "", "temp\n", monitor);
-	}
-	
-	/**
-	 * Creates a unique directory for a test
-	 *
-	 * @param name
-	 *            a subdirectory
-	 * @return a unique directory for a test
-	 * @throws IOException
-	 */
-	protected File createGitDirectory(String name) throws IOException {
-		
-		String gitdirName = root.getLocation().toString() + "/" + name;
-		
-		File directory = new File(gitdirName);
-		FileUtils.mkdirs(directory);
-		return directory.getCanonicalFile();
 	}
 	
 	public void addRepoToClose(Repository r) {
@@ -104,23 +94,10 @@ public class FedoraRPMProjectCreator {
 	/**
 	 * Creates ifiles
 	 */
-	private void createFile(String fileName, String path, String content, IProgressMonitor monitor) {
-		IFile file = project.getFile(path + fileName);
+	private void createFile(String fileName, String content, IProgressMonitor monitor) {
+		IFile file = project.getFile(fileName);
 		try {
 			file.create(addContentStream(content), false, monitor);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}		
-	}
-
-	/**
-	 * Creates ifolders
-	 */
-	private void createFolders(String[] foldersName, IProgressMonitor monitor) {
-		try {
-			for (int i = 0; i < foldersName.length; i++) {
-				project.getFolder(foldersName[i]).create(true, true, monitor);
-			}
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}		
