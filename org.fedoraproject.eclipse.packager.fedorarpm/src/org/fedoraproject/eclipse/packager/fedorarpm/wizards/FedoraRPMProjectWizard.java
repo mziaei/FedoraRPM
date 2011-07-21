@@ -6,6 +6,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
@@ -53,8 +58,20 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 			WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 				@Override
 				protected void execute(IProgressMonitor monitor) {
-					createProject(monitor != null ? monitor
-							: new NullProgressMonitor());
+					try {
+						createProject(monitor != null ? monitor
+								: new NullProgressMonitor());
+					} catch (NoHeadException e) {
+						e.printStackTrace();
+					} catch (NoMessageException e) {
+						e.printStackTrace();
+					} catch (ConcurrentRefUpdateException e) {
+						e.printStackTrace();
+					} catch (JGitInternalException e) {
+						e.printStackTrace();
+					} catch (WrongRepositoryStateException e) {
+						e.printStackTrace();
+					}
 				}
 			};
 			getContainer().run(false, true, op);
@@ -83,8 +100,15 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	 * Creates a new instance of the FedoraRPM project.
 	 *
 	 * @param monitor
+	 * @throws WrongRepositoryStateException 
+	 * @throws JGitInternalException 
+	 * @throws ConcurrentRefUpdateException 
+	 * @throws NoMessageException 
+	 * @throws NoHeadException 
 	 */
-	protected void createProject(IProgressMonitor monitor) {
+	protected void createProject(IProgressMonitor monitor) throws NoHeadException, 
+				NoMessageException, ConcurrentRefUpdateException, 
+				JGitInternalException, WrongRepositoryStateException {
 		FedoraRPMProjectCreator fedoraRPMProjectCreator = new FedoraRPMProjectCreator();
 		fedoraRPMProjectCreator.create(pageOne.getProjectName(), pageOne.getLocationPath(), monitor);
 	}
