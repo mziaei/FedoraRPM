@@ -3,7 +3,7 @@ package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 import org.eclipse.osgi.util.NLS;
 
 public class FedoraRPMMessages extends NLS {
-	private static final String BUNDLE_NAME = "org.fedoraproject.eclipse.packager.fedorarpm.wizards.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.fedoraproject.eclipse.packager.fedorarpm.wizards.fedorarpmtext"; //$NON-NLS-1$
 	public static String FedoraRPMProject_title;
 	public static String FedoraRPMProject_description;
 	public static String FedoraRPMProject_image;
