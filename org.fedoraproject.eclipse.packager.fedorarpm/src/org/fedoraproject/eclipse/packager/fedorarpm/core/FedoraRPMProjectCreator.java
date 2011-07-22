@@ -68,7 +68,6 @@ public class FedoraRPMProjectCreator {
 			ConnectProviderOperation connect = new ConnectProviderOperation(project);
 			connect.execute(null);
 
-			// Finally show the Git Repositories view for convenience
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 					.getActivePage().showView(
 							"org.eclipse.egit.ui.RepositoriesView"); //$NON-NLS-1$
@@ -96,7 +95,7 @@ public class FedoraRPMProjectCreator {
 		command.setDirectory(directory);
 		command.setBare(false);
 		gitRepo = command.call().getRepository();
-//		addRepoToClose(repository);
+//		addRepoToClose(repository);  // TODO check the necessity of this method
 	}
 	
 	
