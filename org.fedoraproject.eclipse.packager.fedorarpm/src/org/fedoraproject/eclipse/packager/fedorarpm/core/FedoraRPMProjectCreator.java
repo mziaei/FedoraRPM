@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.egit.core.op.ConnectProviderOperation;
+import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
@@ -65,6 +66,11 @@ public class FedoraRPMProjectCreator {
 			createLocalGitRepo();			
 			addContentToGitRepo();
 			
+			// Set persistent property so that we know when to show the context
+			// menu item.
+			project.setPersistentProperty(PackagerPlugin.PROJECT_PROP,
+					"true" /* unused value */); //$NON-NLS-1$
+
 			ConnectProviderOperation connect = new ConnectProviderOperation(project);
 			connect.execute(null);
 

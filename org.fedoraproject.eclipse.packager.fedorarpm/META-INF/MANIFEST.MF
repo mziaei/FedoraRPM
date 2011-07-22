@@ -9,8 +9,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jgit;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package:  org.eclipse.ui.actions,
- org.eclipse.ui.dialogs,
- org.eclipse.core.resources,
+Import-Package: org.eclipse.core.resources,
  org.eclipse.egit.core,
- org.eclipse.egit.core.op
+ org.eclipse.egit.core.op,
+ org.eclipse.ui.actions,
+ org.eclipse.ui.dialogs,
+ org.fedoraproject.eclipse.packager

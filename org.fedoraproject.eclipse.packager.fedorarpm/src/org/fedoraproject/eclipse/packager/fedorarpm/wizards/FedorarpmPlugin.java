@@ -1,5 +1,6 @@
 package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -14,6 +15,7 @@ public class FedorarpmPlugin extends AbstractUIPlugin {
 
 	// The shared instance
 	private static FedorarpmPlugin plugin;
+	
 	
 	/**
 	 * The constructor
@@ -58,5 +60,22 @@ public class FedorarpmPlugin extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+
+	/**
+	 * Get a String preference related to this plug-in.
+	 * 
+	 * @param prefrenceIdentifier
+	 *            The identifier of the preference to retrieve.
+	 * @return The value of the prefrence in question, or {@code null} if not
+	 *         set.
+	 */
+	public static String getStringPreference(final String prefrenceIdentifier) {
+		IPreferenceStore store = getDefault().getPreferenceStore();
+		String candidate = store.getString(prefrenceIdentifier);
+		if (candidate.equals(IPreferenceStore.STRING_DEFAULT_DEFAULT)) {
+			return null;
+		}
+		return candidate;
 	}
 }
