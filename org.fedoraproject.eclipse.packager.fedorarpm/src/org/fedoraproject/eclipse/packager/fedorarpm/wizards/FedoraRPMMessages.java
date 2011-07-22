@@ -4,6 +4,8 @@ import org.eclipse.osgi.util.NLS;
 
 public class FedoraRPMMessages extends NLS {
 	private static final String BUNDLE_NAME = "org.fedoraproject.eclipse.packager.fedorarpm.wizards.fedorarpmtext"; //$NON-NLS-1$
+	
+	//FedoraRPMProject
 	public static String FedoraRPMProject_title;
 	public static String FedoraRPMProject_description;
 	public static String FedoraRPMProject_image;
@@ -29,6 +31,4 @@ public class FedoraRPMMessages extends NLS {
 		NLS.initializeMessages(BUNDLE_NAME, FedoraRPMMessages.class);
 	}
 
-	private FedoraRPMMessages() {
-	}
 }
