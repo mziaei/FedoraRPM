@@ -1,4 +1,4 @@
-RPM part of Create project repo
+RPM part of Create project repository
 
     import org.eclipse.linuxtools.rpm.core.IRPMConstants;
     import org.eclipse.linuxtools.rpm.core.RPMConfiguration;
