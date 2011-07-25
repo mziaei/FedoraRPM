@@ -25,6 +25,9 @@ public class FedoraRPMMessages extends NLS {
 	public static String FedoraRPMProjectPageThree_btnCheckFeature;
 	public static String FedoraRPMProjectPageThree_lblFeature;
 	public static String FedoraRPMProjectPageThree_btnFeatureBrowse;
+	public static String FedoraRPMProjectPageThree_btnCheckSrpm;
+	public static String FedoraRPMProjectPageThree_lblSrpm;
+	public static String FedoraRPMProjectPageThree_btnSrpmBrowse;
 
 	static {
 		// initialize resource bundle

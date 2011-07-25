@@ -1,19 +1,32 @@
 package org.fedoraproject.eclipse.packager.fedorarpm.core;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.egit.core.op.ConnectProviderOperation;
-import org.fedoraproject.eclipse.packager.PackagerPlugin;
+import org.osgi.framework.FrameworkUtil;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
@@ -62,14 +75,13 @@ public class FedoraRPMProjectCreator {
 			monitor.worked(2);   //? TODO - Do we need this
 			project.open(monitor);  //?TODO - Do we need this
 			
-			gitDirectoryPath = project.getLocation().toString();
 			createLocalGitRepo();			
 			addContentToGitRepo();
 			
 			// Set persistent property so that we know when to show the context
 			// menu item.
-			project.setPersistentProperty(PackagerPlugin.PROJECT_PROP,
-					"true" /* unused value */); //$NON-NLS-1$
+//			project.setPersistentProperty(PackagerPlugin.PROJECT_PROP,
+//					"true" /* unused value */); //$NON-NLS-1$
 
 			ConnectProviderOperation connect = new ConnectProviderOperation(project);
 			connect.execute(null);
@@ -93,6 +105,7 @@ public class FedoraRPMProjectCreator {
 	 * @throws IOException
 	 */
 	private void createLocalGitRepo() throws IOException {	
+		gitDirectoryPath = project.getLocation().toString();
 		File directory = new File(gitDirectoryPath);
 		FileUtils.mkdirs(directory, true);
 		directory.getCanonicalFile();
@@ -103,7 +116,6 @@ public class FedoraRPMProjectCreator {
 		gitRepo = command.call().getRepository();
 
 //		addRepoToClose(repository);  // TODO check the necessity of this method
-
 	}
 	
 	
@@ -131,8 +143,6 @@ public class FedoraRPMProjectCreator {
 		git.add().addFilepattern(GITIGNORE).call();
 		git.add().addFilepattern(SOURCES).call();
 		git.commit().setMessage("first init").call();
-
-
 	}
 	
 //	public void addRepoToClose(Repository r) {
@@ -165,6 +175,6 @@ public class FedoraRPMProjectCreator {
 		PrintWriter writer = new PrintWriter(file);
 		writer.print(content);
 		writer.close();
-	}
+	}	
 
 }

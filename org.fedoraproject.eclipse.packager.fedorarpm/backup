@@ -1,3 +1,71 @@
+RPM part of Create project repo
+
+    import org.eclipse.linuxtools.rpm.core.IRPMConstants;
+    import org.eclipse.linuxtools.rpm.core.RPMConfiguration;
+    import org.eclipse.linuxtools.rpm.core.RPMCorePlugin;
+    import org.eclipse.linuxtools.rpm.core.RPMProject;
+    import org.eclipse.linuxtools.rpm.core.utils.RPM;
+    import org.eclipse.linuxtools.rpm.core.utils.Utils;
+
+    private static final String DEFINE = "--define"; //$NON-NLS-1$
+    private String[] macroDefines;
+    private String rpmCmd;
+    
+    
+    
+            // Instantiate an RPMProject
+//          RPMProject rpmProject = new RPMProject(project);
+            // Find the test SRPM and install it
+//          URL url = FileLocator.find( FrameworkUtil.getBundle(FedoraRPMProjectCreator.class), new Path(
+//                  "resources" + "/" + "eclipse-mercurial-1.8.2-1.fc16.src.rpm"), null);//$NON-NLS-1$ //$NON-NLS-2$
+//          if (url == null) {
+//              fail("Unable to find resource" + file_sep + "srpms" + file_sep
+//                      + "helloworld-2-2.src.rpm");
+//          }
+//          File externalFile = new File("resources" + "/" + "eclipse-mercurial-1.8.2-1.fc16.src.rpm");
+//          rpmProject.importSourceRPM(externalFile);
+//          IFile srpmFile = project.getFile(externalFile.getName());
+//          srpmFile.create(new FileInputStream(externalFile), false, null);
+//          install(srpmFile);
+
+
+
+    public void RPM(RPMConfiguration config) {
+
+        String[] tmpMacroDefines = {
+                rpmCmd,
+                "-v", //$NON-NLS-1$
+                };
+        this.macroDefines = tmpMacroDefines;
+    }
+
+    /**
+     * Installs a given source RPM
+     * 
+     * @param sourceRPM The src.rpm file to install.
+     * @return The output of the install command.
+     * @throws CoreException If something fails.
+     */
+    public String install(IFile sourceRPM) throws CoreException {
+        String[] macroDefines = {
+                rpmCmd,
+                "-v", //$NON-NLS-1$
+                };
+        List<String> command = new ArrayList<String>();
+        command.addAll(Arrays.asList(macroDefines));
+        command.add("-i"); //$NON-NLS-1$
+        command.add(sourceRPM.getLocation().toOSString());
+        try {
+            return Utils.runCommandToString(command
+                    .toArray(new String[command.size()]));
+        } catch (IOException e) {
+            throw new CoreException(new Status(IStatus.ERROR, RPMCorePlugin.ID,
+                    e.getMessage(), e));
+        }
+    }
+
+
+
 Create PROJECT page
 package org.fedoraproject.eclipse.packager.fedorarpm.core;
 
