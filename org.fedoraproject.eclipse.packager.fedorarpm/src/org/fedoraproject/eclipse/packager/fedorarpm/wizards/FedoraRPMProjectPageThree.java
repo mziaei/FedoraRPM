@@ -1,7 +1,15 @@
 package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -14,6 +22,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 
 import org.eclipse.swt.widgets.Text;
+import org.fedoraproject.eclipse.packager.fedorarpm.core.SRPM;
 
 
 public class FedoraRPMProjectPageThree extends WizardPage {
@@ -97,19 +106,26 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		btnSrpmBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FileDialog dialog = new FileDialog(getShell());
+				FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
 				dialog.setText("Select File");
 				dialog.setFilterExtensions(new String[] { "*.src.rpm" });
 				String filePath = dialog.open();
-				if (filePath != null) {
-					File file = new File(filePath);
-					if (file.isFile()) {
-						displayFiles(new String[] {file.toString()});
-					}
-					else {
-						displayFiles(file.list());
-					}
+				File file = new File(filePath);
+				
+				IPath fileIPath = new Path(filePath);
+				IFile tempFile = ResourcesPlugin.getWorkspace().getRoot().getFile(fileIPath);
+
+				try {
+					tempFile.create(new FileInputStream(file), false, null);
+				} catch (CoreException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (FileNotFoundException fe) {
+					// TODO Auto-generated catch block
+					fe.printStackTrace();
 				}
+
+				textSrpm.setText(filePath.toString());		
 			}
 		}); 
 		
@@ -118,14 +134,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		setControl(container);
 	}
 	
-	private void displayFiles(String[] files) {
-		for (int i = 0; files != null && i < files.length; i++) {
-			textSrpm.setText(files[i]);
-			textSrpm.setEditable(true);
-		}
-	}
 
-	
 	protected void selectControl() {
 		if(btnCheckFeature.getSelection()){
 		    lblFeature.setEnabled(true);

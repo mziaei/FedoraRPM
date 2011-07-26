@@ -1,4 +1,115 @@
+create project
+
+			monitor.worked(2);   //? TODO - Do we need this
+			project.open(monitor);  //?TODO - Do we need this
+
+createLocalRepi() {
+...
+//		addRepoToClose(repository);  // TODO check the necessity of this method
+
+	
+//	public void addRepoToClose(Repository r) {
+//		toClose.add(r);
+//	}
+
+Wizard page 3
+				
+//				IPath filePath = new Path(file);
+//				if (!filePath.isAbsolute()) {
+//					filePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().append(filePath);
+//				}
+
+				File file = new File(filePath);
+				SRPM srpm = new SRPM();
+				srpm.setSrpmFile(file);
+
+//				File srpmFile = new File(filePath);
+//				textSrpm.setText(srpmFile.getAbsolutePath());
+				
+
+				
+//				if (filePath != null) {
+//					File file = new File(filePath);
+//					if (file.isFile()) {
+//						displayFiles(new String {file.toString()});
+//					}
+//					else {
+//						displayFiles(file.list());
+//					}
+//				}
+
+
+//	private void displayFile(String file) {
+//		for (int i = 0; files != null && i < files.length; i++) {
+//			textSrpm.setText(files[i]);
+//			textSrpm.setEditable(true);
+//		}
+//	}
+
+
 RPM part of Create project repository
+
+
+
+
+	
+	public void RPM(RPMConfiguration config) {
+
+        String[] tmpMacroDefines = {
+                rpmCmd,
+                "-v", //$NON-NLS-1$
+                };
+        this.macroDefines = tmpMacroDefines;
+    }
+
+    /**
+     * Installs a given source RPM
+     * 
+     * @param sourceRPM The src.rpm file to install.
+     * @return The output of the install command.
+     * @throws CoreException If something fails.
+     */
+//    public String install(IFile SRPM) throws CoreException {
+//        String[] macroDefines = {
+//                rpmCmd,
+//                "-v", //$NON-NLS-1$
+//                };
+//        List<String> command = new ArrayList<String>();
+//        command.addAll(Arrays.asList(macroDefines));
+//        command.add("-i"); //$NON-NLS-1$
+//        command.add(sourceRPM.getLocation().toOSString());
+//        try {
+//            return Utils.runCommandToString(command
+//                    .toArray(new String[command.size()]));
+//        } catch (IOException e) {
+//            throw new CoreException(new Status(IStatus.ERROR, RPMCorePlugin.ID,
+//                    e.getMessage(), e));
+//        }
+//    }
+
+            // Instantiate an RPMProject
+//          RPMProject rpmProject = new RPMProject(project);
+//             Find the test SRPM and install it
+//          URL url = FileLocator.find( FrameworkUtil.getBundle(FedoraRPMProjectCreator.class), new Path(
+//                  "resources" + "/" + "eclipse-mercurial-1.8.2-1.fc16.src.rpm"), null);//$NON-NLS-1$ //$NON-NLS-2$
+//          if (url == null) {
+//              fail("Unable to find resource" + "/" + "srpms" + "helloworld-2-2.src.rpm");
+//          }
+			
+//	          rpmProject.importSourceRPM(externalFile);
+			
+//			File externalFile = new File(ResourcesPlugin.getWorkspace().getRoot().getLocationURI());
+//			IResource resources = new Res    
+//			IFile srpmFile = ));
+//			IFile srpmFile = project.getFile(externalFile.getName());
+//			srpmFile.create(new FileInputStream(externalFile), false, null);
+//			install(srpmFile);
+			
+			// Copy original SRPM to workspace
+
+			SRPM srpm = new SRPM();
+			File SRPM = srpm.getSrpmFile();
+
 
     import org.eclipse.linuxtools.rpm.core.IRPMConstants;
     import org.eclipse.linuxtools.rpm.core.RPMConfiguration;

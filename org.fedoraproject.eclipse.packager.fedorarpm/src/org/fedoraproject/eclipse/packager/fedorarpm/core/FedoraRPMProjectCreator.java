@@ -2,7 +2,6 @@ package org.fedoraproject.eclipse.packager.fedorarpm.core;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
@@ -13,20 +12,16 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.egit.core.op.ConnectProviderOperation;
-import org.osgi.framework.FrameworkUtil;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
@@ -38,11 +33,18 @@ import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.linuxtools.rpm.core.IRPMConstants;
+import org.eclipse.linuxtools.rpm.core.RPMConfiguration;
+import org.eclipse.linuxtools.rpm.core.RPMCorePlugin;
+import org.eclipse.linuxtools.rpm.core.RPMProject;
+import org.eclipse.linuxtools.rpm.core.utils.RPM;
+import org.eclipse.linuxtools.rpm.core.utils.Utils;
+import org.osgi.framework.FrameworkUtil;
 
 public class FedoraRPMProjectCreator {
 	private static final String GITIGNORE = ".gitignore";
 	private static final String SOURCES = "sources";
-	private static final String TEMP = "temp";
+	private static final String PROJECT = ".project";
 	
 	private IWorkspaceRoot root;
 	private IProject project;
@@ -98,7 +100,7 @@ public class FedoraRPMProjectCreator {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Initialize a local git repository in project location
 	 *
@@ -114,8 +116,6 @@ public class FedoraRPMProjectCreator {
 		command.setDirectory(directory);
 		command.setBare(false);
 		gitRepo = command.call().getRepository();
-
-//		addRepoToClose(repository);  // TODO check the necessity of this method
 	}
 	
 	
@@ -135,31 +135,14 @@ public class FedoraRPMProjectCreator {
 	private void addContentToGitRepo() throws IOException, NoFilepatternException, 
 			NoHeadException, NoMessageException, ConcurrentRefUpdateException, 
 			JGitInternalException, WrongRepositoryStateException {
-		createFile(GITIGNORE, "/temp");
-		createFile(SOURCES, "");
-		createFolder(TEMP);
+		createFile(GITIGNORE);
+		createFile(SOURCES);
 
 		Git git = new Git(gitRepo);
 		git.add().addFilepattern(GITIGNORE).call();
 		git.add().addFilepattern(SOURCES).call();
+		git.add().addFilepattern(PROJECT).call();
 		git.commit().setMessage("first init").call();
-	}
-	
-//	public void addRepoToClose(Repository r) {
-//		toClose.add(r);
-//	}
-	
-	/**
-	 * Creates folders in the proeject location
-	 *    
-	 * @param directoryName name of the file
-	 * @param content contents of the file
-	 * @throws IOException 	 
-	 */
-	private void createFolder(String directoryName) throws IOException {
-		File directory = new File(gitDirectoryPath + "/" + directoryName);
-		FileUtils.mkdirs(directory);
-		directory.getCanonicalFile();
 	}
 
 	/**
@@ -169,12 +152,9 @@ public class FedoraRPMProjectCreator {
 	 * @param content contents of the file
 	 * @throws IOException 	 
 	 */
-	private void createFile(String fileName, String content) throws IOException {
+	private void createFile(String fileName) throws IOException {
 		File file = new File(gitRepo.getWorkTree(), fileName);
 		FileUtils.createNewFile(file);
-		PrintWriter writer = new PrintWriter(file);
-		writer.print(content);
-		writer.close();
 	}	
 
 }
