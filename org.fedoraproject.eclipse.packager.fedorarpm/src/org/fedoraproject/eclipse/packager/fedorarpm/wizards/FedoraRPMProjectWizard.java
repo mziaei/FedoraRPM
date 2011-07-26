@@ -15,6 +15,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.fedoraproject.eclipse.packager.fedorarpm.core.FedoraRPMProjectCreator;
+import org.fedoraproject.eclipse.packager.fedorarpm.core.SRPMFedoraProjectCreator;
 
 public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 
@@ -109,8 +110,13 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	protected void createProject(IProgressMonitor monitor) throws NoHeadException, 
 				NoMessageException, ConcurrentRefUpdateException, 
 				JGitInternalException, WrongRepositoryStateException {
-		FedoraRPMProjectCreator fedoraRPMProjectCreator = new FedoraRPMProjectCreator();
-		fedoraRPMProjectCreator.create(pageOne.getProjectName(), pageOne.getLocationPath(), monitor);
+		if (pageThree.isSrpmProject()) {
+			SRPMFedoraProjectCreator srpmFedoraProjectCreator = new SRPMFedoraProjectCreator();
+			srpmFedoraProjectCreator.create(pageOne.getProjectName(), pageOne.getLocationPath(), monitor);
+		}
+		
+//		FedoraRPMProjectCreator fedoraRPMProjectCreator = new FedoraRPMProjectCreator();
+//		fedoraRPMProjectCreator.create(pageOne.getProjectName(), pageOne.getLocationPath(), monitor);
 	}
 
 }
