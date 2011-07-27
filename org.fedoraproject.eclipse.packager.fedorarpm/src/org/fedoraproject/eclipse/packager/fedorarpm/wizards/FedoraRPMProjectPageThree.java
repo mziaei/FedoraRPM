@@ -32,6 +32,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	private boolean isSrpmProject;
 	private boolean isFeatureProject;
 	private SRPM srpm;
+	private File srpmFile;
 	
 	/**
 	 * Create the wizard.
@@ -133,12 +134,12 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 				String filePath = dialog.open();
 				textSrpm.setText(filePath.toString());	
 				
-				File file = new File(filePath);
+				srpmFile = new File(filePath);
 				IPath fileIPath = new Path(filePath);
 				IFile srpmFile = ResourcesPlugin.getWorkspace().getRoot().getFile(fileIPath);
 				
 				srpm = new SRPM();
-				srpm.setSrpmFile(file);
+//				srpm.setSrpmFile(srpmFile);
 				isSrpmProject = true;
 			}
 		}); 
@@ -159,6 +160,9 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		return srpm;
 	}
 	
+	public File getSrpmFile() {
+		return srpmFile;
+	}
 	
 	protected void selectControl() {
 		if(btnCheckFeature.getSelection()){

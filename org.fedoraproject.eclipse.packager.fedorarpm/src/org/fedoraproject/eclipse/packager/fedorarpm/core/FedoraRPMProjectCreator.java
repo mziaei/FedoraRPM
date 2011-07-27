@@ -29,9 +29,9 @@ public class FedoraRPMProjectCreator {
 	private static final String SOURCES = "sources";
 	private static final String PROJECT = ".project";
 	
-	private IWorkspaceRoot root;
-	private IProject project;
-	private IProjectDescription description;
+//	private IWorkspaceRoot root;
+	private IProject gitProject;
+//	private IProjectDescription description;
 	private Repository gitRepo;
 	private String gitDirectoryPath;
 	
@@ -46,19 +46,20 @@ public class FedoraRPMProjectCreator {
 	 * @throws NoMessageException 
 	 * @throws NoHeadException 
 	 */
-	public void create(String projectName, IPath projectPath,
+	public void create(IProject project,
 			IProgressMonitor monitor) throws NoHeadException, NoMessageException, 
 			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException {
 		try {
-			root = ResourcesPlugin.getWorkspace().getRoot();
-			project = root.getProject(projectName);
-			description = ResourcesPlugin.getWorkspace()
-					.newProjectDescription(project.getName());
-			if (!Platform.getLocation().equals(projectPath))
-				description.setLocation(projectPath);
-			project.create(description, monitor);
-			monitor.worked(2);   //? TODO - Do we need this
-			project.open(monitor);  //?TODO - Do we need this
+			gitProject = project;
+//			root = ResourcesPlugin.getWorkspace().getRoot();
+//			project = root.getProject(projectName);
+//			description = ResourcesPlugin.getWorkspace()
+//					.newProjectDescription(project.getName());
+//			if (!Platform.getLocation().equals(projectPath))
+//				description.setLocation(projectPath);
+//			project.create(description, monitor);
+//			monitor.worked(2);   //? TODO - Do we need this
+//			project.open(monitor);  //?TODO - Do we need this
 			
 			createLocalGitRepo();			
 			addContentToGitRepo();
@@ -90,7 +91,7 @@ public class FedoraRPMProjectCreator {
 	 * @throws IOException
 	 */
 	private void createLocalGitRepo() throws IOException {	
-		gitDirectoryPath = project.getLocation().toString();
+		gitDirectoryPath = gitProject.getLocation().toString();
 		File directory = new File(gitDirectoryPath);
 		FileUtils.mkdirs(directory, true);
 		directory.getCanonicalFile();
