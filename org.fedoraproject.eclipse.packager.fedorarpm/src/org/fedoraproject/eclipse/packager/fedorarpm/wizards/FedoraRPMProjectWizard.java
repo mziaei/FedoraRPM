@@ -1,5 +1,6 @@
 package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IProject;
@@ -14,6 +15,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.NoMessageException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
@@ -85,6 +87,10 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 						e.printStackTrace();
 					} catch (WrongRepositoryStateException e) {
 						e.printStackTrace();
+					} catch (NoFilepatternException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 				}
 			};
@@ -141,10 +147,12 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	 * @throws ConcurrentRefUpdateException 
 	 * @throws NoMessageException 
 	 * @throws NoHeadException 
+	 * @throws IOException 
+	 * @throws NoFilepatternException 
 	 */
 	protected void createMainProject(IProgressMonitor monitor) throws NoHeadException, 
 				NoMessageException, ConcurrentRefUpdateException, 
-				JGitInternalException, WrongRepositoryStateException {
+				JGitInternalException, WrongRepositoryStateException, NoFilepatternException, IOException {
 		if (pageThree.isSrpmProject()) {
 			SRPMFedoraProjectCreator srpmFedoraProjectCreator = new SRPMFedoraProjectCreator();
 			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);			

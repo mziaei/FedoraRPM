@@ -1,5 +1,37 @@
 create project
 
+create project git
+	public void create(IProject project, IProgressMonitor monitor) {
+
+		Repository repository;
+		try {
+			File directory = new File(project.getLocation().toString());
+			FileUtils.mkdirs(directory, true);
+			directory.getCanonicalFile();
+			
+//			repository = new FileRepository(directory);
+//			repository.create();
+			
+//			
+			InitCommand command = new InitCommand();
+			command.setDirectory(directory);
+			command.setBare(false);
+			repository = command.call().getRepository();
+
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+
+
 			monitor.worked(2);   //? TODO - Do we need this
 			project.open(monitor);  //?TODO - Do we need this
 
