@@ -27,6 +27,9 @@ import org.fedoraproject.eclipse.packager.fedorarpm.core.GitFedoraProjectCreator
 
 public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 
+	private static final String SRPM = "srpm";
+	private static final String XML = "xml";
+	
 	private static final String PAGE_ONE = "PageOne";
 	private static final String PAGE_TWO = "PageTwo";
 	private static final String PAGE_THREE = "PageThree";
@@ -157,7 +160,7 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);			
 		}
 			GitFedoraProjectCreator gitFedoraProjectCreator = new GitFedoraProjectCreator();
-			gitFedoraProjectCreator.create(project, root, monitor);
+			gitFedoraProjectCreator.create(project, root, monitor, SRPM);
 	}
 
 }

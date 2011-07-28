@@ -4,15 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.egit.core.op.ConnectProviderOperation;
 import org.eclipse.jgit.api.Git;
@@ -48,18 +44,25 @@ public class GitFedoraProjectCreator {
 	 * @throws NoMessageException 
 	 * @throws NoHeadException 
 	 */
-	public void create(IProject project, IWorkspaceRoot root, IProgressMonitor monitor) throws 
+	public void create(IProject project, IWorkspaceRoot root, IProgressMonitor monitor, String type) throws 
 			IOException, NoFilepatternException, NoHeadException, NoMessageException, 
 			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException {
 
 		try {
 			File directory = createLocalGitRepo(project);
-			createFile(GITIGNORE);
-			createFile(SOURCES);
-			add
-//			addNewFiles(project, root);
-//			addExistingContent(directory);
-			createContentInGitRepo(project, monitor, directory);
+			
+			// add the name of the source to the sources file
+			// if it's an srpm generated project
+			if (type.equals("srpm")) {
+				addSources(directory, project, monitor);
+			}
+			else {
+				IFile sources = project.getFile(SOURCES);
+				sources.create(null, false, monitor);
+			}
+
+			// add new and existing contents to the git repository
+			addContentToGitRepo(project, monitor, directory);
 			
 			ConnectProviderOperation connect = new ConnectProviderOperation(project);
 			connect.execute(null);
@@ -74,12 +77,17 @@ public class GitFedoraProjectCreator {
 		}
 	}
 
-	private void addExistingContent(File directory) throws NoFilepatternException {
+
+	private void addSources(File directory, IProject project, IProgressMonitor monitor) 
+			throws CoreException {
+		IFile sources = project.getFile(SOURCES);
+		
 		File[] files = directory.listFiles();
 		for (File file : files) {
 			String name = file.getName();
-			if (name.contains(".spec") || (name.contains(".sh") || (name.contains(".patch")))) {
-				git.add().addFilepattern(file.getName()).call();
+			if (name.contains(".tar")) {
+				InputStream content = new ByteArrayInputStream(name.getBytes());
+				sources.create(content, false, monitor);
 			}
 		}		
 	}
@@ -106,7 +114,7 @@ public class GitFedoraProjectCreator {
 	}
 
 	/**
-	 * Adds new contents to the Git repository and 
+	 * Adds existing and new contents to the Git repository and 
 	 *      does the first commit
 	 *      
 	 * @throws NoFilepatternException 
@@ -118,10 +126,10 @@ public class GitFedoraProjectCreator {
 	 * @throws NoHeadException 
 	 * @throws CoreException 
 	 */
-	private void createContentInGitRepo(IProject project, IProgressMonitor monitor, File directory)throws 
+	private void addContentToGitRepo(IProject project, IProgressMonitor monitor, File directory)throws 
 			IOException, NoFilepatternException, NoHeadException, NoMessageException, 
 			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException, CoreException {
-		
+				
 		File[] files = directory.listFiles();
 		for (File file : files) {
 			String name = file.getName();
@@ -130,35 +138,15 @@ public class GitFedoraProjectCreator {
 					|| (name.contains(".patch")))) {
 				git.add().addFilepattern(name).call();
 			}
-			if (name.contains(".tar")) {
-				InputStream content = new ByteArrayInputStream(name.getBytes());
-				project.getFile(SOURCES).appendContents(content, false, false, monitor);
-			}
+
 			if (name.equalsIgnoreCase(GITIGNORE) || name.equalsIgnoreCase(SOURCES) 
 					|| name.equalsIgnoreCase(PROJECT)) {
 				git.add().addFilepattern(name).call();
-			}
-			
+			}			
 		}	
-		
-		
-		
-//		git.add().addFilepattern(GITIGNORE).call();
-//		git.add().addFilepattern(SOURCES).call();
-		
-		git.commit().setMessage("first init").call();		
-	}
 
-	/**
-	 * Creates predefined files in the project location
-	 *    
-	 * @param fileName name of the file
-	 * @param content contents of the file
-	 * @throws IOException 	 
-	 */
-	private void createFile(String fileName) throws IOException {
-		File file = new File(repository.getWorkTree(), fileName);
-		FileUtils.createNewFile(file);
+		// do the first commit
+		git.commit().setMessage("first init").call();		
 	}
 
 }
