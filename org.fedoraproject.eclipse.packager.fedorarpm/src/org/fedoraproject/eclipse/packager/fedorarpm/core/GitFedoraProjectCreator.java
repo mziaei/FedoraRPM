@@ -3,11 +3,9 @@ package org.fedoraproject.eclipse.packager.fedorarpm.core;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.egit.core.op.ConnectProviderOperation;
@@ -33,10 +31,13 @@ public class GitFedoraProjectCreator {
 	private Git git;
 	
 	/**
-	 * Creates a project with the given name in the given location.
+	 * Creates git repository inside the base project 
+	 * also adds the base contents and the existing contents to the git repo.
 	 * 
 	 * @param IProject the base of the project
-	 * @param monitor Progress monitor to report back status
+	 * @param IProgressMonitor Progress monitor to report back status
+	 * @param String type of the porject
+	 * @throws IOException 
 	 * @throws NoFilepatternException 
 	 * @throws WrongRepositoryStateException 
 	 * @throws JGitInternalException 
@@ -44,25 +45,25 @@ public class GitFedoraProjectCreator {
 	 * @throws NoMessageException 
 	 * @throws NoHeadException 
 	 */
-	public void create(IProject project, IWorkspaceRoot root, IProgressMonitor monitor, String type) throws 
-			IOException, NoFilepatternException, NoHeadException, NoMessageException, 
-			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException {
+	public void create(IProject project, IProgressMonitor monitor, String type) 
+			throws IOException, NoFilepatternException, NoHeadException, NoMessageException, 
+			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException  {
 
 		try {
 			File directory = createLocalGitRepo(project);
 			
+			IFile sources = project.getFile(SOURCES);
 			// add the name of the source to the sources file
 			// if it's an srpm generated project
 			if (type.equals("srpm")) {
-				addSources(directory, project, monitor);
+				addSources(directory, sources, project, monitor);
 			}
 			else {
-				IFile sources = project.getFile(SOURCES);
-				sources.create(null, false, monitor);
+				createFile(sources, SOURCES, null, monitor);
 			}
 
 			// add new and existing contents to the git repository
-			addContentToGitRepo(project, monitor, directory);
+			addContentToGitRepo(directory);
 			
 			ConnectProviderOperation connect = new ConnectProviderOperation(project);
 			connect.execute(null);
@@ -78,20 +79,45 @@ public class GitFedoraProjectCreator {
 	}
 
 
-	private void addSources(File directory, IProject project, IProgressMonitor monitor) 
+	/**
+	 * add source's name to the sources file
+	 *
+	 * @param File directory of the git repo
+	 * @param IFile sources file
+	 * @param IProject the base of the project
+	 * @param IProgressMonitor instance
+	 * @throws CoreException 
+	 */
+	private void addSources(File directory, IFile sources, IProject project, IProgressMonitor monitor) 
 			throws CoreException {
-		IFile sources = project.getFile(SOURCES);
-		
 		File[] files = directory.listFiles();
 		for (File file : files) {
 			String name = file.getName();
 			if (name.contains(".tar")) {
-				InputStream content = new ByteArrayInputStream(name.getBytes());
-				sources.create(content, false, monitor);
+				createFile(sources, SOURCES, name, monitor);
 			}
 		}		
 	}
 
+	/**
+	 * Creates ifiles in the project
+	 * 
+	 * @param IFile file
+	 * @param fileName name of the file
+	 * @param content contents of the file
+	 * @param IProgressMonitor instance
+	 * @throws CoreException 
+	 */
+	private void createFile(IFile file, String fileName, String content, IProgressMonitor monitor) 
+			throws CoreException {
+			if (content == null) {
+				file.create(new ByteArrayInputStream(new byte[0]), false, monitor);
+			}
+			else {
+				file.create(new ByteArrayInputStream(content.getBytes()), false, monitor);
+			}		
+	}
+	
 	/**
 	 * Initialize a local git repository in project location
 	 *
@@ -117,6 +143,7 @@ public class GitFedoraProjectCreator {
 	 * Adds existing and new contents to the Git repository and 
 	 *      does the first commit
 	 *      
+	 * @param File directory of the git repository     
 	 * @throws NoFilepatternException 
 	 * @throws IOException 
 	 * @throws WrongRepositoryStateException 
@@ -126,7 +153,7 @@ public class GitFedoraProjectCreator {
 	 * @throws NoHeadException 
 	 * @throws CoreException 
 	 */
-	private void addContentToGitRepo(IProject project, IProgressMonitor monitor, File directory)throws 
+	private void addContentToGitRepo(File directory)throws 
 			IOException, NoFilepatternException, NoHeadException, NoMessageException, 
 			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException, CoreException {
 				

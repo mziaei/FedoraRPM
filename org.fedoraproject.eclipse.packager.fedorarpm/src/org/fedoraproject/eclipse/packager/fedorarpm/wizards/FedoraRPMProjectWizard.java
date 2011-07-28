@@ -24,11 +24,13 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.fedoraproject.eclipse.packager.fedorarpm.core.SRPMFedoraProjectCreator;
 import org.fedoraproject.eclipse.packager.fedorarpm.core.GitFedoraProjectCreator;
+import org.fedoraproject.eclipse.packager.fedorarpm.core.StubbyFedoraProjectCreator;
 
 public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 
 	private static final String SRPM = "srpm";
 	private static final String STUBBY = "stubby";
+	private static final String PLAIN = "plain";
 	
 	private static final String PAGE_ONE = "PageOne";
 	private static final String PAGE_TWO = "PageTwo";
@@ -133,8 +135,8 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 		}
 		try {
 			project.create(description, monitor);
-			monitor.worked(2);   //? TODO - Do we need this
-			project.open(monitor);  //?TODO - Do we need this
+			monitor.worked(2);   
+			project.open(monitor);  
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
@@ -160,13 +162,16 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);	
 			setProjectType(SRPM);
 		}
-		if (pageThree.isStubbyProject()) {
-			SRPMFedoraProjectCreator srpmFedoraProjectCreator = new SRPMFedoraProjectCreator();
-			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);	
+		else if (pageThree.isStubbyProject()) {
+			StubbyFedoraProjectCreator stubbyFedoraProjectCreator = new StubbyFedoraProjectCreator();
+			stubbyFedoraProjectCreator.create(pageThree.getStubbyFile(), project, monitor);	
 			setProjectType(STUBBY);
 		}
-			GitFedoraProjectCreator gitFedoraProjectCreator = new GitFedoraProjectCreator();
-			gitFedoraProjectCreator.create(project, root, monitor, projectType);
+		else {
+			setProjectType(PLAIN);
+		}
+		GitFedoraProjectCreator gitFedoraProjectCreator = new GitFedoraProjectCreator();
+		gitFedoraProjectCreator.create(project, monitor, projectType);
 	}
 
 	private void setProjectType(String type) {

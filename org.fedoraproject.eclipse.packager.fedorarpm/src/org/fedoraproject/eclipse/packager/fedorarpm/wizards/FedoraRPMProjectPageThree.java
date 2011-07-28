@@ -85,7 +85,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 				dialog.setText("Select File");
 				dialog.setFilterExtensions(new String[] { "*.xml" });
 				String filePath = dialog.open();
-				textSrpm.setText(filePath.toString());	
+				textStubby.setText(filePath.toString());	
 				
 				StubbyFile = new File(filePath);
 				isStubbyProject = true;
