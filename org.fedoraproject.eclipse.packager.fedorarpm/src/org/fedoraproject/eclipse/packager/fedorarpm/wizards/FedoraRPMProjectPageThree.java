@@ -2,10 +2,6 @@ package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
 
 import java.io.File;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -17,22 +13,21 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.fedoraproject.eclipse.packager.fedorarpm.core.SRPM;
 
 
 public class FedoraRPMProjectPageThree extends WizardPage {
-	private Button btnCheckFeature;
-	private Button btnFeatureBrowse;
+	private Button btnCheckStubby;
+	private Button btnStubbyBrowse;
 	private Button btnCheckSrpm;
 	private Button btnSrpmBrowse;
-	private Label lblFeature;
+	private Label lblStubby;
 	private Label lblSrpm;
-	private Text textFeature;
+	private Text textStubby;
 	private Text textSrpm;
 	private boolean isSrpmProject;
-	private boolean isFeatureProject;
-	private SRPM srpm;
+	private boolean isStubbyProject;
 	private File srpmFile;
+	private File StubbyFile;
 	
 	/**
 	 * Create the wizard.
@@ -57,33 +52,33 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		layout.numColumns = 3;
 		layout.verticalSpacing = 9;
 
-		btnCheckFeature = new Button(container, SWT.RADIO);
-		btnCheckFeature.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnCheckFeature);
+		btnCheckStubby = new Button(container, SWT.RADIO);
+		btnCheckStubby.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnCheckStubby);
 		GridData layoutData = new GridData();
 		layoutData.horizontalSpan = 3;
-		btnCheckFeature.setLayoutData(layoutData);
+		btnCheckStubby.setLayoutData(layoutData);
 		
-		btnCheckFeature.addSelectionListener(new SelectionAdapter() {
+		btnCheckStubby.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectControl();
 			}
 		});
 		
-		lblFeature = new Label(container, SWT.NONE);
-		lblFeature.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_lblFeature);
+		lblStubby = new Label(container, SWT.NONE);
+		lblStubby.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_lblStubby);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 25;
-		lblFeature.setLayoutData(layoutData);
+		lblStubby.setLayoutData(layoutData);
 		
-		textFeature = new Text(container, SWT.BORDER | SWT.SINGLE);
+		textStubby = new Text(container, SWT.BORDER | SWT.SINGLE);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
-        textFeature.setLayoutData(layoutData);
+        textStubby.setLayoutData(layoutData);
         
-		btnFeatureBrowse = new Button(container, SWT.PUSH);
-		btnFeatureBrowse.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnFeatureBrowse);
+		btnStubbyBrowse = new Button(container, SWT.PUSH);
+		btnStubbyBrowse.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnStubbyBrowse);
 
-		btnFeatureBrowse.addSelectionListener(new SelectionAdapter() {
+		btnStubbyBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
@@ -92,8 +87,8 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 				String filePath = dialog.open();
 				textSrpm.setText(filePath.toString());	
 				
-				IPath fileIPath = new Path(filePath);
-				IFile featureFile = ResourcesPlugin.getWorkspace().getRoot().getFile(fileIPath);
+				StubbyFile = new File(filePath);
+				isStubbyProject = true;
 					
 			}
 		}); 
@@ -135,11 +130,6 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 				textSrpm.setText(filePath.toString());	
 				
 				srpmFile = new File(filePath);
-				IPath fileIPath = new Path(filePath);
-				IFile srpmFile = ResourcesPlugin.getWorkspace().getRoot().getFile(fileIPath);
-				
-				srpm = new SRPM();
-//				srpm.setSrpmFile(srpmFile);
 				isSrpmProject = true;
 			}
 		}); 
@@ -152,23 +142,24 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	public boolean isSrpmProject() {
 		return isSrpmProject;
 	}
-//		SRPMFedoraProjectCreator project = new SRPMFedoraProjectCreator();
-////		project.
-//
-	
-	public SRPM getSRPM() {
-		return srpm;
-	}
 	
 	public File getSrpmFile() {
 		return srpmFile;
 	}
 	
+	public boolean isStubbyProject() {
+		return isStubbyProject;
+	}
+	
+	public File getStubbyFile() {
+		return StubbyFile;
+	}
+	
 	protected void selectControl() {
-		if(btnCheckFeature.getSelection()){
-		    lblFeature.setEnabled(true);
-		    textFeature.setEnabled(true);
-		    btnFeatureBrowse.setEnabled(true);
+		if(btnCheckStubby.getSelection()){
+		    lblStubby.setEnabled(true);
+		    textStubby.setEnabled(true);
+		    btnStubbyBrowse.setEnabled(true);
 		    lblSrpm.setEnabled(false);
 		    textSrpm.setEnabled(false);
 		    btnSrpmBrowse.setEnabled(false);
@@ -177,14 +168,14 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		    lblSrpm.setEnabled(true);
 		    textSrpm.setEnabled(true);
 		    btnSrpmBrowse.setEnabled(true);
-		    lblFeature.setEnabled(false);
-		    textFeature.setEnabled(false);
-		    btnFeatureBrowse.setEnabled(false);
+		    lblStubby.setEnabled(false);
+		    textStubby.setEnabled(false);
+		    btnStubbyBrowse.setEnabled(false);
 		}
 		else {
-		    lblFeature.setEnabled(false);
-		    textFeature.setEnabled(false);
-		    btnFeatureBrowse.setEnabled(false);
+		    lblStubby.setEnabled(false);
+		    textStubby.setEnabled(false);
+		    btnStubbyBrowse.setEnabled(false);
 		    lblSrpm.setEnabled(false);
 		    textSrpm.setEnabled(false);
 		    btnSrpmBrowse.setEnabled(false);

@@ -22,9 +22,9 @@ public class FedoraRPMMessages extends NLS {
 	public static String FedoraRPMProjectPageTwo_btnRadioNewMaintainer;
 	public static String FedoraRPMProjectPageTwo_btnRadioExistMaintainer;
 	public static String FedoraRPMProjectPageTwo_grpAccountSetup;
-	public static String FedoraRPMProjectPageThree_btnCheckFeature;
-	public static String FedoraRPMProjectPageThree_lblFeature;
-	public static String FedoraRPMProjectPageThree_btnFeatureBrowse;
+	public static String FedoraRPMProjectPageThree_btnCheckStubby;
+	public static String FedoraRPMProjectPageThree_lblStubby;
+	public static String FedoraRPMProjectPageThree_btnStubbyBrowse;
 	public static String FedoraRPMProjectPageThree_btnCheckSrpm;
 	public static String FedoraRPMProjectPageThree_lblSrpm;
 	public static String FedoraRPMProjectPageThree_btnSrpmBrowse;

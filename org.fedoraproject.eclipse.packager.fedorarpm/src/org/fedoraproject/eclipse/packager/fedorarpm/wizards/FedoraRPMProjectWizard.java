@@ -28,7 +28,7 @@ import org.fedoraproject.eclipse.packager.fedorarpm.core.GitFedoraProjectCreator
 public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 
 	private static final String SRPM = "srpm";
-	private static final String XML = "xml";
+	private static final String STUBBY = "stubby";
 	
 	private static final String PAGE_ONE = "PageOne";
 	private static final String PAGE_TWO = "PageTwo";
@@ -41,9 +41,9 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	private IWorkspaceRoot root;
 	private IProject project;
 	private IProjectDescription description;
-
+	private String projectType;
+	
 	public FedoraRPMProjectWizard() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -157,10 +157,21 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 				JGitInternalException, WrongRepositoryStateException, NoFilepatternException, IOException {
 		if (pageThree.isSrpmProject()) {
 			SRPMFedoraProjectCreator srpmFedoraProjectCreator = new SRPMFedoraProjectCreator();
-			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);			
+			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);	
+			setProjectType(SRPM);
+		}
+		if (pageThree.isStubbyProject()) {
+			SRPMFedoraProjectCreator srpmFedoraProjectCreator = new SRPMFedoraProjectCreator();
+			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);	
+			setProjectType(STUBBY);
 		}
 			GitFedoraProjectCreator gitFedoraProjectCreator = new GitFedoraProjectCreator();
-			gitFedoraProjectCreator.create(project, root, monitor, SRPM);
+			gitFedoraProjectCreator.create(project, root, monitor, projectType);
+	}
+
+	private void setProjectType(String type) {
+		projectType = type;
+		
 	}
 
 }
