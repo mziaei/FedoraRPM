@@ -34,7 +34,7 @@ public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
 		container.setLayout(layout);
 		lblNoteGit = new Label(container, SWT.NONE);
 		lblNoteGit.setText(FedoraRPMMessages.FedoraRPMProjectPageOne_lblNoteGit);
-		lblNoteGit.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+		lblNoteGit.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 		GridData layoutData = new GridData();
         lblNoteGit.setLayoutData(layoutData);
         
