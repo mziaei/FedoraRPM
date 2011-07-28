@@ -21,7 +21,7 @@ public class SRPMFedoraProjectCreator {
 		
 		try {			
 			RPMProject rpmProject = new RPMProject(project, RPMProjectLayout.FLAT);
-			rpmProject.importSourceRPM(srpmFile);			
+			rpmProject.importSourceRPM(srpmFile);				
 			
 		} catch (CoreException e) {
 			e.printStackTrace();

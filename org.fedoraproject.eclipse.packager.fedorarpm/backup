@@ -1,5 +1,123 @@
 create project
 
+createproject git
+	public void create(IProject project, IWorkspaceRoot root, IProgressMonitor monitor) throws 
+			IOException, NoFilepatternException, NoHeadException, NoMessageException, 
+			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException {
+
+		try {
+			File directory = createLocalGitRepo(project);
+			createFile(GITIGNORE);
+			createFile(SOURCES);
+			add
+//			addNewFiles(project, root);
+//			addExistingContent(directory);
+			createContentInGitRepo(project, monitor, directory);
+			
+			ConnectProviderOperation connect = new ConnectProviderOperation(project);
+			connect.execute(null);
+
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+					.getActivePage().showView(
+							"org.eclipse.egit.ui.RepositoriesView"); //$NON-NLS-1$
+
+
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void addExistingContent(File directory) throws NoFilepatternException {
+		File[] files = directory.listFiles();
+		for (File file : files) {
+			String name = file.getName();
+			if (name.contains(".spec") || (name.contains(".sh") || (name.contains(".patch")))) {
+				git.add().addFilepattern(file.getName()).call();
+			}
+		}		
+	}
+
+	/**
+	 * Initialize a local git repository in project location
+	 *
+	 * @param IProject the base of the project
+	 * @throws IOException
+	 * @return File directory of the git repository
+	 */
+	private File createLocalGitRepo(IProject project) throws IOException {	
+		File directory = new File(project.getLocation().toString());
+		FileUtils.mkdirs(directory, true);
+		directory.getCanonicalFile();
+		
+		InitCommand command = new InitCommand();
+		command.setDirectory(directory);
+		command.setBare(false);
+		repository = command.call().getRepository();
+		
+		git = new Git(repository);
+		return directory;
+	}
+
+	/**
+	 * Adds new contents to the Git repository and 
+	 *      does the first commit
+	 *      
+	 * @throws NoFilepatternException 
+	 * @throws IOException 
+	 * @throws WrongRepositoryStateException 
+	 * @throws JGitInternalException 
+	 * @throws ConcurrentRefUpdateException 
+	 * @throws NoMessageException 
+	 * @throws NoHeadException 
+	 * @throws CoreException 
+	 */
+	private void createContentInGitRepo(IProject project, IProgressMonitor monitor, File directory)throws 
+			IOException, NoFilepatternException, NoHeadException, NoMessageException, 
+			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException, CoreException {
+		
+		File[] files = directory.listFiles();
+		for (File file : files) {
+			String name = file.getName();
+
+			if (name.contains(".spec") || (name.contains(".sh") 
+					|| (name.contains(".patch")))) {
+				git.add().addFilepattern(name).call();
+			}
+			if (name.contains(".tar")) {
+				InputStream content = new ByteArrayInputStream(name.getBytes());
+				project.getFile(SOURCES).appendContents(content, false, false, monitor);
+			}
+			if (name.equalsIgnoreCase(GITIGNORE) || name.equalsIgnoreCase(SOURCES) 
+					|| name.equalsIgnoreCase(PROJECT)) {
+				git.add().addFilepattern(name).call();
+			}
+			
+		}	
+		
+		
+		
+//		git.add().addFilepattern(GITIGNORE).call();
+//		git.add().addFilepattern(SOURCES).call();
+		
+		git.commit().setMessage("first init").call();		
+	}
+
+	/**
+	 * Creates predefined files in the project location
+	 *    
+	 * @param fileName name of the file
+	 * @param content contents of the file
+	 * @throws IOException 	 
+	 */
+	private void createFile(String fileName) throws IOException {
+		File file = new File(repository.getWorkTree(), fileName);
+		FileUtils.createNewFile(file);
+	}
+
+}
+
+
+
 create project git
 	public void create(IProject project, IProgressMonitor monitor) {
 
@@ -24,6 +142,23 @@ create project git
 		}
 		
 		
+		
+				
+//		File[] files = directory.listFiles();
+
+		
+		// Find the test SRPM and install it
+//		URL url = FileLocator.find(root.getWorkspace().getRoot().getLocationURI().toURL());
+//		String file = url.getFile();
+				
+//				.getBundle(RPMProjectTest.class), new Path(
+//				"resources" + file_sep + "srpms" + file_sep + //$NON-NLS-1$ //$NON-NLS-2$
+//						"helloworld-2-2.src.rpm"), null);
+//		if (url == null) {
+//			fail("Unable to find resource" + file_sep + "srpms" + file_sep
+//					+ "helloworld-2-2.src.rpm");
+//		}
+//		File foo = new File(FileLocator.toFileURL(url).getPath());
 		
 		
 		

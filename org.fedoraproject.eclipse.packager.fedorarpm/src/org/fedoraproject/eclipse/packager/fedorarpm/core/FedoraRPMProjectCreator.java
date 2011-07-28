@@ -4,13 +4,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.egit.core.op.ConnectProviderOperation;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
@@ -29,9 +24,7 @@ public class FedoraRPMProjectCreator {
 	private static final String SOURCES = "sources";
 	private static final String PROJECT = ".project";
 	
-//	private IWorkspaceRoot root;
 	private IProject gitProject;
-//	private IProjectDescription description;
 	private Repository gitRepo;
 	private String gitDirectoryPath;
 	

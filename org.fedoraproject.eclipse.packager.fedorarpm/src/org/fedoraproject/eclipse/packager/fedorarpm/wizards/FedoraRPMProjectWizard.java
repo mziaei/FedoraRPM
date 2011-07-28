@@ -22,7 +22,6 @@ import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.fedoraproject.eclipse.packager.fedorarpm.core.FedoraRPMProjectCreator;
 import org.fedoraproject.eclipse.packager.fedorarpm.core.SRPMFedoraProjectCreator;
 import org.fedoraproject.eclipse.packager.fedorarpm.core.GitFedoraProjectCreator;
 
@@ -122,7 +121,7 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	 * @param monitor
 	 */
 	protected void createBaseProject(IProgressMonitor monitor) {
-		root = ResourcesPlugin.getWorkspace().getRoot();
+		root = ResourcesPlugin.getWorkspace().getRoot();		
 		project = root.getProject(pageOne.getProjectName());
 		description = ResourcesPlugin.getWorkspace()
 				.newProjectDescription(pageOne.getProjectName());
@@ -158,7 +157,7 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);			
 		}
 			GitFedoraProjectCreator gitFedoraProjectCreator = new GitFedoraProjectCreator();
-			gitFedoraProjectCreator.create(project, monitor);
+			gitFedoraProjectCreator.create(project, root, monitor);
 	}
 
 }
