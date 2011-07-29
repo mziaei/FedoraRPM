@@ -95,6 +95,8 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 						e.printStackTrace();
 					} catch (IOException e) {
 						e.printStackTrace();
+					} catch (CoreException e) {
+						e.printStackTrace();
 					}
 				}
 			};
@@ -153,10 +155,12 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	 * @throws NoHeadException 
 	 * @throws IOException 
 	 * @throws NoFilepatternException 
+	 * @throws CoreException 
 	 */
 	protected void createMainProject(IProgressMonitor monitor) throws NoHeadException, 
 				NoMessageException, ConcurrentRefUpdateException, 
-				JGitInternalException, WrongRepositoryStateException, NoFilepatternException, IOException {
+				JGitInternalException, WrongRepositoryStateException, 
+				NoFilepatternException, IOException, CoreException {
 		if (pageThree.isSrpmProject()) {
 			SRPMFedoraProjectCreator srpmFedoraProjectCreator = new SRPMFedoraProjectCreator();
 			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);	
