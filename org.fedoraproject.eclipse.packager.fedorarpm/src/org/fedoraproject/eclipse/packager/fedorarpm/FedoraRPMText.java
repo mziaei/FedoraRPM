@@ -3,7 +3,7 @@ package org.fedoraproject.eclipse.packager.fedorarpm;
 import org.eclipse.osgi.util.NLS;
 
 public class FedoraRPMText extends NLS {
-	private static final String BUNDLE_NAME = "org.fedoraproject.eclipse.packager.fedorarpm.wizards.fedorarpmtext"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.fedoraproject.eclipse.packager.fedorarpm.fedorarpmtext"; //$NON-NLS-1$
 	
 	//FedoraRPMProject-wizards-main
 	/****/ public static String FedoraRPMProject_title;

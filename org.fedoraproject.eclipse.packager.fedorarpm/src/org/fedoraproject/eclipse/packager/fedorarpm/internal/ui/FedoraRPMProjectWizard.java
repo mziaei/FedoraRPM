@@ -40,7 +40,6 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	private IWorkspaceRoot root;
 	private IProject project;
 	private IProjectDescription description;
-	private String projectType;
 
 	public FedoraRPMProjectWizard() {
 	}
@@ -165,32 +164,22 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 			ConcurrentRefUpdateException, JGitInternalException,
 			WrongRepositoryStateException, NoFilepatternException, IOException,
 			CoreException {
-		if (pageThree.isSrpmProject()) {
-			SRPMFedoraProjectCreator srpmFedoraProjectCreator = new SRPMFedoraProjectCreator();
-			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project,
-					monitor);
-			setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_SRpm);
-		} else if (pageThree.isStubbyProject()) {
-			StubbyFedoraProjectCreator stubbyFedoraProjectCreator = new StubbyFedoraProjectCreator();
-			stubbyFedoraProjectCreator.create(pageThree.getStubbyFile(),
-					project, monitor);
-			setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
-		} else {
-			setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_Plain);
-		}
 		GitFedoraProjectCreator gitFedoraProjectCreator = new GitFedoraProjectCreator();
-		gitFedoraProjectCreator.create(project, monitor, projectType);
+		
+		if (pageThree.isSrpmProject()) {
+			gitFedoraProjectCreator
+					.setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_SRpm);
+			gitFedoraProjectCreator.setExternalFile(pageThree.getSrpmFile());
+		} else if (pageThree.isStubbyProject()) {
+			gitFedoraProjectCreator
+					.setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
+			gitFedoraProjectCreator.setExternalFile(pageThree.getStubbyFile());
+		} else {
+			gitFedoraProjectCreator.setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_Plain);
+		}
+		
+		gitFedoraProjectCreator.create(project, monitor);
 	}
 
-	/**
-	 * Set the type of the project baed on the user's selection
-	 * 
-	 * @param String
-	 *            type of the populated project
-	 */
-	private void setProjectType(String type) {
-		projectType = type;
-
-	}
 
 }
