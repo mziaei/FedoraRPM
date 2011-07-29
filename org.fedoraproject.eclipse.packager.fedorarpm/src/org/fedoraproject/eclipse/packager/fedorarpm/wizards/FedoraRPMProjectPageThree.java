@@ -143,22 +143,42 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		setControl(container);
 	}
 	
+	/**
+	 * Check if user wants the rpm populates the project
+	 * using Source RPM
+	 * 
+	 * @return boolean
+	 */
 	public boolean isSrpmProject() {
 		return isSrpmProject;
 	}
 	
+	/**
+	 * @return File the uploaded Source RPM file
+	 */
 	public File getSrpmFile() {
 		return srpmFile;
 	}
 	
+	/**
+	 * Check if user wants the stubby populates the project
+	 * 
+	 * @return boolean
+	 */
 	public boolean isStubbyProject() {
 		return isStubbyProject;
 	}
 	
+	/**
+	 * @return File the uploaded feature.xml or pom.xml file
+	 */
 	public File getStubbyFile() {
 		return StubbyFile;
 	}
 	
+	/**
+	 * Sets the enabled properties based on the selected button 
+	 */
 	protected void selectControl() {
 		if(btnCheckStubby.getSelection()){
 		    lblStubby.setEnabled(true);

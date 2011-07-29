@@ -143,6 +143,9 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 	      });
 	}
 
+	/**
+	 * Sets the enabled properties based on the selected button
+	 */
 	protected void selectControl() {
 		if(btnNewMaintainer.getSelection()){
 		    linkBugzilla.setEnabled(true);
@@ -162,6 +165,11 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		}
 	}
 
+	/**
+	 * Sets the layout for Link widgets
+	 * 
+	 * @param Link
+	 */
 	private void setLayout(Link link) {
         GridData layout = new GridData();
         layout.horizontalIndent = 20;
@@ -169,6 +177,11 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
         link.setLayoutData(layout);
 	}
 	
+	/**
+	 * Check if the page is ready to move to the next page 
+	 * 
+	 * @return boolean 
+	 */
 	private boolean checkPageComplete() {
     	return (btnExistingMaintainer.getSelection()) || (textFAS.getText().length() > 0);
 	}
