@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Fedorarpm
+Bundle-Name: %BundleName
 Bundle-SymbolicName: org.fedoraproject.eclipse.packager.fedorarpm;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.fedoraproject.eclipse.packager.fedorarpm.wizards.FedorarpmPlugin
@@ -36,3 +36,4 @@ Import-Package: org.eclipse.core.resources,
  org.eclipse.ui.plugin,
  org.fedoraproject.eclipse.packager,
  org.osgi.framework;version="1.6.0"
+Bundle-Vendor: %BundleVendo
