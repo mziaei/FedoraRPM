@@ -1,4 +1,4 @@
-package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
+package org.fedoraproject.eclipse.packager.fedorarpm;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;

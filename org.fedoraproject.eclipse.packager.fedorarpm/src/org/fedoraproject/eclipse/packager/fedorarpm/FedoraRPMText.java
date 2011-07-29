@@ -1,4 +1,4 @@
-package org.fedoraproject.eclipse.packager.fedorarpm.wizards;
+package org.fedoraproject.eclipse.packager.fedorarpm;
 
 import org.eclipse.osgi.util.NLS;
 

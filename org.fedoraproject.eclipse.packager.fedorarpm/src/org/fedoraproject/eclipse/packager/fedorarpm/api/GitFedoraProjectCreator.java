@@ -18,7 +18,7 @@ import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.ui.PlatformUI;
-import org.fedoraproject.eclipse.packager.fedorarpm.wizards.FedoraRPMText;
+import org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMText;
 
 public class GitFedoraProjectCreator {
 	
