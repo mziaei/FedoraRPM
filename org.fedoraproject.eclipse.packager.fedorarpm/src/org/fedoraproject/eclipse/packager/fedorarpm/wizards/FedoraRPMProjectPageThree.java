@@ -38,9 +38,9 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	 */
 	public FedoraRPMProjectPageThree(String pageName) {
 		super(pageName);
-		setTitle(FedoraRPMMessages.FedoraRPMProject_title);
-		setDescription(FedoraRPMMessages.FedoraRPMProject_description);
-		FedorarpmPlugin.getImageDescriptor(FedoraRPMMessages.FedoraRPMProject_image);
+		setTitle(FedoraRPMText.FedoraRPMProject_title);
+		setDescription(FedoraRPMText.FedoraRPMProject_description);
+		FedorarpmPlugin.getImageDescriptor(FedoraRPMText.FedoraRPMProject_image);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		layout.verticalSpacing = 9;
 
 		btnCheckStubby = new Button(container, SWT.RADIO);
-		btnCheckStubby.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnCheckStubby);
+		btnCheckStubby.setText(FedoraRPMText.FedoraRPMProjectPageThree_btnCheckStubby);
 		GridData layoutData = new GridData();
 		layoutData.horizontalSpan = 3;
 		btnCheckStubby.setLayoutData(layoutData);
@@ -70,7 +70,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		});
 		
 		lblStubby = new Label(container, SWT.NONE);
-		lblStubby.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_lblStubby);
+		lblStubby.setText(FedoraRPMText.FedoraRPMProjectPageThree_lblStubby);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 25;
 		lblStubby.setLayoutData(layoutData);
@@ -80,7 +80,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
         textStubby.setLayoutData(layoutData);
         
 		btnStubbyBrowse = new Button(container, SWT.PUSH);
-		btnStubbyBrowse.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnStubbyBrowse);
+		btnStubbyBrowse.setText(FedoraRPMText.FedoraRPMProjectPageThree_btnStubbyBrowse);
 
 		btnStubbyBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -99,7 +99,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 
 
 		btnCheckSrpm = new Button(container, SWT.RADIO);
-		btnCheckSrpm.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnCheckSrpm);
+		btnCheckSrpm.setText(FedoraRPMText.FedoraRPMProjectPageThree_btnCheckSrpm);
 		layoutData = new GridData();
 		layoutData.horizontalSpan = 3;
 		btnCheckSrpm.setLayoutData(layoutData);
@@ -112,7 +112,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		});
 		
 		lblSrpm = new Label(container, SWT.NONE);
-		lblSrpm.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_lblSrpm);
+		lblSrpm.setText(FedoraRPMText.FedoraRPMProjectPageThree_lblSrpm);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 25;
 		lblSrpm.setLayoutData(layoutData);
@@ -122,7 +122,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
         textSrpm.setLayoutData(layoutData);
         
 		btnSrpmBrowse = new Button(container, SWT.PUSH);
-		btnSrpmBrowse.setText(FedoraRPMMessages.FedoraRPMProjectPageThree_btnSrpmBrowse);
+		btnSrpmBrowse.setText(FedoraRPMText.FedoraRPMProjectPageThree_btnSrpmBrowse);
 		
 		btnSrpmBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override

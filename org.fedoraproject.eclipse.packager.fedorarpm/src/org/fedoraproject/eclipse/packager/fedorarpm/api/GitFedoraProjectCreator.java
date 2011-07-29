@@ -18,9 +18,13 @@ import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.ui.PlatformUI;
-import org.fedoraproject.eclipse.packager.fedorarpm.wizards.FedoraRPMMessages;
+import org.fedoraproject.eclipse.packager.fedorarpm.wizards.FedoraRPMText;
 
 public class GitFedoraProjectCreator {
+	
+	private static final String GITIGNORE = ".gitignore"; //$NON-NLS-1$
+	private static final String PROJECT = ".project"; //$NON-NLS-1$
+	private static final String SPEC = ".spec"; //$NON-NLS-1$
 	
 	private static final String EGIT_REPOSITORIESVIEW = "org.eclipse.egit.ui.RepositoriesView"; //$NON-NLS-1$
 	
@@ -114,18 +118,17 @@ public class GitFedoraProjectCreator {
 		for (File file : directory.listFiles()) {
 			String name = file.getName();
 
-			if (name.contains(FedoraRPMMessages.FedoraRPMProject_api_SpecExtention)) {
+			if (name.contains(SPEC)) {
 				git.add().addFilepattern(name).call();
 			}
 
-			if (name.equals(FedoraRPMMessages.FedoraRPMProject_api_Gitignore) || 
-					name.equals(FedoraRPMMessages.FedoraRPMProject_api_Project)) {
+			if (name.equals(GITIGNORE) || name.equals(PROJECT)) {
 				git.add().addFilepattern(name).call();
 			}			
 		}	
 
 		// do the first commit
-		git.commit().setMessage(FedoraRPMMessages.FedoraRPMProject_api_FirstCommit).call();		
+		git.commit().setMessage(FedoraRPMText.FedoraRPMProject_api_FirstCommit).call();		
 	}
 
 }

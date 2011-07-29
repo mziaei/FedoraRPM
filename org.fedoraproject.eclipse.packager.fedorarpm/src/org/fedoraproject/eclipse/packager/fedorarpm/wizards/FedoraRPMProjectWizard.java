@@ -28,19 +28,19 @@ import org.fedoraproject.eclipse.packager.fedorarpm.api.StubbyFedoraProjectCreat
 
 public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 
-	private static final String PAGE_ONE = "PageOne";
-	private static final String PAGE_TWO = "PageTwo";
-	private static final String PAGE_THREE = "PageThree";
+	private static final String PAGE_ONE = "PageOne"; //$NON-NLS-1$
+	private static final String PAGE_TWO = "PageTwo"; //$NON-NLS-1$
+	private static final String PAGE_THREE = "PageThree"; //$NON-NLS-1$
 
 	private FedoraRPMProjectPageOne pageOne;
 	private FedoraRPMProjectPageTwo pageTwo;
 	private FedoraRPMProjectPageThree pageThree;
-	
+
 	private IWorkspaceRoot root;
 	private IProject project;
 	private IProjectDescription description;
 	private String projectType;
-	
+
 	public FedoraRPMProjectWizard() {
 	}
 
@@ -48,7 +48,9 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.jface.wizard.Wizard#addPages()
 	 */
 	@Override
@@ -62,8 +64,9 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 		addPage(pageThree);
 	}
 
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.jface.wizard.Wizard#performFinish()
 	 */
 	@Override
@@ -105,70 +108,74 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.jface.wizard.wizard#canFinish()
 	 */
 	@Override
 	public boolean canFinish() {
 		if (getContainer().getCurrentPage() == pageThree) {
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
 
 	/**
 	 * Creates the base of the project.
-	 *
-	 * @param IProgressMonitor Progress monitor to report back status
+	 * 
+	 * @param IProgressMonitor
+	 *            Progress monitor to report back status
 	 */
 	protected void createBaseProject(IProgressMonitor monitor) {
-		root = ResourcesPlugin.getWorkspace().getRoot();		
+		root = ResourcesPlugin.getWorkspace().getRoot();
 		project = root.getProject(pageOne.getProjectName());
-		description = ResourcesPlugin.getWorkspace()
-				.newProjectDescription(pageOne.getProjectName());
+		description = ResourcesPlugin.getWorkspace().newProjectDescription(
+				pageOne.getProjectName());
 		if (!Platform.getLocation().equals(pageOne.getLocationPath())) {
 			description.setLocation(pageOne.getLocationPath());
 		}
 		try {
 			project.create(description, monitor);
-			monitor.worked(2);   
-			project.open(monitor);  
+			monitor.worked(2);
+			project.open(monitor);
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Creates a new instance of the FedoraRPM project.
-	 *
-	 * @param IProgressMonitor Progress monitor to report back status
-	 * @throws WrongRepositoryStateException 
-	 * @throws JGitInternalException 
-	 * @throws ConcurrentRefUpdateException 
-	 * @throws NoMessageException 
-	 * @throws NoHeadException 
-	 * @throws IOException 
-	 * @throws NoFilepatternException 
-	 * @throws CoreException 
+	 * 
+	 * @param IProgressMonitor
+	 *            Progress monitor to report back status
+	 * @throws WrongRepositoryStateException
+	 * @throws JGitInternalException
+	 * @throws ConcurrentRefUpdateException
+	 * @throws NoMessageException
+	 * @throws NoHeadException
+	 * @throws IOException
+	 * @throws NoFilepatternException
+	 * @throws CoreException
 	 */
-	protected void createMainProject(IProgressMonitor monitor) throws NoHeadException, 
-				NoMessageException, ConcurrentRefUpdateException, 
-				JGitInternalException, WrongRepositoryStateException, 
-				NoFilepatternException, IOException, CoreException {
+	protected void createMainProject(IProgressMonitor monitor)
+			throws NoHeadException, NoMessageException,
+			ConcurrentRefUpdateException, JGitInternalException,
+			WrongRepositoryStateException, NoFilepatternException, IOException,
+			CoreException {
 		if (pageThree.isSrpmProject()) {
 			SRPMFedoraProjectCreator srpmFedoraProjectCreator = new SRPMFedoraProjectCreator();
-			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);	
-			setProjectType(FedoraRPMMessages.FedoraRPMProjectIWizard_SRpm);
-		}
-		else if (pageThree.isStubbyProject()) {
+			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project,
+					monitor);
+			setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_SRpm);
+		} else if (pageThree.isStubbyProject()) {
 			StubbyFedoraProjectCreator stubbyFedoraProjectCreator = new StubbyFedoraProjectCreator();
-			stubbyFedoraProjectCreator.create(pageThree.getStubbyFile(), project, monitor);	
-			setProjectType(FedoraRPMMessages.FedoraRPMProjectIWizard_Stubby);
-		}
-		else {
-			setProjectType(FedoraRPMMessages.FedoraRPMProjectIWizard_Plain);
+			stubbyFedoraProjectCreator.create(pageThree.getStubbyFile(),
+					project, monitor);
+			setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
+		} else {
+			setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_Plain);
 		}
 		GitFedoraProjectCreator gitFedoraProjectCreator = new GitFedoraProjectCreator();
 		gitFedoraProjectCreator.create(project, monitor, projectType);
@@ -176,12 +183,13 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 
 	/**
 	 * Set the type of the project baed on the user's selection
-	 *
-	 * @param String type of the populated project
+	 * 
+	 * @param String
+	 *            type of the populated project
 	 */
 	private void setProjectType(String type) {
 		projectType = type;
-		
+
 	}
 
 }
