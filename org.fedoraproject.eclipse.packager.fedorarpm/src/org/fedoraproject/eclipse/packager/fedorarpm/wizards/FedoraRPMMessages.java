@@ -9,6 +9,9 @@ public class FedoraRPMMessages extends NLS {
 	public static String FedoraRPMProject_title;
 	public static String FedoraRPMProject_description;
 	public static String FedoraRPMProject_image;
+	public static String FedoraRPMProjectIWizard_SRpm;
+	public static String FedoraRPMProjectIWizard_Stubby;
+	public static String FedoraRPMProjectIWizard_Plain;
 	public static String FedoraRPMProjectPageOne_lblNoteGit;
 	public static String FedoraRPMProjectPageTwo_linkFAS;
 	public static String FedoraRPMProjectPageTwo_urlFAS;

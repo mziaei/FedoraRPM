@@ -22,16 +22,12 @@ import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.fedoraproject.eclipse.packager.fedorarpm.core.SRPMFedoraProjectCreator;
-import org.fedoraproject.eclipse.packager.fedorarpm.core.GitFedoraProjectCreator;
-import org.fedoraproject.eclipse.packager.fedorarpm.core.StubbyFedoraProjectCreator;
+import org.fedoraproject.eclipse.packager.fedorarpm.api.GitFedoraProjectCreator;
+import org.fedoraproject.eclipse.packager.fedorarpm.api.SRPMFedoraProjectCreator;
+import org.fedoraproject.eclipse.packager.fedorarpm.api.StubbyFedoraProjectCreator;
 
 public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 
-	private static final String SRPM = "srpm";
-	private static final String STUBBY = "stubby";
-	private static final String PLAIN = "plain";
-	
 	private static final String PAGE_ONE = "PageOne";
 	private static final String PAGE_TWO = "PageTwo";
 	private static final String PAGE_THREE = "PageThree";
@@ -125,7 +121,7 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	/**
 	 * Creates the base of the project.
 	 *
-	 * @param monitor
+	 * @param IProgressMonitor Progress monitor to report back status
 	 */
 	protected void createBaseProject(IProgressMonitor monitor) {
 		root = ResourcesPlugin.getWorkspace().getRoot();		
@@ -147,7 +143,7 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	/**
 	 * Creates a new instance of the FedoraRPM project.
 	 *
-	 * @param monitor
+	 * @param IProgressMonitor Progress monitor to report back status
 	 * @throws WrongRepositoryStateException 
 	 * @throws JGitInternalException 
 	 * @throws ConcurrentRefUpdateException 
@@ -164,20 +160,25 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 		if (pageThree.isSrpmProject()) {
 			SRPMFedoraProjectCreator srpmFedoraProjectCreator = new SRPMFedoraProjectCreator();
 			srpmFedoraProjectCreator.create(pageThree.getSrpmFile(), project, monitor);	
-			setProjectType(SRPM);
+			setProjectType(FedoraRPMMessages.FedoraRPMProjectIWizard_SRpm);
 		}
 		else if (pageThree.isStubbyProject()) {
 			StubbyFedoraProjectCreator stubbyFedoraProjectCreator = new StubbyFedoraProjectCreator();
 			stubbyFedoraProjectCreator.create(pageThree.getStubbyFile(), project, monitor);	
-			setProjectType(STUBBY);
+			setProjectType(FedoraRPMMessages.FedoraRPMProjectIWizard_Stubby);
 		}
 		else {
-			setProjectType(PLAIN);
+			setProjectType(FedoraRPMMessages.FedoraRPMProjectIWizard_Plain);
 		}
 		GitFedoraProjectCreator gitFedoraProjectCreator = new GitFedoraProjectCreator();
 		gitFedoraProjectCreator.create(project, monitor, projectType);
 	}
 
+	/**
+	 * Set the type of the project baed on the user's selection
+	 *
+	 * @param String type of the populated project
+	 */
 	private void setProjectType(String type) {
 		projectType = type;
 		

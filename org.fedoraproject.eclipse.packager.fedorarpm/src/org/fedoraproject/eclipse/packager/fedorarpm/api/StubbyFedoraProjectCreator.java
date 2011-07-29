@@ -1,4 +1,4 @@
-package org.fedoraproject.eclipse.packager.fedorarpm.core;
+package org.fedoraproject.eclipse.packager.fedorarpm.api;
 
 import java.io.File;
 import java.io.FileInputStream;
