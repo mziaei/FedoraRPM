@@ -23,9 +23,12 @@ import org.eclipse.ui.PlatformUI;
 
 public class GitFedoraProjectCreator {
 	
-	private static final String GITIGNORE = ".gitignore";
-	private static final String SOURCES = "sources";
-	private static final String PROJECT = ".project";
+	private static final String GITIGNORE = ".gitignore"; //$NON-NLS-1$
+	private static final String SOURCES = "sources"; //$NON-NLS-1$
+	private static final String PROJECT = ".project"; //$NON-NLS-1$
+	
+	private static final String EGIT_REPOSITORIESVIEW = "org.eclipse.egit.ui.RepositoriesView"; //$NON-NLS-1$
+	private static final String First_COMMIT = "First init"; //$NON-NLS-1$
 	
 	private Repository repository;
 	private Git git;
@@ -65,12 +68,16 @@ public class GitFedoraProjectCreator {
 			// add new and existing contents to the git repository
 			addContentToGitRepo(directory);
 			
+			// Set persistent property so that we know when to show the context
+			// menu item.
+//			project.setPersistentProperty(PackagerPlugin.PROJECT_PROP,
+//					"true" /* unused value */); //$NON-NLS-1$
+			
 			ConnectProviderOperation connect = new ConnectProviderOperation(project);
 			connect.execute(null);
 
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-					.getActivePage().showView(
-							"org.eclipse.egit.ui.RepositoriesView"); //$NON-NLS-1$
+					.getActivePage().showView(EGIT_REPOSITORIESVIEW);
 
 
 		} catch (CoreException e) {
@@ -93,7 +100,7 @@ public class GitFedoraProjectCreator {
 		File[] files = directory.listFiles();
 		for (File file : files) {
 			String name = file.getName();
-			if (name.contains(".tar")) {
+			if (name.contains(".tar")) { //$NON-NLS-1$
 				createFile(sources, SOURCES, name, monitor);
 			}
 		}		
@@ -161,8 +168,8 @@ public class GitFedoraProjectCreator {
 		for (File file : files) {
 			String name = file.getName();
 
-			if (name.contains(".spec") || (name.contains(".sh") 
-					|| (name.contains(".patch")))) {
+			if (name.contains(".spec") || (name.contains(".sh")  //$NON-NLS-1$
+					|| (name.contains(".patch")))) { //$NON-NLS-1$
 				git.add().addFilepattern(name).call();
 			}
 
@@ -173,7 +180,7 @@ public class GitFedoraProjectCreator {
 		}	
 
 		// do the first commit
-		git.commit().setMessage("first init").call();		
+		git.commit().setMessage(First_COMMIT).call();		
 	}
 
 }

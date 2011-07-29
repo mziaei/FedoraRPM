@@ -15,7 +15,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 
-public class FedoraRPMProjectPageThree extends WizardPage {
+public class FedoraRPMProjectPageThree extends WizardPage {	
+	private static final String SRPM = "*.src.rpm"; //$NON-NLS-1$
+	private static final String FEATURE = "feature.xml"; //$NON-NLS-1$
+	private static final String POM = "pom.xml"; //$NON-NLS-1$
+	
 	private Button btnCheckStubby;
 	private Button btnStubbyBrowse;
 	private Button btnCheckSrpm;
@@ -83,7 +87,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
 				dialog.setText("Select File");
-				dialog.setFilterExtensions(new String[] { "*.xml" });
+				dialog.setFilterExtensions(new String[] { FEATURE });
 				String filePath = dialog.open();
 				textStubby.setText(filePath.toString());	
 				
@@ -125,7 +129,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
 				dialog.setText("Select File");
-				dialog.setFilterExtensions(new String[] { "*.src.rpm" });
+				dialog.setFilterExtensions(new String[] { SRPM });
 				String filePath = dialog.open();
 				textSrpm.setText(filePath.toString());	
 				
