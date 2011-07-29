@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.linuxtools.rpmstubby.*;
+import org.fedoraproject.eclipse.packager.fedorarpm.wizards.FedoraRPMMessages;
 
 public class StubbyFedoraProjectCreator {
 	/**
@@ -28,12 +29,12 @@ public class StubbyFedoraProjectCreator {
 		
 		String fileName = externalFile.getName();
 		
-		if (fileName.equals("feature.xml")) {
+		if (fileName.equals(FedoraRPMMessages.FedoraRPMProject_api_FeatureFile)) {
 			SpecfileWriter specfileWriter = new SpecfileWriter();
 			specfileWriter.write(stubby);
 		}
 		
-		if (fileName.equals("pom.xml")) {
+		if (fileName.equals(FedoraRPMMessages.FedoraRPMProject_api_PomFile)) {
 			StubbyPomGenerator generator = new StubbyPomGenerator(stubby);
 			try {
 				generator.writeContent(stubby.getProject().getName());

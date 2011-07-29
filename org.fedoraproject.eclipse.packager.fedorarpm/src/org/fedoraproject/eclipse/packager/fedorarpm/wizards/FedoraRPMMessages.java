@@ -5,7 +5,7 @@ import org.eclipse.osgi.util.NLS;
 public class FedoraRPMMessages extends NLS {
 	private static final String BUNDLE_NAME = "org.fedoraproject.eclipse.packager.fedorarpm.wizards.fedorarpmtext"; //$NON-NLS-1$
 	
-	//FedoraRPMProject
+	//FedoraRPMProject-wizards
 	public static String FedoraRPMProject_title;
 	public static String FedoraRPMProject_description;
 	public static String FedoraRPMProject_image;
@@ -32,6 +32,15 @@ public class FedoraRPMMessages extends NLS {
 	public static String FedoraRPMProjectPageThree_lblSrpm;
 	public static String FedoraRPMProjectPageThree_btnSrpmBrowse;
 
+	//FedoraRPMProject-api
+	public static String FedoraRPMProject_api_FirstCommit; 
+	public static String FedoraRPMProject_api_Gitignore;
+	public static String FedoraRPMProject_api_Project;
+	public static String FedoraRPMProject_api_SpecExtention;
+	public static String FedoraRPMProject_api_FeatureFile;
+	public static String FedoraRPMProject_api_PomFile;
+	
+	
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, FedoraRPMMessages.class);

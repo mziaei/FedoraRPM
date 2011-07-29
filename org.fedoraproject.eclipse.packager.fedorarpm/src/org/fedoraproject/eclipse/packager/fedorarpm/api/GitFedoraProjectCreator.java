@@ -1,10 +1,8 @@
 package org.fedoraproject.eclipse.packager.fedorarpm.api;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -20,15 +18,11 @@ import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.ui.PlatformUI;
+import org.fedoraproject.eclipse.packager.fedorarpm.wizards.FedoraRPMMessages;
 
 public class GitFedoraProjectCreator {
 	
-	private static final String GITIGNORE = ".gitignore"; //$NON-NLS-1$
-	private static final String SOURCES = "sources"; //$NON-NLS-1$
-	private static final String PROJECT = ".project"; //$NON-NLS-1$
-	
 	private static final String EGIT_REPOSITORIESVIEW = "org.eclipse.egit.ui.RepositoriesView"; //$NON-NLS-1$
-	private static final String First_COMMIT = "First init"; //$NON-NLS-1$
 	
 	private Repository repository;
 	private Git git;
@@ -49,21 +43,13 @@ public class GitFedoraProjectCreator {
 	 * @throws NoHeadException 
 	 */
 	public void create(IProject project, IProgressMonitor monitor, String type) 
-			throws IOException, NoFilepatternException, NoHeadException, NoMessageException, 
-			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException  {
+			throws IOException, NoFilepatternException, NoHeadException, 
+			NoMessageException, ConcurrentRefUpdateException, JGitInternalException, 
+			WrongRepositoryStateException 
+			 {
 
 		try {
 			File directory = createLocalGitRepo(project);
-			
-			IFile sources = project.getFile(SOURCES);
-			// add the name of the source to the sources file
-			// if it's an srpm generated project
-			if (type.equals("srpm")) {
-				addSources(directory, sources, project, monitor);
-			}
-			else {
-				createFile(sources, SOURCES, null, monitor);
-			}
 
 			// add new and existing contents to the git repository
 			addContentToGitRepo(directory);
@@ -86,45 +72,6 @@ public class GitFedoraProjectCreator {
 	}
 
 
-	/**
-	 * add source's name to the sources file
-	 *
-	 * @param File directory of the git repo
-	 * @param IFile sources file
-	 * @param IProject the base of the project
-	 * @param IProgressMonitor instance
-	 * @throws CoreException 
-	 */
-	private void addSources(File directory, IFile sources, IProject project, IProgressMonitor monitor) 
-			throws CoreException {
-		File[] files = directory.listFiles();
-		for (File file : files) {
-			String name = file.getName();
-			if (name.contains(".tar")) { //$NON-NLS-1$
-				createFile(sources, SOURCES, name, monitor);
-			}
-		}		
-	}
-
-	/**
-	 * Creates ifiles in the project
-	 * 
-	 * @param IFile file
-	 * @param fileName name of the file
-	 * @param content contents of the file
-	 * @param IProgressMonitor instance
-	 * @throws CoreException 
-	 */
-	private void createFile(IFile file, String fileName, String content, IProgressMonitor monitor) 
-			throws CoreException {
-			if (content == null) {
-				file.create(new ByteArrayInputStream(new byte[0]), false, monitor);
-			}
-			else {
-				file.create(new ByteArrayInputStream(content.getBytes()), false, monitor);
-			}		
-	}
-	
 	/**
 	 * Initialize a local git repository in project location
 	 *
@@ -164,23 +111,21 @@ public class GitFedoraProjectCreator {
 			IOException, NoFilepatternException, NoHeadException, NoMessageException, 
 			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException, CoreException {
 				
-		File[] files = directory.listFiles();
-		for (File file : files) {
+		for (File file : directory.listFiles()) {
 			String name = file.getName();
 
-			if (name.contains(".spec") || (name.contains(".sh")  //$NON-NLS-1$
-					|| (name.contains(".patch")))) { //$NON-NLS-1$
+			if (name.contains(FedoraRPMMessages.FedoraRPMProject_api_SpecExtention)) {
 				git.add().addFilepattern(name).call();
 			}
 
-			if (name.equalsIgnoreCase(GITIGNORE) || name.equalsIgnoreCase(SOURCES) 
-					|| name.equalsIgnoreCase(PROJECT)) {
+			if (name.equals(FedoraRPMMessages.FedoraRPMProject_api_Gitignore) || 
+					name.equals(FedoraRPMMessages.FedoraRPMProject_api_Project)) {
 				git.add().addFilepattern(name).call();
 			}			
 		}	
 
 		// do the first commit
-		git.commit().setMessage(First_COMMIT).call();		
+		git.commit().setMessage(FedoraRPMMessages.FedoraRPMProject_api_FirstCommit).call();		
 	}
 
 }
