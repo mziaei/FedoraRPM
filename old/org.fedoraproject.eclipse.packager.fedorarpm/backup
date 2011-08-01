@@ -2,12 +2,6 @@ Create PROJECT page
 package org.fedoraproject.eclipse.packager.fedorarpm.core;
 
 
-#Properties file for org.fedoraproject.eclipse.packager.fedorarpm
-category.name = Fedora
-wizard.name = Fedora RPM Project
-Bundle-Name = Fedorarpm
-
-
 public class FedoraRPMProjectCreator {
 	private static final String GITIGNORE = ".gitignore";
 	private static final String SOURCES = "sources";
@@ -21,14 +15,14 @@ public class FedoraRPMProjectCreator {
 	 * @param projectName The name of the project.
 	 * @param projectPath The parent location of the project.
 	 * @param monitor Progress monitor to report back status.
-	 * @throws WrongRepositoryStateException
-	 * @throws JGitInternalException
-	 * @throws ConcurrentRefUpdateException
-	 * @throws NoMessageException
-	 * @throws NoHeadException
+	 * @throws WrongRepositoryStateException 
+	 * @throws JGitInternalException 
+	 * @throws ConcurrentRefUpdateException 
+	 * @throws NoMessageException 
+	 * @throws NoHeadException 
 	 */
 	public void create(String projectName, IPath projectPath,
-			IProgressMonitor monitor) throws NoHeadException, NoMessageException,
+			IProgressMonitor monitor) throws NoHeadException, NoMessageException, 
 			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException {
 		try {
 			root = ResourcesPlugin.getWorkspace().getRoot();
@@ -40,12 +34,12 @@ public class FedoraRPMProjectCreator {
 			project.create(description, monitor);
 			monitor.worked(2);   //? TODO - Do we need this
 			project.open(monitor);  //?TODO - Do we need this
-
+			
 			createLocalGitRepo(monitor);
 //			createProjectContent(monitor);
-
+			
 			addContentToGitRepo();
-
+			
 			ConnectProviderOperation connect = new ConnectProviderOperation(
 					project);
 			connect.execute(null);
@@ -71,34 +65,34 @@ public class FedoraRPMProjectCreator {
 	 * @param IProgressMonitor
 	 * @throws IOException
 	 */
-	private void createLocalGitRepo(IProgressMonitor monitor) throws IOException {
+	private void createLocalGitRepo(IProgressMonitor monitor) throws IOException {	
 		String gitdirName = project.getLocation().toString();
 		File directory = new File(gitdirName);
 		FileUtils.mkdirs(directory, true);
 		directory.getCanonicalFile();
-
+		
 		InitCommand command = new InitCommand();
 		command.setDirectory(directory);
 		command.setBare(false);
 		gitRepo = command.call().getRepository();
 //		addRepoToClose(repository);
 	}
-
-
+	
+	
 	/**
-	 * Adds new contents to the Git repository and
+	 * Adds new contents to the Git repository and 
 	 *      does the first commit
-	 * @throws NoFilepatternException
-	 * @throws IOException
-	 * @throws WrongRepositoryStateException
-	 * @throws JGitInternalException
-	 * @throws ConcurrentRefUpdateException
-	 * @throws NoMessageException
-	 * @throws NoHeadException
+	 * @throws NoFilepatternException 
+	 * @throws IOException 
+	 * @throws WrongRepositoryStateException 
+	 * @throws JGitInternalException 
+	 * @throws ConcurrentRefUpdateException 
+	 * @throws NoMessageException 
+	 * @throws NoHeadException 
 	 *
 	 */
-	private void addContentToGitRepo() throws IOException, NoFilepatternException,
-			NoHeadException, NoMessageException, ConcurrentRefUpdateException,
+	private void addContentToGitRepo() throws IOException, NoFilepatternException, 
+			NoHeadException, NoMessageException, ConcurrentRefUpdateException, 
 			JGitInternalException, WrongRepositoryStateException {
 		addFiles(GITIGNORE, "/temp");
 		addFiles(SOURCES, null);
@@ -116,11 +110,11 @@ public class FedoraRPMProjectCreator {
 
 
 	}
-
+	
 //	public void addRepoToClose(Repository r) {
 //		toClose.add(r);
 //	}
-
+	
 	private void addFiles(String fileName, String content) throws IOException {
 		File file = new File(gitRepo.getWorkTree(), fileName);
 		FileUtils.createNewFile(file);
@@ -128,7 +122,7 @@ public class FedoraRPMProjectCreator {
 		writer.print(content);
 		writer.close();
 	}
-
+	
 	/**
 	 * Initialize the project with some folders and files
 	 *
@@ -139,14 +133,14 @@ public class FedoraRPMProjectCreator {
 			project.getFolder("temp").create(true, true, monitor);
 		} catch (CoreException e) {
 			e.printStackTrace();
-		}
+		}			
 		createFile("sources", null, monitor);
-		createFile(".gitignore", "/temp", monitor);
+		createFile(".gitignore", "/temp", monitor);		
 	}
-
+	
 	/**
 	 * Creates ifiles in the project
-	 *
+	 * 
 	 * @param fileName name of the file
 	 * @param content contents of the file
 	 * @param IProgressMonitor instance
@@ -162,7 +156,7 @@ public class FedoraRPMProjectCreator {
 			}
 		} catch (CoreException e) {
 			e.printStackTrace();
-		}
+		}		
 	}
 
 

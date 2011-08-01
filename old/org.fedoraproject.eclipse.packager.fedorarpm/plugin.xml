@@ -5,13 +5,13 @@
          point="org.eclipse.ui.newWizards">
 		<category 
 			id="org.fedoraproject.eclipse.packager.fedorarpm.category.wizards" 
-			name="%FedoraRPMWizardName">
+			name="Fedora">
 		</category>
 		<wizard 
 			category="org.fedoraproject.eclipse.packager.fedorarpm.category.wizards" 
-			class="org.fedoraproject.eclipse.packager.fedorarpm.internal.ui.FedoraRPMProjectWizard" 
+			class="org.fedoraproject.eclipse.packager.fedorarpm.wizards.FedoraRPMProjectWizard" 
 			icon="icons/fedora16x16.png" id="org.fedoraproject.eclipse.packager.fedorarpm.newprojectwizard" 
-			name="%FedoraGitWizardCommandName">
+			name="Fedora RPM Project">
 		</wizard>
 	</extension>
 
