@@ -24,7 +24,6 @@ import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
 import org.eclipse.linuxtools.rpmstubby.SpecfileWriter;
 import org.eclipse.linuxtools.rpmstubby.StubbyPomGenerator;
 import org.eclipse.ui.PlatformUI;
-import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMText;
 
 public class FedoraRPMProjectCreator {

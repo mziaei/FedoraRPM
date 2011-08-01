@@ -20,11 +20,13 @@ public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
 		super(pageName);
 		setTitle(FedoraRPMText.FedoraRPMProject_title);
 		setDescription(FedoraRPMText.FedoraRPMProject_description);
-		FedorarpmPlugin.getImageDescriptor(FedoraRPMText.FedoraRPMProject_image);
+		FedorarpmPlugin
+				.getImageDescriptor(FedoraRPMText.FedoraRPMProject_image);
 	}
 
 	/**
 	 * Create contents of the wizard.
+	 *
 	 * @param parent
 	 */
 	@Override
@@ -36,13 +38,13 @@ public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
 		container.setLayout(layout);
 		lblNoteGit = new Label(container, SWT.NONE);
 		lblNoteGit.setText(FedoraRPMText.FedoraRPMProjectPageOne_lblNoteGit);
-		lblNoteGit.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+		lblNoteGit.setForeground(Display.getDefault().getSystemColor(
+				SWT.COLOR_BLUE));
+		// GridData layoutData = new GridData(); // puts the git note on the
+		// left
 		GridData layoutData = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
-        lblNoteGit.setLayoutData(layoutData);
+		lblNoteGit.setLayoutData(layoutData);
 
 		setControl(container);
 	}
-
-
-
 }
