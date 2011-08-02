@@ -38,8 +38,8 @@ public class FedoraRPMProjectCreator {
 
 	private Repository repository;
 	private Git git;
-	private String projectType;
-	private File externalFile;
+//	private String projectType;
+//	private File externalFile;
 
 	/**
 	 * Creates git repository inside the base project also adds the base
@@ -62,7 +62,7 @@ public class FedoraRPMProjectCreator {
 	 * @throws NoHeadException
 	 * @throws CoreException
 	 */
-	public void create(IProject project, IProgressMonitor monitor) throws IOException,
+	public void create(String projectType, File externalFile, IProject project, IProgressMonitor monitor) throws IOException,
 			NoFilepatternException, NoHeadException, NoMessageException,
 			ConcurrentRefUpdateException, JGitInternalException,
 			WrongRepositoryStateException, CoreException {
@@ -108,24 +108,24 @@ public class FedoraRPMProjectCreator {
 				.showView(EGIT_REPOSITORIESVIEW);
 	}
 
-	/**
-	 * Set the type of the project based on the user's selection
-	 *
-	 * @param String
-	 *            type of the populated project
-	 */
-	public void setProjectType(String type) {
-		projectType = type;
-	}
-
-	/**
-	 * Sets the external file to the user's selected file
-	 *
-	 * @param File
-	 */
-	public void setExternalFile(File file) {
-		externalFile = file;
-	}
+//	/**
+//	 * Set the type of the project based on the user's selection
+//	 *
+//	 * @param String
+//	 *            type of the populated project
+//	 */
+//	public void setProjectType(String type) {
+//		projectType = type;
+//	}
+//
+//	/**
+//	 * Sets the external file to the user's selected file
+//	 *
+//	 * @param File
+//	 */
+//	public void setExternalFile(File file) {
+//		externalFile = file;
+//	}
 
 	/**
 	 * Initialize a local git repository in project location

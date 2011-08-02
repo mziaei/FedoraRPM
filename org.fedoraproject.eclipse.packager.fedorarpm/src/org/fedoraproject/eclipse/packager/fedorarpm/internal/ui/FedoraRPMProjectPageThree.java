@@ -34,6 +34,9 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	private boolean isStubbyProject;
 	private File srpmFile;
 	private File StubbyFile;
+	
+	private String projectType = "plain";
+	private File externalFile = null;
 
 	/**
 	 * Create the wizard.
@@ -95,6 +98,8 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 
 				StubbyFile = new File(filePath);
 				isStubbyProject = true;
+				setExternalFile(StubbyFile);
+				setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
 
 			}
 		});
@@ -137,6 +142,8 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 
 				srpmFile = new File(filePath);
 				isSrpmProject = true;
+				setExternalFile(srpmFile);
+				setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_SRpm);
 			}
 		});
 
@@ -146,36 +153,41 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	}
 
 	/**
-	 * Check if user wants the rpm populates the project
-	 * using Source RPM
+	 * Set the type of the project based on the user's selection
 	 *
-	 * @return boolean
+	 * @param String
+	 *            type of the populated project
 	 */
-	public boolean isSrpmProject() {
-		return isSrpmProject;
+	public void setProjectType(String type) {
+		projectType = type;
 	}
-
+	
 	/**
-	 * @return File the uploaded Source RPM file
-	 */
-	public File getSrpmFile() {
-		return srpmFile;
-	}
-
-	/**
-	 * Check if user wants the stubby populates the project
+	 * Return the external file to the user's selected file
 	 *
-	 * @return boolean
+	 * @return File
 	 */
-	public boolean isStubbyProject() {
-		return isStubbyProject;
+	public File getExternalFile() {
+		return externalFile;
 	}
-
+	
 	/**
-	 * @return File the uploaded feature.xml or pom.xml file
+	 * Return the type of the project based on the user's selection
+	 *
+	 * @return String
+	 *            type of the populated project
 	 */
-	public File getStubbyFile() {
-		return StubbyFile;
+	public String getProjectType() {
+		return projectType;
+	}
+	
+	/**
+	 * Set the external file to the user's selected file
+	 *
+	 * @param File
+	 */
+	public void setExternalFile(File file) {
+		externalFile = file;
 	}
 
 	/**

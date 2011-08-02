@@ -22,7 +22,6 @@ import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMText;
 import org.fedoraproject.eclipse.packager.fedorarpm.api.FedoraRPMProjectCreator;
 
 public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
@@ -44,6 +43,7 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
+		setNeedsProgressMonitor(true);
 	}
 
 	/*
@@ -136,7 +136,6 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 		}
 		try {
 			project.create(description, monitor);
-			monitor.worked(2);
 			project.open(monitor);
 		} catch (CoreException e) {
 			e.printStackTrace();
@@ -164,19 +163,7 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 			CoreException {
 		FedoraRPMProjectCreator fedoraRPMProjectCreator = new FedoraRPMProjectCreator();
 
-		if (pageThree.isSrpmProject()) {
-			fedoraRPMProjectCreator
-					.setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_SRpm);
-			fedoraRPMProjectCreator.setExternalFile(pageThree.getSrpmFile());
-		} else if (pageThree.isStubbyProject()) {
-			fedoraRPMProjectCreator
-					.setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
-			fedoraRPMProjectCreator.setExternalFile(pageThree.getStubbyFile());
-		} else {
-			fedoraRPMProjectCreator.setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_Plain);
-		}
-
-		fedoraRPMProjectCreator.create(project, monitor);
+		fedoraRPMProjectCreator.create(pageThree.getProjectType(), pageThree.getExternalFile(), project, monitor);
 	}
 
 
