@@ -124,7 +124,8 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	 */
 	@Override
 	public boolean canFinish() {
-		return pageThree.isPageComplete() || pageFour.isPageComplete();
+		return (getContainer().getCurrentPage() == pageThree && pageThree.isPageComplete())
+				|| getContainer().getCurrentPage() == pageFour;
 	}
 
 	/**

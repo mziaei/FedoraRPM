@@ -29,7 +29,6 @@ public class FedoraRPMProjectPageFour extends SpecfileNewWizardPage {
 	@Override
 	public void createControl(Composite parent) {
 		super.createControl(parent);
-		setPageComplete(true);
 	}
 
 }

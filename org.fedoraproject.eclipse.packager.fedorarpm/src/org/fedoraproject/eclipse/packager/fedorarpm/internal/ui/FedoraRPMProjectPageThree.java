@@ -9,6 +9,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
@@ -18,6 +19,7 @@ import org.fedoraproject.eclipse.packager.fedorarpm.FedorarpmPlugin;
 
 
 public class FedoraRPMProjectPageThree extends WizardPage {
+	private static final String PLAIN = "plain"; //$NON-NLS-1$
 	private static final String SRPM = "*.src.rpm"; //$NON-NLS-1$
 	private static final String FEATURE = "feature.xml"; //$NON-NLS-1$
 	private static final String POM = "pom.xml"; //$NON-NLS-1$
@@ -30,8 +32,9 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	private Label lblSrpm;
 	private Text textStubby;
 	private Text textSrpm;
+	private Combo comboStubby;
 	
-	private String projectType = "plain";
+	private String projectType = PLAIN;
 	private File externalFile = null;
 
 	/**
@@ -70,11 +73,12 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 			}
 		});
 
-		lblStubby = new Label(container, SWT.NONE);
-		lblStubby.setText(FedoraRPMText.FedoraRPMProjectPageThree_lblStubby);
+		comboStubby = new Combo(container, SWT.READ_ONLY);
+	    comboStubby.setItems(new String[] { FEATURE, POM });
+	    comboStubby.select(0);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 25;
-		lblStubby.setLayoutData(layoutData);
+		comboStubby.setLayoutData(layoutData);
 
 		textStubby = new Text(container, SWT.BORDER | SWT.SINGLE);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -86,7 +90,9 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		btnStubbyBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fileDialogRunner(FEATURE, textStubby, FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
+				int filter = comboStubby.getSelectionIndex();
+				String filterText = "";
+				fileDialogRunner(filterText, textStubby, FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
 			}
 		});
 
@@ -134,7 +140,8 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	
 	private void fileDialogRunner(String filter, Text text, String type) {
 		FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
-		dialog.setText("Select File");
+		dialog.setText(FedoraRPMText.FedoraRPMProjectIWizard_fileDialog + 
+				filter + FedoraRPMText.FedoraRPMProjectIWizard_file);
 		dialog.setFilterExtensions(new String[] {filter});
 		String filePath = dialog.open();
 		text.setText(filePath.toString());
@@ -169,12 +176,12 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	 * @return boolean
 	 */
 	private boolean checkPageComplete() {
-		return (!projectType.equals("plain"));
+		return (!projectType.equals(PLAIN));
 	}
 
 	@Override
 	public boolean canFlipToNextPage() {
-		return (projectType.equals("plain"));
+		return (projectType.equals(PLAIN));
 	}
 	
 	/**
@@ -182,7 +189,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	 */
 	protected void selectControl() {
 		if(btnCheckStubby.getSelection()){
-		    lblStubby.setEnabled(true);
+		    comboStubby.setEnabled(true);
 		    textStubby.setEnabled(true);
 		    btnStubbyBrowse.setEnabled(true);
 		    lblSrpm.setEnabled(false);
@@ -193,12 +200,12 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		    lblSrpm.setEnabled(true);
 		    textSrpm.setEnabled(true);
 		    btnSrpmBrowse.setEnabled(true);
-		    lblStubby.setEnabled(false);
+		    comboStubby.setEnabled(false);
 		    textStubby.setEnabled(false);
 		    btnStubbyBrowse.setEnabled(false);
 		}
 		else {
-		    lblStubby.setEnabled(false);
+		    comboStubby.setEnabled(false);
 		    textStubby.setEnabled(false);
 		    btnStubbyBrowse.setEnabled(false);
 		    lblSrpm.setEnabled(false);

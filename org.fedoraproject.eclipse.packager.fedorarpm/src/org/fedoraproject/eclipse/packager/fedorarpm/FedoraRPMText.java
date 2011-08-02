@@ -34,6 +34,8 @@ public class FedoraRPMText extends NLS {
 	/****/ public static String FedoraRPMProjectPageThree_btnCheckSrpm;
 	/****/ public static String FedoraRPMProjectPageThree_lblSrpm;
 	/****/ public static String FedoraRPMProjectPageThree_btnSrpmBrowse;
+	/****/ public static String FedoraRPMProjectIWizard_fileDialog;
+	/****/ public static String FedoraRPMProjectIWizard_file;
 
 	//FedoraRPMProject-api
 	public static String FedoraRPMProject_api_FirstCommit;
