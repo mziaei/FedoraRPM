@@ -127,8 +127,10 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 
 
 		selectControl();
+		setPageComplete(checkPageComplete());
 		setControl(container);
 	}
+	
 	
 	private void fileDialogRunner(String filter, Text text, String type) {
 		FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
@@ -138,9 +140,8 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		text.setText(filePath.toString());
 		
 		externalFile = new File(filePath);
-		projectType = type;
-
-		
+		projectType = type;	
+		setPageComplete(true);
 	}
 	
 	/**
@@ -163,14 +164,17 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	}
 
 	/**
-	 * Set the type of the project and the uploaded file
+	 * Check if the page is complete
 	 *
-	 * @param String path for the file
-	 * @param String type of the populated project
+	 * @return boolean
 	 */
-	public void setProject(String filePath, String type) {
-		externalFile = new File(filePath);
-		projectType = type;
+	private boolean checkPageComplete() {
+		return (!projectType.equals("plain"));
+	}
+
+	@Override
+	public boolean canFlipToNextPage() {
+		return (projectType.equals("plain"));
 	}
 	
 	/**

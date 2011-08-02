@@ -80,12 +80,14 @@ public class FedoraRPMProjectCreator {
 				StubbyPomGenerator generator = new StubbyPomGenerator(stubby);
 				generator.writeContent(stubby.getProject().getName());
 			}
-		}
-
-		if (projectType.equals(FedoraRPMText.FedoraRPMProjectIWizard_SRpm)) {
+			
+		} else if (projectType.equals(FedoraRPMText.FedoraRPMProjectIWizard_SRpm)) {
 			RPMProject rpmProject = new RPMProject(project,
 					RPMProjectLayout.FLAT);
 			rpmProject.importSourceRPM(externalFile);
+		}
+		
+		else {
 
 		}
 

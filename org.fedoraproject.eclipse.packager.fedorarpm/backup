@@ -1,4 +1,59 @@
 Create PROJECT page
+
+
+//		public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+//			IStructuredSelection structuredSelection = null;
+//			ISelectionProvider provider = targetPart.getSite()
+//					.getSelectionProvider();
+//			if (provider != null) {
+//				ISelection selection = provider.getSelection();
+//				if (selection instanceof IStructuredSelection)
+//					structuredSelection = (IStructuredSelection) selection;
+//			}
+//			structuredSelection = StructuredSelection.EMPTY;
+//			this.selection = (ISelection) structuredSelection.getFirstElement();
+//		}
+//		selection = TreeSelection(monitor.);
+//
+//		pageFour = new FedoraRPMProjectPageFour(PAGE_FOUR, selection);		
+//		addPage(pageFour);
+//		if (!Utils.fileExist("/usr/bin/rpmdev-newspec")) { //$NON-NLS-1$
+//			addPage(new NoExecutableWizardPage());
+//		} else {
+//			pageFour = new SpecfileNewWizardPage(selection);
+//			addPage(pageFour);
+//		}
+
+
+
+
+		if (pageThree.getProjectType().equals("plain")) {
+			final String projectName = project.getName();
+			final String fileName = projectName + ".spec";
+			final InputStream contentInputStream = new ByteArrayInputStream(pageFour.getContent().getBytes());
+//			IResource resource = root.findMember(new Path(projectName));
+//			IContainer container = (IContainer) resource;			
+//			final IFile file = container.getFile(new Path(fileName));
+	
+			final IFile file = project.getFile(new Path(fileName));
+
+			try {
+				InputStream stream = contentInputStream;
+				if (file.exists()) {
+					file.setContents(stream, true, true, monitor);
+				} else {
+					file.create(stream, true, monitor);
+				}
+				stream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+		
+		
+
 package org.fedoraproject.eclipse.packager.fedorarpm.core;
 
 

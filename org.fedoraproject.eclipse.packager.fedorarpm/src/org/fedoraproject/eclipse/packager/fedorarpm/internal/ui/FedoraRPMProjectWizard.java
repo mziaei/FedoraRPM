@@ -1,8 +1,11 @@
 package org.fedoraproject.eclipse.packager.fedorarpm.internal.ui;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -10,7 +13,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
@@ -29,14 +34,17 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	private static final String PAGE_ONE = "PageOne"; //$NON-NLS-1$
 	private static final String PAGE_TWO = "PageTwo"; //$NON-NLS-1$
 	private static final String PAGE_THREE = "PageThree"; //$NON-NLS-1$
+	private static final String PAGE_FOUR = "PageFour"; //$NON-NLS-1$
 
 	private FedoraRPMProjectPageOne pageOne;
 	private FedoraRPMProjectPageTwo pageTwo;
 	private FedoraRPMProjectPageThree pageThree;
+	private FedoraRPMProjectPageFour pageFour;
 
 	private IWorkspaceRoot root;
 	private IProject project;
 	private IProjectDescription description;
+	private ISelection selection;
 
 	public FedoraRPMProjectWizard() {
 	}
@@ -44,6 +52,7 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		setNeedsProgressMonitor(true);
+		this.selection = selection;
 	}
 
 	/*
@@ -60,6 +69,8 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 		addPage(pageTwo);
 		pageThree = new FedoraRPMProjectPageThree(PAGE_THREE);
 		addPage(pageThree);
+		pageFour = new FedoraRPMProjectPageFour(PAGE_FOUR, selection);		
+		addPage(pageFour);		
 	}
 
 	/*
@@ -113,11 +124,7 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	 */
 	@Override
 	public boolean canFinish() {
-		if (getContainer().getCurrentPage() == pageThree) {
-			return true;
-		} else {
-			return false;
-		}
+		return pageThree.isPageComplete() || pageFour.isPageComplete();
 	}
 
 	/**
@@ -157,13 +164,31 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	 * @throws CoreException
 	 */
 	protected void createMainProject(IProgressMonitor monitor)
-			throws NoHeadException, NoMessageException,
-			ConcurrentRefUpdateException, JGitInternalException,
-			WrongRepositoryStateException, NoFilepatternException, IOException,
-			CoreException {
+			throws NoHeadException, NoMessageException,	ConcurrentRefUpdateException,
+			JGitInternalException, WrongRepositoryStateException, NoFilepatternException, 
+			IOException, CoreException {
+		
+		if (pageThree.getProjectType().equals("plain")) {
+			final String projectName = project.getName();
+			final String fileName = projectName + ".spec";
+			final InputStream contentInputStream = new ByteArrayInputStream(pageFour.getContent().getBytes());	
+			final IFile file = project.getFile(new Path(fileName));
+
+			try {
+				InputStream stream = contentInputStream;
+				if (file.exists()) {
+					file.setContents(stream, true, true, monitor);
+				} else {
+					file.create(stream, true, monitor);
+				}
+				stream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		FedoraRPMProjectCreator fedoraRPMProjectCreator = new FedoraRPMProjectCreator();
 		fedoraRPMProjectCreator.create(pageThree.getProjectType(), pageThree.getExternalFile(), project, monitor);
 	}
-
 
 }
