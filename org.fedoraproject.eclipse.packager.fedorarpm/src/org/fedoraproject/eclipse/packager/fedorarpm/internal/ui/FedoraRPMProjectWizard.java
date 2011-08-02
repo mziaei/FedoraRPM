@@ -162,7 +162,6 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 			WrongRepositoryStateException, NoFilepatternException, IOException,
 			CoreException {
 		FedoraRPMProjectCreator fedoraRPMProjectCreator = new FedoraRPMProjectCreator();
-
 		fedoraRPMProjectCreator.create(pageThree.getProjectType(), pageThree.getExternalFile(), project, monitor);
 	}
 

@@ -30,10 +30,6 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	private Label lblSrpm;
 	private Text textStubby;
 	private Text textSrpm;
-	private boolean isSrpmProject;
-	private boolean isStubbyProject;
-	private File srpmFile;
-	private File StubbyFile;
 	
 	private String projectType = "plain";
 	private File externalFile = null;
@@ -90,17 +86,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		btnStubbyBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
-				dialog.setText("Select File");
-				dialog.setFilterExtensions(new String[] { FEATURE });
-				String filePath = dialog.open();
-				textStubby.setText(filePath.toString());
-
-				StubbyFile = new File(filePath);
-				isStubbyProject = true;
-				setExternalFile(StubbyFile);
-				setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
-
+				fileDialogRunner(FEATURE, textStubby, FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
 			}
 		});
 
@@ -134,32 +120,27 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		btnSrpmBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
-				dialog.setText("Select File");
-				dialog.setFilterExtensions(new String[] { SRPM });
-				String filePath = dialog.open();
-				textSrpm.setText(filePath.toString());
-
-				srpmFile = new File(filePath);
-				isSrpmProject = true;
-				setExternalFile(srpmFile);
-				setProjectType(FedoraRPMText.FedoraRPMProjectIWizard_SRpm);
+				fileDialogRunner(SRPM, textSrpm, FedoraRPMText.FedoraRPMProjectIWizard_SRpm);
 			}
+
 		});
 
 
 		selectControl();
 		setControl(container);
 	}
-
-	/**
-	 * Set the type of the project based on the user's selection
-	 *
-	 * @param String
-	 *            type of the populated project
-	 */
-	public void setProjectType(String type) {
+	
+	private void fileDialogRunner(String filter, Text text, String type) {
+		FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
+		dialog.setText("Select File");
+		dialog.setFilterExtensions(new String[] {filter});
+		String filePath = dialog.open();
+		text.setText(filePath.toString());
+		
+		externalFile = new File(filePath);
 		projectType = type;
+
+		
 	}
 	
 	/**
@@ -180,16 +161,18 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	public String getProjectType() {
 		return projectType;
 	}
-	
-	/**
-	 * Set the external file to the user's selected file
-	 *
-	 * @param File
-	 */
-	public void setExternalFile(File file) {
-		externalFile = file;
-	}
 
+	/**
+	 * Set the type of the project and the uploaded file
+	 *
+	 * @param String path for the file
+	 * @param String type of the populated project
+	 */
+	public void setProject(String filePath, String type) {
+		externalFile = new File(filePath);
+		projectType = type;
+	}
+	
 	/**
 	 * Sets the enabled properties based on the selected button
 	 */
