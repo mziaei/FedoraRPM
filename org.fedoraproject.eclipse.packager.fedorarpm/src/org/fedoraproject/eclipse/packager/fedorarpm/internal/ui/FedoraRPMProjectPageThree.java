@@ -16,19 +16,18 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMText;
 import org.fedoraproject.eclipse.packager.fedorarpm.FedorarpmPlugin;
+import org.fedoraproject.eclipse.packager.api.FileDialogRunable;
 
 
 public class FedoraRPMProjectPageThree extends WizardPage {
 	private static final String PLAIN = "plain"; //$NON-NLS-1$
 	private static final String SRPM = "*.src.rpm"; //$NON-NLS-1$
-	private static final String FEATURE = "feature.xml"; //$NON-NLS-1$
-	private static final String POM = "pom.xml"; //$NON-NLS-1$
-
+	private static final String[] STUBBY = new String[]{"feature.xml", "pom.xml"};
+	
 	private Button btnCheckStubby;
 	private Button btnStubbyBrowse;
 	private Button btnCheckSrpm;
 	private Button btnSrpmBrowse;
-	private Label lblStubby;
 	private Label lblSrpm;
 	private Text textStubby;
 	private Text textSrpm;
@@ -74,7 +73,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		});
 
 		comboStubby = new Combo(container, SWT.READ_ONLY);
-	    comboStubby.setItems(new String[] { FEATURE, POM });
+	    comboStubby.setItems( STUBBY );
 	    comboStubby.select(0);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 25;
@@ -90,9 +89,8 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		btnStubbyBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int filter = comboStubby.getSelectionIndex();
-				String filterText = "";
-				fileDialogRunner(filterText, textStubby, FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
+				int comboIndex = comboStubby.getSelectionIndex();
+				fileDialogRunner(STUBBY[comboIndex], textStubby, FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
 			}
 		});
 
@@ -139,11 +137,18 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	
 	
 	private void fileDialogRunner(String filter, Text text, String type) {
-		FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
-		dialog.setText(FedoraRPMText.FedoraRPMProjectIWizard_fileDialog + 
+		FileDialogRunable fdr = new FileDialogRunable(filter, 
+				FedoraRPMText.FedoraRPMProjectIWizard_fileDialog + 
 				filter + FedoraRPMText.FedoraRPMProjectIWizard_file);
-		dialog.setFilterExtensions(new String[] {filter});
-		String filePath = dialog.open();
+		getShell().getDisplay().syncExec(fdr);
+		String filePath = fdr.getFile();
+		
+//		FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
+//		dialog.setText(FedoraRPMText.FedoraRPMProjectIWizard_fileDialog + 
+//				filter + FedoraRPMText.FedoraRPMProjectIWizard_file);
+//		dialog.setFilterExtensions(new String[] {filter});
+//		String filePath = dialog.open();
+		
 		text.setText(filePath.toString());
 		
 		externalFile = new File(filePath);
