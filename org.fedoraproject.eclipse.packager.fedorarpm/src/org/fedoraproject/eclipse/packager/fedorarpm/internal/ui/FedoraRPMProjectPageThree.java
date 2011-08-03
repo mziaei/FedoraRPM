@@ -11,7 +11,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMText;
@@ -90,7 +89,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int comboIndex = comboStubby.getSelectionIndex();
-				fileDialogRunner(STUBBY[comboIndex], textStubby, FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
+				fileDialog(STUBBY[comboIndex], textStubby, FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
 			}
 		});
 
@@ -124,35 +123,37 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		btnSrpmBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fileDialogRunner(SRPM, textSrpm, FedoraRPMText.FedoraRPMProjectIWizard_SRpm);
+				fileDialog(SRPM, textSrpm, FedoraRPMText.FedoraRPMProjectIWizard_SRpm);
 			}
-
 		});
-
 
 		selectControl();
 		setPageComplete(checkPageComplete());
 		setControl(container);
 	}
 	
-	
-	private void fileDialogRunner(String filter, Text text, String type) {
+	/**
+	 * Runs the filaDialog and sets the project type and externalFile 
+	 * to be passed to project creator
+	 *
+	 * @param String
+	 *  			filter for the fileDialog
+	 * @param Text 
+	 *   			text box for file location
+	 * @param String
+	 * 				type of the project that user selected
+	 */
+	private void fileDialog(String filter, Text text, String projectType) {
 		FileDialogRunable fdr = new FileDialogRunable(filter, 
 				FedoraRPMText.FedoraRPMProjectIWizard_fileDialog + 
 				filter + FedoraRPMText.FedoraRPMProjectIWizard_file);
 		getShell().getDisplay().syncExec(fdr);
-		String filePath = fdr.getFile();
-		
-//		FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SAVE);
-//		dialog.setText(FedoraRPMText.FedoraRPMProjectIWizard_fileDialog + 
-//				filter + FedoraRPMText.FedoraRPMProjectIWizard_file);
-//		dialog.setFilterExtensions(new String[] {filter});
-//		String filePath = dialog.open();
-		
+		String filePath = fdr.getFile();		
 		text.setText(filePath.toString());
 		
-		externalFile = new File(filePath);
-		projectType = type;	
+		this.externalFile = new File(filePath);
+		this.projectType = projectType;	
+		
 		setPageComplete(true);
 	}
 	
