@@ -1,3 +1,107 @@
+command LocalPrepHandler
+//		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
+//		MessageDialog.openInformation(
+//				window.getShell(),
+//				"Eclipse Fedora Packager Local project plug-in",
+//				"Hello, Eclipse world");
+
+		final Shell shell = getShell(event);
+		final IProjectRoot fedoraRPMProjectRoot;
+		try {
+			IResource eventResource = FedoraHandlerUtils.getResource(event);
+			fedoraRPMProjectRoot = FedoraPackagerUtils
+					.getProjectRoot(eventResource);
+		} catch (InvalidProjectRootException e) {
+//			logger.logError(FedoraPackagerText.invalidFedoraProjectRootError, e);
+			FedoraHandlerUtils.showErrorDialog(shell, "Error", //$NON-NLS-1$
+					FedoraPackagerText.invalidFedoraProjectRootError);
+			return null;
+		}
+		FedoraPackager fp = new FedoraPackager(fedoraRPMProjectRoot);
+		final RpmBuildCommand prepCommand;
+		try {
+			// get RPM build command in order to produce an SRPM
+			prepCommand = (RpmBuildCommand) fp
+					.getCommandInstance(RpmBuildCommand.ID);
+		} catch (FedoraPackagerCommandNotFoundException e) {
+//			logger.logError(e.getMessage(), e);
+			FedoraHandlerUtils.showErrorDialog(shell,
+					fedoraRPMProjectRoot.getProductStrings().getProductName(), e.getMessage());
+			return null;
+		} catch (FedoraPackagerCommandInitializationException e) {
+//			logger.logError(e.getMessage(), e);
+			FedoraHandlerUtils.showErrorDialog(shell,
+					fedoraRPMProjectRoot.getProductStrings().getProductName(), e.getMessage());
+			return null;
+		}
+		// Need to nest jobs into this job for it to show up properly in the UI
+		// in terms of progress
+		Job job = new Job(fedoraRPMProjectRoot.getProductStrings().getProductName()) {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+
+				// Do the prep job
+				Job prepJob = new Job(ResourcesPlugin.getWorkspace().getRoot().getProject().getName()) {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						try {
+							monitor.beginTask(
+									RpmText.PrepHandler_prepareSourcesForBuildMsg,
+									IProgressMonitor.UNKNOWN);
+							List<String> nodeps = new ArrayList<String>(1);
+							nodeps.add(RpmBuildCommand.NO_DEPS);
+							try {
+								prepCommand.buildType(BuildType.PREP)
+										.flags(nodeps).call(monitor);
+							} catch (CommandMisconfiguredException e) {
+								// This shouldn't happen, but report error
+								// anyway
+		//						logger.logError(e.getMessage(), e);
+								return FedoraHandlerUtils.errorStatus(
+										RPMPlugin.PLUGIN_ID, e.getMessage(), e);
+							} catch (CommandListenerException e) {
+								// There are no command listeners registered, so
+								// shouldn't
+								// happen. Do something reasonable anyway.
+		//						logger.logError(e.getMessage(), e);
+								return FedoraHandlerUtils.errorStatus(
+										RPMPlugin.PLUGIN_ID, e.getMessage(), e);
+							} catch (RpmBuildCommandException e) {
+		//						logger.logError(e.getMessage(), e.getCause());
+								return FedoraHandlerUtils.errorStatus(
+										RPMPlugin.PLUGIN_ID, e.getMessage(),
+										e.getCause());
+							} catch (IllegalArgumentException e) {
+								// nodeps flags can't be null
+							}
+						} finally {
+							monitor.done();
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				prepJob.setUser(true);
+				prepJob.schedule();
+				try {
+					// wait for job to finish
+					prepJob.join();
+				} catch (InterruptedException e1) {
+					throw new OperationCanceledException();
+				}
+				return prepJob.getResult();
+			}
+	
+		};
+		job.setSystem(true); // suppress UI. That's done in encapsulated jobs.
+		job.schedule();
+
+
+
+
+
+
+
 Create PROJECT page
 
 

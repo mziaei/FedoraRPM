@@ -1,5 +1,6 @@
 package org.fedoraproject.eclipse.packager.fedorarpm;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -11,6 +12,8 @@ public class FedorarpmPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.fedoraproject.eclipse.packager.fedorarpm"; //$NON-NLS-1$
+
+	public static final QualifiedName PROJECT_PROP = null;
 
 	// The shared instance
 	private static FedorarpmPlugin plugin;
