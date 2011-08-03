@@ -14,5 +14,56 @@
 			name="%FedoraGitWizardCommandName">
 		</wizard>
 	</extension>
+	<extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?before=additions">
+         <menu
+               icon="icons/fedora16x16.png"
+               id="org.eclipse.fedoraproject.packager.main"
+               label="%MenuProductName">
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:org.eclipse.fedoraproject.packager.main?">
+         <command
+               commandId="org.fedoraproject.eclipse.packager.fedorarpm.prepCommand"
+               icon="icons/rpm.gif"
+               label="%FedoraRPMcommand.label.prep"
+               mnemonic="%FedoraRPMcommand.mnemonic.prep"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="org.fedoraproject.eclipse.packager.fedorarpm.toolbars.sampleToolbar">
+            <command
+                  commandId="org.fedoraproject.eclipse.packager.fedorarpm.commands.sampleCommand"
+                  icon="icons/fedora16x16.png"
+                  id="org.fedoraproject.eclipse.packager.fedorarpm.toolbars.sampleCommand"
+                  tooltip="Say hello world">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.fedoraproject.eclipse.packager.fedorarpm.internal.handlers.LocalPrepHandler"
+            id="org.fedoraproject.eclipse.packager.fedorarpm.prepCommand"
+            name="%FedoraRPMcommand.name.prep">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.fedoraproject.eclipse.packager.fedorarpm.commands.sampleCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+6">
+      </key>
+   </extension>
+	
 
 </plugin>
