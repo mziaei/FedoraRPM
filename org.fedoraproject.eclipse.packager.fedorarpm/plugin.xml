@@ -4,13 +4,13 @@
    <extension
          point="org.eclipse.ui.newWizards">
 		<category 
-			id="org.fedoraproject.eclipse.packager.fedorarpm.category.wizards" 
-			name="%FedoraRPMWizardName">
+			id="org.fedoraproject.eclipse.packager.local.category.wizards" 
+			name="%LocalFedoraPackagerWizardName">
 		</category>
 		<wizard 
-			category="org.fedoraproject.eclipse.packager.fedorarpm.category.wizards" 
-			class="org.fedoraproject.eclipse.packager.fedorarpm.internal.ui.FedoraRPMProjectWizard" 
-			icon="icons/fedora16x16.png" id="org.fedoraproject.eclipse.packager.fedorarpm.newprojectwizard" 
+			category="org.fedoraproject.eclipse.packager.local.category.wizards" 
+			class="org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerProjectWizard" 
+			icon="icons/fedora16x16.png" id="org.fedoraproject.eclipse.packager.local.newprojectwizard" 
 			name="%FedoraGitWizardCommandName">
 		</wizard>
 	</extension>
@@ -27,21 +27,21 @@
       <menuContribution
             locationURI="popup:org.eclipse.fedoraproject.packager.main?">
          <command
-               commandId="org.fedoraproject.eclipse.packager.fedorarpm.prepCommand"
+               commandId="org.fedoraproject.eclipse.packager.local.prepCommand"
                icon="icons/rpm.gif"
-               label="%FedoraRPMcommand.label.prep"
-               mnemonic="%FedoraRPMcommand.mnemonic.prep"
+               label="%LocalFedoraPackagercommand.label.prep"
+               mnemonic="%LocalFedoraPackagercommand.mnemonic.prep"
                style="push">
          </command>
       </menuContribution>
       <menuContribution
             locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
          <toolbar
-               id="org.fedoraproject.eclipse.packager.fedorarpm.toolbars.sampleToolbar">
+               id="org.fedoraproject.eclipse.packager.local.toolbars.sampleToolbar">
             <command
-                  commandId="org.fedoraproject.eclipse.packager.fedorarpm.commands.sampleCommand"
+                  commandId="org.fedoraproject.eclipse.packager.local.commands.sampleCommand"
                   icon="icons/fedora16x16.png"
-                  id="org.fedoraproject.eclipse.packager.fedorarpm.toolbars.sampleCommand"
+                  id="org.fedoraproject.eclipse.packager.local.toolbars.sampleCommand"
                   tooltip="Say hello world">
             </command>
          </toolbar>
@@ -50,15 +50,15 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.fedoraproject.eclipse.packager.fedorarpm.internal.handlers.LocalPrepHandler"
-            id="org.fedoraproject.eclipse.packager.fedorarpm.prepCommand"
-            name="%FedoraRPMcommand.name.prep">
+            defaultHandler="org.fedoraproject.eclipse.packager.local.handlers.LocalPrepHandler"
+            id="org.fedoraproject.eclipse.packager.local.prepCommand"
+            name="%LocalFedoraPackagercommand.name.prep">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="org.fedoraproject.eclipse.packager.fedorarpm.commands.sampleCommand"
+            commandId="org.fedoraproject.eclipse.packager.local.commands.sampleCommand"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+6">

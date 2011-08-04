@@ -4,7 +4,7 @@ Bundle-Name: %Bundle-Name
 Bundle-Vendor: %Bundle-Vendor
 Bundle-SymbolicName: org.fedoraproject.eclipse.packager.fedorarpm;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.fedoraproject.eclipse.packager.fedorarpm.FedorarpmPlugin
+Bundle-Activator: org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.eclipse.core.commands,

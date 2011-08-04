@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm;
+package org.fedoraproject.eclipse.packager.local;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,7 +42,7 @@ import org.fedoraproject.eclipse.packager.utils.RPMUtils;
  * This class is a local version of org.fedoraproject.eclipse.packager.FedoraProjectRoot
  * 
  */
-public class FedoraRPMProjectRoot implements IProjectRoot {
+public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 	
 	private IContainer rootContainer;
 	private ProjectType type;
@@ -53,7 +53,7 @@ public class FedoraRPMProjectRoot implements IProjectRoot {
 	 * Default no-arg constructor. Required for instance creation via
 	 * reflections.
 	 */
-	public FedoraRPMProjectRoot() {
+	public LocalFedoraPackagerProjectRoot() {
 		// nothing
 	}
 	
@@ -216,7 +216,7 @@ public class FedoraRPMProjectRoot implements IProjectRoot {
 	 */
 	@Override
 	public QualifiedName[] getSupportedProjectPropertyNames() {
-		return new QualifiedName[] { FedorarpmPlugin.PROJECT_PROP };
+		return new QualifiedName[] { LocalFedoraPackagerPlugin.PROJECT_PROP };
 	}
 
 	/**

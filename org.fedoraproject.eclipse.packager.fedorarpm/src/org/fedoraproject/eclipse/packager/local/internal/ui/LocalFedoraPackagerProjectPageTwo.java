@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm.internal.ui;
+package org.fedoraproject.eclipse.packager.local.internal.ui;
 
 import java.net.URL;
 
@@ -30,10 +30,10 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
-import org.fedoraproject.eclipse.packager.fedorarpm.LocalFedoraPackagerText;
-import org.fedoraproject.eclipse.packager.fedorarpm.FedorarpmPlugin;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 
-public class FedoraRPMProjectPageTwo extends WizardPage {
+public class LocalFedoraPackagerProjectPageTwo extends WizardPage {
 	private Group grpAccount;
 	private Button btnNewMaintainer;
 	private Button btnExistingMaintainer;
@@ -47,11 +47,11 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 	/**
 	 * Create the wizard.
 	 */
-	public FedoraRPMProjectPageTwo(String pageName) {
+	public LocalFedoraPackagerProjectPageTwo(String pageName) {
 		super(pageName);
 		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
 		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
-		FedorarpmPlugin
+		LocalFedoraPackagerPlugin
 				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
 	}
 

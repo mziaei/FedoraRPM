@@ -8,25 +8,25 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm.internal.ui;
+package org.fedoraproject.eclipse.packager.local.internal.ui;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.linuxtools.rpm.ui.editor.wizards.SpecfileNewWizardPage;
 import org.eclipse.swt.widgets.Composite;
-import org.fedoraproject.eclipse.packager.fedorarpm.LocalFedoraPackagerText;
-import org.fedoraproject.eclipse.packager.fedorarpm.FedorarpmPlugin;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 
-public class FedoraRPMProjectPageFour extends SpecfileNewWizardPage {
+public class LocalFedoraPackagerProjectPageFour extends SpecfileNewWizardPage {
 
 
 	/**
 	 * Create the wizard.
 	 */
-	public FedoraRPMProjectPageFour(String pageName, ISelection selection) {
+	public LocalFedoraPackagerProjectPageFour(String pageName, ISelection selection) {
 		super(selection);
 		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
 		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
-		FedorarpmPlugin
+		LocalFedoraPackagerPlugin
 				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
 
 	}

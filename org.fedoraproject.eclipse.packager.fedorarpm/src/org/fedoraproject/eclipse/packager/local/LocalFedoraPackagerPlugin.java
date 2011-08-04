@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm;
+package org.fedoraproject.eclipse.packager.local;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -18,20 +18,20 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class FedorarpmPlugin extends AbstractUIPlugin {
+public class LocalFedoraPackagerPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.fedoraproject.eclipse.packager.fedorarpm"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.fedoraproject.eclipse.packager.local"; //$NON-NLS-1$
 
 	public static final QualifiedName PROJECT_PROP = null;
 
 	// The shared instance
-	private static FedorarpmPlugin plugin;
+	private static LocalFedoraPackagerPlugin plugin;
 
 	/**
 	 * The constructor
 	 */
-	public FedorarpmPlugin() {
+	public LocalFedoraPackagerPlugin() {
 	}
 
 	/*
@@ -57,7 +57,7 @@ public class FedorarpmPlugin extends AbstractUIPlugin {
 	 *
 	 * @return the shared instance
 	 */
-	public static FedorarpmPlugin getDefault() {
+	public static LocalFedoraPackagerPlugin getDefault() {
 		return plugin;
 	}
 

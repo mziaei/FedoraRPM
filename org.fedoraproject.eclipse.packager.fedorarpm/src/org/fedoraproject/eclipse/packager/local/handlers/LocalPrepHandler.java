@@ -9,7 +9,7 @@
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
 
-package org.fedoraproject.eclipse.packager.fedorarpm.internal.handlers;
+package org.fedoraproject.eclipse.packager.local.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredExcepti
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandNotFoundException;
 import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
-import org.fedoraproject.eclipse.packager.fedorarpm.utils.FedoraRPMPackagerUtils;
+import org.fedoraproject.eclipse.packager.local.utils.LocalFedoraPackagerUtils;
 import org.fedoraproject.eclipse.packager.rpm.RPMPlugin;
 import org.fedoraproject.eclipse.packager.rpm.RpmText;
 import org.fedoraproject.eclipse.packager.rpm.api.RpmBuildCommand;
@@ -58,7 +58,7 @@ public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
 
 		IResource eventResource = FedoraHandlerUtils.getResource(event);
 		try {
-			fedoraRPMProjectRoot = FedoraRPMPackagerUtils.getProjectRoot(eventResource);
+			fedoraRPMProjectRoot = LocalFedoraPackagerUtils.getProjectRoot(eventResource);
 		} catch (InvalidProjectRootException e) {
 			logger.logError(FedoraPackagerText.invalidFedoraProjectRootError, e);
 			FedoraHandlerUtils.showErrorDialog(shell, "Error", //$NON-NLS-1$

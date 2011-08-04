@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm.utils;
+package org.fedoraproject.eclipse.packager.local.utils;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -20,14 +20,14 @@ import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerExtensionPointException;
 import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
-import org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMProjectRoot;
-import org.fedoraproject.eclipse.packager.fedorarpm.LocalFedoraPackagerText;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerProjectRoot;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
 /**
  * Utility class for Local Fedora Packager.
  */
-public class FedoraRPMPackagerUtils extends FedoraPackagerUtils {	
+public class LocalFedoraPackagerUtils extends FedoraPackagerUtils {	
 
 	/* 
 	 * @see org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils
@@ -78,7 +78,7 @@ public class FedoraRPMPackagerUtils extends FedoraPackagerUtils {
 	private static IProjectRoot instantiateProjectRoot(IContainer container, ProjectType type)
 			throws FedoraPackagerExtensionPointException {
 
-			IProjectRoot projectRoot = new FedoraRPMProjectRoot();
+			IProjectRoot projectRoot = new LocalFedoraPackagerProjectRoot();
 			// Do initialization
 			projectRoot.initialize(container, type);
 			return projectRoot;

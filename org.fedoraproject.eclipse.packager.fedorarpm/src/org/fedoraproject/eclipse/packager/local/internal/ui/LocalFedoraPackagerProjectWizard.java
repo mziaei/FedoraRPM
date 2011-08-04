@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm.internal.ui;
+package org.fedoraproject.eclipse.packager.local.internal.ui;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -37,26 +37,26 @@ import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.fedoraproject.eclipse.packager.fedorarpm.api.FedoraRPMProjectCreator;
+import org.fedoraproject.eclipse.packager.local.api.LocalFedoraPackagerProjectCreator;
 
-public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
+public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWizard {
 
 	private static final String PAGE_ONE = "PageOne"; //$NON-NLS-1$
 	private static final String PAGE_TWO = "PageTwo"; //$NON-NLS-1$
 	private static final String PAGE_THREE = "PageThree"; //$NON-NLS-1$
 	private static final String PAGE_FOUR = "PageFour"; //$NON-NLS-1$
 
-	private FedoraRPMProjectPageOne pageOne;
-	private FedoraRPMProjectPageTwo pageTwo;
-	private FedoraRPMProjectPageThree pageThree;
-	private FedoraRPMProjectPageFour pageFour;
+	private LocalFedoraPackagerProjectPageOne pageOne;
+	private LocalFedoraPackagerProjectPageTwo pageTwo;
+	private LocalFedoraPackagerProjectPageThree pageThree;
+	private LocalFedoraPackagerProjectPageFour pageFour;
 
 	private IWorkspaceRoot root;
 	private IProject project;
 	private IProjectDescription description;
 	private ISelection selection;
 
-	public FedoraRPMProjectWizard() {
+	public LocalFedoraPackagerProjectWizard() {
 	}
 
 	@Override
@@ -73,13 +73,13 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 	@Override
 	public void addPages() {
 		super.addPages();
-		pageOne = new FedoraRPMProjectPageOne(PAGE_ONE);
+		pageOne = new LocalFedoraPackagerProjectPageOne(PAGE_ONE);
 		addPage(pageOne);
-		pageTwo = new FedoraRPMProjectPageTwo(PAGE_TWO);
+		pageTwo = new LocalFedoraPackagerProjectPageTwo(PAGE_TWO);
 		addPage(pageTwo);
-		pageThree = new FedoraRPMProjectPageThree(PAGE_THREE);
+		pageThree = new LocalFedoraPackagerProjectPageThree(PAGE_THREE);
 		addPage(pageThree);
-		pageFour = new FedoraRPMProjectPageFour(PAGE_FOUR, selection);		
+		pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR, selection);		
 		addPage(pageFour);		
 	}
 
@@ -198,7 +198,7 @@ public class FedoraRPMProjectWizard extends Wizard implements INewWizard {
 			}
 		}
 		
-		FedoraRPMProjectCreator fedoraRPMProjectCreator = new FedoraRPMProjectCreator();
+		LocalFedoraPackagerProjectCreator fedoraRPMProjectCreator = new LocalFedoraPackagerProjectCreator();
 		fedoraRPMProjectCreator.create(pageThree.getProjectType(), pageThree.getExternalFile(), project, monitor);
 	}
 

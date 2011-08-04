@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm.api.errors;
+package org.fedoraproject.eclipse.packager.local.api.errors;
 
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerAPIException;
 

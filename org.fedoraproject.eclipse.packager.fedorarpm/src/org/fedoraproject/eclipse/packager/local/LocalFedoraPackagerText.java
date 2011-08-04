@@ -8,12 +8,12 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm;
+package org.fedoraproject.eclipse.packager.local;
 
 import org.eclipse.osgi.util.NLS;
 
 public class LocalFedoraPackagerText extends NLS {
-	private static final String BUNDLE_NAME = "org.fedoraproject.eclipse.packager.fedorarpm.localfedorapackagertext"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.fedoraproject.eclipse.packager.local.localfedorapackagertext"; //$NON-NLS-1$
 
 	//Local Fedora Packager Project-wizards-main
 	/****/ public static String LocalFedoraPackager_title;
@@ -44,15 +44,15 @@ public class LocalFedoraPackagerText extends NLS {
 	/****/ public static String LocalFedoraPackager_PageThree_btnCheckSrpm;
 	/****/ public static String LocalFedoraPackager_PageThree_lblSrpm;
 	/****/ public static String LocalFedoraPackager_PageThree_btnSrpmBrowse;
+	/****/ public static String LocalFedoraPackager_PageThree_btnCheckPlain;
 	/****/ public static String LocalFedoraPackager_IWizard_fileDialog;
 	/****/ public static String LocalFedoraPackager_IWizard_file;
 
 	//Local Fedora Packager Project-api
-	public static String LocalFedoraPackager_api_FirstCommit;
+	/****/ public static String LocalFedoraPackager_api_FirstCommit;
 
 	//Local Fedora Packager Project-api-errors
-	public static String 
-	LocalFedoraPackager_Utils_invalidProjectRootError;
+	/****/ public static String LocalFedoraPackager_Utils_invalidProjectRootError;
 	
 	static {
 		// initialize resource bundle

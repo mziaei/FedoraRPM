@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm.internal.ui;
+package org.fedoraproject.eclipse.packager.local.internal.ui;
 
 import java.io.File;
 
@@ -23,12 +23,13 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.fedoraproject.eclipse.packager.fedorarpm.LocalFedoraPackagerText;
-import org.fedoraproject.eclipse.packager.fedorarpm.FedorarpmPlugin;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.api.FileDialogRunable;
 
 
-public class FedoraRPMProjectPageThree extends WizardPage {
+public class LocalFedoraPackagerProjectPageThree extends WizardPage {
+
 	private static final String PLAIN = "plain"; //$NON-NLS-1$
 	private static final String SRPM = "*.src.rpm"; //$NON-NLS-1$
 	private static final String[] STUBBY = new String[]{"feature.xml", "pom.xml"};
@@ -37,6 +38,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	private Button btnStubbyBrowse;
 	private Button btnCheckSrpm;
 	private Button btnSrpmBrowse;
+	private Button btnCheckPlain;
 	private Label lblSrpm;
 	private Text textStubby;
 	private Text textSrpm;
@@ -44,15 +46,16 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	
 	private String projectType = PLAIN;
 	private File externalFile = null;
+	private boolean canFinish = false;
 
 	/**
 	 * Create the wizard.
 	 */
-	public FedoraRPMProjectPageThree(String pageName) {
+	public LocalFedoraPackagerProjectPageThree(String pageName) {
 		super(pageName);
 		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
 		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
-		FedorarpmPlugin.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
+		LocalFedoraPackagerPlugin.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
 	}
 
 	/**
@@ -137,8 +140,20 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 			}
 		});
 
+		btnCheckPlain = new Button(container, SWT.RADIO);
+		btnCheckPlain.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageThree_btnCheckPlain);
+		layoutData = new GridData();
+		layoutData.horizontalSpan = 3;
+		btnCheckPlain.setLayoutData(layoutData);
+
+		btnCheckPlain.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectControl();
+			}
+		});
 		selectControl();
-		setPageComplete(checkPageComplete());
+		setPageComplete(canFinish);
 		setControl(container);
 	}
 	
@@ -164,6 +179,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		this.externalFile = new File(filePath);
 		this.projectType = projectType;	
 		
+		canFinish = true;
 		setPageComplete(true);
 	}
 	
@@ -186,18 +202,10 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		return projectType;
 	}
 
-	/**
-	 * Check if the page is complete
-	 *
-	 * @return boolean
-	 */
-	private boolean checkPageComplete() {
-		return (!projectType.equals(PLAIN));
-	}
-
 	@Override
 	public boolean canFlipToNextPage() {
-		return (projectType.equals(PLAIN));
+//		return (projectType.equals(PLAIN));
+		return (btnCheckPlain.getSelection());
 	}
 	
 	/**

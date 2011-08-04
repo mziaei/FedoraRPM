@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm.api;
+package org.fedoraproject.eclipse.packager.local.api;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,9 +34,9 @@ import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
 import org.eclipse.linuxtools.rpmstubby.SpecfileWriter;
 import org.eclipse.linuxtools.rpmstubby.StubbyPomGenerator;
 import org.eclipse.ui.PlatformUI;
-import org.fedoraproject.eclipse.packager.fedorarpm.LocalFedoraPackagerText;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 
-public class FedoraRPMProjectCreator {
+public class LocalFedoraPackagerProjectCreator {
 	private static final String GITIGNORE = ".gitignore"; //$NON-NLS-1$
 	private static final String PROJECT = ".project"; //$NON-NLS-1$
 	private static final String SPEC = ".spec"; //$NON-NLS-1$

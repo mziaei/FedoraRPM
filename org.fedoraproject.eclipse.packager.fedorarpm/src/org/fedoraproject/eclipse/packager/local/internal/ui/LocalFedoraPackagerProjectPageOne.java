@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.fedorarpm.internal.ui;
+package org.fedoraproject.eclipse.packager.local.internal.ui;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -17,20 +17,20 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
-import org.fedoraproject.eclipse.packager.fedorarpm.LocalFedoraPackagerText;
-import org.fedoraproject.eclipse.packager.fedorarpm.FedorarpmPlugin;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 
-public class FedoraRPMProjectPageOne extends WizardNewProjectCreationPage {
+public class LocalFedoraPackagerProjectPageOne extends WizardNewProjectCreationPage {
 	private Label lblNoteGit;
 
 	/**
 	 * Create the wizard.
 	 */
-	public FedoraRPMProjectPageOne(String pageName) {
+	public LocalFedoraPackagerProjectPageOne(String pageName) {
 		super(pageName);
 		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
 		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
-		FedorarpmPlugin
+		LocalFedoraPackagerPlugin
 				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
 	}
 
