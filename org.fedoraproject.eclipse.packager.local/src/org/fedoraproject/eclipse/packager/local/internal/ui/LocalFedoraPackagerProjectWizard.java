@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
@@ -40,6 +41,7 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.fedoraproject.eclipse.packager.local.api.LocalFedoraPackagerProjectCreator;
 
 public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWizard {
+
 
 	private static final String PAGE_ONE = "PageOne"; //$NON-NLS-1$
 	private static final String PAGE_TWO = "PageTwo"; //$NON-NLS-1$
@@ -134,7 +136,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	 */
 	@Override
 	public boolean canFinish() {
-		return (getContainer().getCurrentPage() == pageThree && pageThree.isPageComplete())
+		return (getContainer().getCurrentPage() == pageThree && !pageThree.canFlipToNextPage())
 				|| getContainer().getCurrentPage() == pageFour;
 	}
 

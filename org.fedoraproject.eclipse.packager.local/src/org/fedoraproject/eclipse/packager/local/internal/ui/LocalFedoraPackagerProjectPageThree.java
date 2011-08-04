@@ -44,7 +44,7 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 	private Text textSrpm;
 	private Combo comboStubby;
 	
-	private String projectType = PLAIN;
+	private String projectType = "";
 	private File externalFile = null;
 	private boolean canFinish = false;
 
@@ -149,6 +149,10 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 		btnCheckPlain.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				setPageComplete(true);
+				projectType = PLAIN;
+//				canFlipToNextPage();
+				
 				selectControl();
 			}
 		});
@@ -204,8 +208,8 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 
 	@Override
 	public boolean canFlipToNextPage() {
-//		return (projectType.equals(PLAIN));
-		return (btnCheckPlain.getSelection());
+		return (projectType.equals(PLAIN));
+//		return (btnCheckPlain.getSelection());
 	}
 	
 	/**
