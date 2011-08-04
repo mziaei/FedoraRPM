@@ -355,7 +355,20 @@ public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
 		
 		
 		
-		
+import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
+import org.eclipse.linuxtools.rpm.core.RPMProject;
+import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
+//import org.eclipse.linuxtools.rpm.ui.IRPMUIConstants.BuildType;
+import org.eclipse.linuxtools.rpm.ui.RPMExportOperation;
+import org.eclipse.swt.widgets.Shell;
+
+
+
+public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
+
+
+	@Override
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		// Using fedoraproject.rpm
 		
 //		final Shell shell = getShell(event);

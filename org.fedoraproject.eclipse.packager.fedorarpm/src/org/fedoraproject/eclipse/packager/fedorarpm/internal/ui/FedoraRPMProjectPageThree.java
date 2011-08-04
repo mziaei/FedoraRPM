@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2010-2011 Red Hat Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Red Hat Inc. - initial API and implementation
+ *******************************************************************************/
 package org.fedoraproject.eclipse.packager.fedorarpm.internal.ui;
 
 import java.io.File;
@@ -13,7 +23,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMText;
+import org.fedoraproject.eclipse.packager.fedorarpm.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.fedorarpm.FedorarpmPlugin;
 import org.fedoraproject.eclipse.packager.api.FileDialogRunable;
 
@@ -40,9 +50,9 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	 */
 	public FedoraRPMProjectPageThree(String pageName) {
 		super(pageName);
-		setTitle(FedoraRPMText.FedoraRPMProject_title);
-		setDescription(FedoraRPMText.FedoraRPMProject_description);
-		FedorarpmPlugin.getImageDescriptor(FedoraRPMText.FedoraRPMProject_image);
+		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
+		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
+		FedorarpmPlugin.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
 	}
 
 	/**
@@ -59,7 +69,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		layout.verticalSpacing = 9;
 
 		btnCheckStubby = new Button(container, SWT.RADIO);
-		btnCheckStubby.setText(FedoraRPMText.FedoraRPMProjectPageThree_btnCheckStubby);
+		btnCheckStubby.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageThree_btnCheckStubby);
 		GridData layoutData = new GridData();
 		layoutData.horizontalSpan = 3;
 		btnCheckStubby.setLayoutData(layoutData);
@@ -83,19 +93,19 @@ public class FedoraRPMProjectPageThree extends WizardPage {
         textStubby.setLayoutData(layoutData);
 
 		btnStubbyBrowse = new Button(container, SWT.PUSH);
-		btnStubbyBrowse.setText(FedoraRPMText.FedoraRPMProjectPageThree_btnStubbyBrowse);
+		btnStubbyBrowse.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageThree_btnStubbyBrowse);
 
 		btnStubbyBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int comboIndex = comboStubby.getSelectionIndex();
-				fileDialog(STUBBY[comboIndex], textStubby, FedoraRPMText.FedoraRPMProjectIWizard_Stubby);
+				fileDialog(STUBBY[comboIndex], textStubby, LocalFedoraPackagerText.LocalFedoraPackager_IWizard_Stubby);
 			}
 		});
 
 
 		btnCheckSrpm = new Button(container, SWT.RADIO);
-		btnCheckSrpm.setText(FedoraRPMText.FedoraRPMProjectPageThree_btnCheckSrpm);
+		btnCheckSrpm.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageThree_btnCheckSrpm);
 		layoutData = new GridData();
 		layoutData.horizontalSpan = 3;
 		btnCheckSrpm.setLayoutData(layoutData);
@@ -108,7 +118,7 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 		});
 
 		lblSrpm = new Label(container, SWT.NONE);
-		lblSrpm.setText(FedoraRPMText.FedoraRPMProjectPageThree_lblSrpm);
+		lblSrpm.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageThree_lblSrpm);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 25;
 		lblSrpm.setLayoutData(layoutData);
@@ -118,12 +128,12 @@ public class FedoraRPMProjectPageThree extends WizardPage {
         textSrpm.setLayoutData(layoutData);
 
 		btnSrpmBrowse = new Button(container, SWT.PUSH);
-		btnSrpmBrowse.setText(FedoraRPMText.FedoraRPMProjectPageThree_btnSrpmBrowse);
+		btnSrpmBrowse.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageThree_btnSrpmBrowse);
 
 		btnSrpmBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fileDialog(SRPM, textSrpm, FedoraRPMText.FedoraRPMProjectIWizard_SRpm);
+				fileDialog(SRPM, textSrpm, LocalFedoraPackagerText.LocalFedoraPackager_IWizard_SRpm);
 			}
 		});
 
@@ -145,8 +155,8 @@ public class FedoraRPMProjectPageThree extends WizardPage {
 	 */
 	private void fileDialog(String filter, Text text, String projectType) {
 		FileDialogRunable fdr = new FileDialogRunable(filter, 
-				FedoraRPMText.FedoraRPMProjectIWizard_fileDialog + 
-				filter + FedoraRPMText.FedoraRPMProjectIWizard_file);
+				LocalFedoraPackagerText.LocalFedoraPackager_IWizard_fileDialog + 
+				filter + LocalFedoraPackagerText.LocalFedoraPackager_IWizard_file);
 		getShell().getDisplay().syncExec(fdr);
 		String filePath = fdr.getFile();		
 		text.setText(filePath.toString());

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2010-2011 Red Hat Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Red Hat Inc. - initial API and implementation
+ *******************************************************************************/
 package org.fedoraproject.eclipse.packager.fedorarpm.internal.ui;
 
 import java.net.URL;
@@ -20,7 +30,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
-import org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMText;
+import org.fedoraproject.eclipse.packager.fedorarpm.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.fedorarpm.FedorarpmPlugin;
 
 public class FedoraRPMProjectPageTwo extends WizardPage {
@@ -39,10 +49,10 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 	 */
 	public FedoraRPMProjectPageTwo(String pageName) {
 		super(pageName);
-		setTitle(FedoraRPMText.FedoraRPMProject_title);
-		setDescription(FedoraRPMText.FedoraRPMProject_description);
+		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
+		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
 		FedorarpmPlugin
-				.getImageDescriptor(FedoraRPMText.FedoraRPMProject_image);
+				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
 	}
 
 	/**
@@ -62,28 +72,28 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		grpAccount.setLayoutData(layoutData);
 		grpAccount
-				.setText(FedoraRPMText.FedoraRPMProjectPageTwo_grpAccountSetup);
+				.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_grpAccountSetup);
 
 		btnExistingMaintainer = new Button(grpAccount, SWT.RADIO);
 		btnExistingMaintainer
-				.setText(FedoraRPMText.FedoraRPMProjectPageTwo_btnRadioExistMaintainer);
+				.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_btnRadioExistMaintainer);
 		layoutData = new GridData();
 		layoutData.horizontalSpan = 3;
 		btnExistingMaintainer.setLayoutData(layoutData);
 
 		btnNewMaintainer = new Button(grpAccount, SWT.RADIO);
 		btnNewMaintainer
-				.setText(FedoraRPMText.FedoraRPMProjectPageTwo_btnRadioNewMaintainer);
+				.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_btnRadioNewMaintainer);
 		layoutData = new GridData();
 		layoutData.horizontalSpan = 3;
 		btnNewMaintainer.setLayoutData(layoutData);
 
 		linkFAS = new Link(grpAccount, SWT.NONE);
-		linkFAS.setText(FedoraRPMText.FedoraRPMProjectPageTwo_linkFAS);
+		linkFAS.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_linkFAS);
 		setLayout(linkFAS);
 
 		lblTextFAS = new Label(grpAccount, SWT.NONE);
-		lblTextFAS.setText(FedoraRPMText.FedoraRPMProjectPageTwo_lblTextFAS);
+		lblTextFAS.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_lblTextFAS);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 45;
 		lblTextFAS.setLayoutData(layoutData);
@@ -95,25 +105,25 @@ public class FedoraRPMProjectPageTwo extends WizardPage {
 
 		linkBugzilla = new Link(grpAccount, SWT.NONE);
 		linkBugzilla
-				.setText(FedoraRPMText.FedoraRPMProjectPageTwo_linkBugzilla);
+				.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_linkBugzilla);
 		setLayout(linkBugzilla);
 
 		linkInitial = new Link(grpAccount, SWT.NONE);
-		linkInitial.setText(FedoraRPMText.FedoraRPMProjectPageTwo_linkInitial);
+		linkInitial.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_linkInitial);
 		setLayout(linkInitial);
 
 		linkIntroduce = new Link(grpAccount, SWT.NONE);
 		linkIntroduce
-				.setText(FedoraRPMText.FedoraRPMProjectPageTwo_linkIntroduce);
+				.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_linkIntroduce);
 		setLayout(linkIntroduce);
 
-		addListener(linkFAS, FedoraRPMText.FedoraRPMProjectPageTwo_urlFAS);
+		addListener(linkFAS, LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_urlFAS);
 		addListener(linkBugzilla,
-				FedoraRPMText.FedoraRPMProjectPageTwo_urlBugzilla);
+				LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_urlBugzilla);
 		addListener(linkInitial,
-				FedoraRPMText.FedoraRPMProjectPageTwo_urlInitial);
+				LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_urlInitial);
 		addListener(linkIntroduce,
-				FedoraRPMText.FedoraRPMProjectPageTwo_urlIntroduce);
+				LocalFedoraPackagerText.LocalFedoraPackager_PageTwo_urlIntroduce);
 
 		btnNewMaintainer.addSelectionListener(new SelectionAdapter() {
 			@Override

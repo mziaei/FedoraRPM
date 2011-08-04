@@ -1,32 +1,53 @@
+/*******************************************************************************
+ * Copyright (c) 2010-2011 Red Hat Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Red Hat Inc. - initial API and implementation
+ *******************************************************************************/
 package org.fedoraproject.eclipse.packager.fedorarpm.utils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.core.runtime.Path;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
-import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
-import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerExtensionPointException;
 import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
 import org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMProjectRoot;
+import org.fedoraproject.eclipse.packager.fedorarpm.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
-import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils.ProjectType;
 
+/**
+ * Utility class for Local Fedora Packager.
+ */
+public class FedoraRPMPackagerUtils extends FedoraPackagerUtils {	
 
-public class FedoraRPMPackagerUtils extends FedoraPackagerUtils {
+	/* 
+	 * @see org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils
+	 *   #isValidFedoraProjectRoot(IContainer resource)
+	 */
+	protected static boolean isValidFedoraProjectRoot(IContainer resource) {
+		// FIXME: Determine rpm package name from a persistent property. In
+		// future the project name might not be equal to the RPM package name.
+		IFile specFile = resource.getFile(new Path(resource.getProject()
+				.getName() + ".spec")); //$NON-NLS-1$
+		if (specFile.exists()) {
+			return true;
+		}
+		return false;
+	}
 	
-
+	/* 
+	 * @see org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils
+	 *   #getProjectRoot(IResource resource)
+	 */
 	public static IProjectRoot getProjectRoot(IResource resource)
 			throws InvalidProjectRootException {
 		IContainer candidate = null;
@@ -36,76 +57,31 @@ public class FedoraRPMPackagerUtils extends FedoraPackagerUtils {
 			candidate = resource.getParent();
 		}
 		ProjectType type = getProjectType(candidate);
-//		if (candidate != null && type != null) {
-		try {
-			return instantiateProjectRoot(candidate, type);
-		} catch (FedoraPackagerExtensionPointException e) {
-			FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
-			logger.logError(e.getMessage(), e);
-			throw new InvalidProjectRootException(e.getMessage());
+		if (candidate != null && isValidFedoraProjectRoot(candidate)
+				&& type != null) {
+			try {
+				return instantiateProjectRoot(candidate, type);
+			} catch (FedoraPackagerExtensionPointException e) {
+				FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
+				logger.logError(e.getMessage(), e);
+				throw new InvalidProjectRootException(e.getMessage());
+			}
+		} else {
+			throw new InvalidProjectRootException(LocalFedoraPackagerText.LocalFedoraPackager_Utils_invalidProjectRootError);
 		}
-		// TODO - Fix the error
-//		} else {
-//			throw new InvalidProjectRootException(FedoraPackagerText.FedoraPackagerUtils_invalidProjectRootError);
-//		}
 	}
 
-	/**
-	 * Instatiate a project root instance using the projectRoot extension point.
-	 * @param type 
-	 * @param container 
-	 * 
-	 * @return the newly created instance
-	 * @throws FedoraPackagerExtensionPointException 
+	/* 
+	 * @see org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils
+	 *   #instantiateProjectRoot(IContainer container, ProjectType type)
 	 */
 	private static IProjectRoot instantiateProjectRoot(IContainer container, ProjectType type)
 			throws FedoraPackagerExtensionPointException {
-//		IExtensionPoint projectRootExtension = Platform.getExtensionRegistry()
-//				.getExtensionPoint(PackagerPlugin.PLUGIN_ID,
-//						PROJECT_ROOT_EXTENSIONPOINT_NAME);
-//		if (projectRootExtension != null) {
-//			List<IProjectRoot> projectRootList = new ArrayList<IProjectRoot>();
-//			for (IConfigurationElement projectRoot : projectRootExtension
-//					.getConfigurationElements()) {
-//				if (projectRoot.getName().equals(PROJECT_ROOT_ELEMENT_NAME)) {
-//					// found extension point element
-//					try {
-//						IProjectRoot root = (IProjectRoot) projectRoot
-//								.createExecutableExtension(PROJECT_ROOT_CLASS_ATTRIBUTE_NAME);
-//						assert root != null;
-//						projectRootList.add(root);
-//					} catch (IllegalStateException e) {
-//						throw new FedoraPackagerExtensionPointException(
-//								e.getMessage(), e);
-//					} catch (CoreException e) {
-//						throw new FedoraPackagerExtensionPointException(
-//								e.getMessage(), e);
-//					}
-//				}
-//			}
-//			// We need at least one project root
-//			if (projectRootList.size() == 0) {
-//				throw new FedoraPackagerExtensionPointException(NLS.bind(
-//						FedoraPackagerText.extensionNotFoundError,
-//						PROJECT_ROOT_EXTENSIONPOINT_NAME));
-//			}
-//			// Get the best matching project root
-//			IProjectRoot projectRoot = findBestMatchingProjectRoot(projectRootList, container);
-//			if (projectRoot == null) {
-//				// can't continue
-//				throw new FedoraPackagerExtensionPointException(NLS.bind(
-//						FedoraPackagerText.extensionNotFoundError,
-//						PROJECT_ROOT_EXTENSIONPOINT_NAME));
-//			}
+
 			IProjectRoot projectRoot = new FedoraRPMProjectRoot();
 			// Do initialization
 			projectRoot.initialize(container, type);
 			return projectRoot;
-//		}
-//		throw new FedoraPackagerExtensionPointException(NLS.bind(
-//				FedoraPackagerText.extensionNotFoundError,
-//				PROJECT_ROOT_EXTENSIONPOINT_NAME));
 	}
-
 	
 }

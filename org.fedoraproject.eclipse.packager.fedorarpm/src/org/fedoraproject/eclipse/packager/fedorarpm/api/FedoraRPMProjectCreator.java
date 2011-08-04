@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2010-2011 Red Hat Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Red Hat Inc. - initial API and implementation
+ *******************************************************************************/
 package org.fedoraproject.eclipse.packager.fedorarpm.api;
 
 import java.io.File;
@@ -24,7 +34,7 @@ import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
 import org.eclipse.linuxtools.rpmstubby.SpecfileWriter;
 import org.eclipse.linuxtools.rpmstubby.StubbyPomGenerator;
 import org.eclipse.ui.PlatformUI;
-import org.fedoraproject.eclipse.packager.fedorarpm.FedoraRPMText;
+import org.fedoraproject.eclipse.packager.fedorarpm.LocalFedoraPackagerText;
 
 public class FedoraRPMProjectCreator {
 	private static final String GITIGNORE = ".gitignore"; //$NON-NLS-1$
@@ -65,7 +75,7 @@ public class FedoraRPMProjectCreator {
 			ConcurrentRefUpdateException, JGitInternalException,
 			WrongRepositoryStateException, CoreException {
 
-		if (projectType.equals(FedoraRPMText.FedoraRPMProjectIWizard_Stubby)) {
+		if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackager_IWizard_Stubby)) {
 			IFile stubby = project.getFile(externalFile.getName());
 			stubby.create(new FileInputStream(externalFile), false, monitor);
 
@@ -81,7 +91,7 @@ public class FedoraRPMProjectCreator {
 				generator.writeContent(stubby.getProject().getName());
 			}
 			
-		} else if (projectType.equals(FedoraRPMText.FedoraRPMProjectIWizard_SRpm)) {
+		} else if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackager_IWizard_SRpm)) {
 			RPMProject rpmProject = new RPMProject(project,
 					RPMProjectLayout.FLAT);
 			rpmProject.importSourceRPM(externalFile);
@@ -163,7 +173,7 @@ public class FedoraRPMProjectCreator {
 		}
 
 		// do the first commit
-		git.commit().setMessage(FedoraRPMText.FedoraRPMProject_api_FirstCommit)
+		git.commit().setMessage(LocalFedoraPackagerText.LocalFedoraPackager_api_FirstCommit)
 				.call();
 	}
 

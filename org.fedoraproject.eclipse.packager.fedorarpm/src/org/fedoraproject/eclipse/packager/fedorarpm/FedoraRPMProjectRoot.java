@@ -37,8 +37,9 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils.ProjectType;
 import org.fedoraproject.eclipse.packager.utils.RPMUtils;
 
 /**
- * This class is representing a root directory for a Fedora package in a given
- * branch. It can be a folder in the cvs case or a project in the git case.
+ * This class is representing a root directory for a Local Fedora RPM package in a given
+ * branch. This project is a local Git repository.
+ * This class is a local version of org.fedoraproject.eclipse.packager.FedoraProjectRoot
  * 
  */
 public class FedoraRPMProjectRoot implements IProjectRoot {
@@ -59,6 +60,7 @@ public class FedoraRPMProjectRoot implements IProjectRoot {
 	/*
 	 * (non-Javadoc)
 	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#initialize(org.eclipse.core.resources.IContainer, org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils.ProjectType)
+	 * Also @see org.fedoraproject.eclipse.packager.FedoraProjectRoot#initialize(container, type)
 	 */
 	@Override
 	public void initialize(IContainer container, ProjectType type) throws FedoraPackagerExtensionPointException {
@@ -86,6 +88,20 @@ public class FedoraRPMProjectRoot implements IProjectRoot {
 		return this.rootContainer.getProject();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#getSourcesFile()
+	 */
+	@Override
+	public SourcesFile getSourcesFile() {
+		return null;
+	}
+	
+//	@Override
+//	public SourcesFile getSourcesFile() {
+//		return null;
+//	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#getPackageName()
@@ -152,6 +168,7 @@ public class FedoraRPMProjectRoot implements IProjectRoot {
 	/*
 	 * (non-Javadoc)
 	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#getIgnoreFile()
+	 * @see also org.fedoraproject.eclipse.packager.FedoraProjectRoot#getIgnoreFile()
 	 */
 	@Override
 	public IFile getIgnoreFile() {
@@ -172,10 +189,30 @@ public class FedoraRPMProjectRoot implements IProjectRoot {
 		assert ignoreFile != null;
 		return ignoreFile;
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#getLookAsideCache()
+	 * @see also org.fedoraproject.eclipse.packager.FedoraProjectRoot#getLookAsideCache()
+	 */
+	@Override
+	public ILookasideCache getLookAsideCache() {
+		return null;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#getProductStrings()
+	 */
+	@Override
+	public IProductStrings getProductStrings() {
+		return this.productStrings;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#getSupportedProjectPropertyNames()
+	 * @see also org.fedoraproject.eclipse.packager.FedoraProjectRoot#getSupportedProjectPropertyNames()
 	 */
 	@Override
 	public QualifiedName[] getSupportedProjectPropertyNames() {
@@ -217,21 +254,6 @@ public class FedoraRPMProjectRoot implements IProjectRoot {
 		String[] nvrs = rawNvrs.toArray(new String[]{});
 		Arrays.sort(nvrs);
 		return nvrs;
-	}
-
-	@Override
-	public SourcesFile getSourcesFile() {
-		return null;
-	}
-
-	@Override
-	public ILookasideCache getLookAsideCache() {
-		return null;
-	}
-
-	@Override
-	public IProductStrings getProductStrings() {
-		return this.productStrings;
 	}
 
 }
