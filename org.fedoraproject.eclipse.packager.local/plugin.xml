@@ -10,7 +10,7 @@
 		<wizard 
 			category="org.fedoraproject.eclipse.packager.local.category.wizards" 
 			class="org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerProjectWizard" 
-			icon="icons/fedora16x16.png" id="org.fedoraproject.eclipse.packager.local.newprojectwizard" 
+			icon="icons/fedpkg3.png" id="org.fedoraproject.eclipse.packager.local.newprojectwizard" 
 			name="%FedoraGitWizardCommandName">
 		</wizard>
 	</extension>
@@ -19,7 +19,6 @@
       <menuContribution
             locationURI="popup:org.eclipse.ui.popup.any?before=additions">
          <menu
-               icon="icons/fedora16x16.png"
                id="org.eclipse.fedoraproject.packager.main"
                label="%MenuProductName">
          </menu>
@@ -28,9 +27,23 @@
             locationURI="popup:org.eclipse.fedoraproject.packager.main?">
          <command
                commandId="org.fedoraproject.eclipse.packager.local.prepCommand"
-               icon="icons/rpm.gif"
+               icon="icons/fedpkg3.png"
                label="%LocalFedoraPackagercommand.label.prep"
                mnemonic="%LocalFedoraPackagercommand.mnemonic.prep"
+               style="push">
+         </command>
+         <command
+               commandId="org.fedoraproject.eclipse.packager.local.srpmCommand"
+               icon="icons/fedpkg3.png"
+               label="%LocalFedoraPackagercommand.label.srpm"
+               mnemonic="%LocalFedoraPackagercommand.mnemonic.srpm"
+               style="push">
+         </command>
+         <command
+               commandId="org.fedoraproject.eclipse.packager.local.BuildCommand"
+               icon="icons/fedpkg3.png"
+               label="%LocalFedoraPackagercommand.label.build"
+               mnemonic="%LocalFedoraPackagercommand.mnemonic.build"
                style="push">
          </command>
       </menuContribution>
@@ -50,9 +63,19 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.fedoraproject.eclipse.packager.local.handlers.LocalPrepHandler"
+            defaultHandler="org.fedoraproject.eclipse.packager.local.internal.handlers.PrepHandler"
             id="org.fedoraproject.eclipse.packager.local.prepCommand"
             name="%LocalFedoraPackagercommand.name.prep">
+      </command>
+      <command
+            defaultHandler="org.fedoraproject.eclipse.packager.local.internal.handlers.SRPMBuildHandler"
+            id="org.fedoraproject.eclipse.packager.local.srpmCommand"
+            name="%LocalFedoraPackagercommand.name.srpm">
+      </command>
+      <command
+            defaultHandler="org.fedoraproject.eclipse.packager.local.internal.handlers.LocalBuildHandler"
+            id="org.fedoraproject.eclipse.packager.local.BuildCommand"
+            name="%LocalFedoraPackagercommand.name.build">
       </command>
    </extension>
    <extension
@@ -64,6 +87,20 @@
             sequence="M1+6">
       </key>
    </extension>
-	
+	<extension
+          point="org.eclipse.ui.perspectives">
+       <perspective
+             class="org.fedoraproject.eclipse.packager.internal.perspective.PackagingPerspectiveFactory"
+             icon="icons/fedora16x16.png"
+             id="org.fedoraproject.eclipse.packager.perspective"
+             name="%PerspectiveName">
+       </perspective>
+    </extension>
+ <extension
+       point="org.fedoraproject.eclipse.packager.projectRootProvider">
+    <projectRoot
+          class="org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerProjectRoot">
+    </projectRoot>
+ </extension>
 
 </plugin>

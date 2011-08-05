@@ -23,7 +23,10 @@ public class LocalFedoraPackagerPlugin extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.fedoraproject.eclipse.packager.local"; //$NON-NLS-1$
 
-	public static final QualifiedName PROJECT_PROP = null;
+	/** Git type for persistent property types */
+	public static final String PROJECT_KEY = "localproject"; //$NON-NLS-1$
+	/** Qualified name for the type property */
+	public static final QualifiedName PROJECT_PROP = new QualifiedName(PLUGIN_ID, PROJECT_KEY);
 
 	// The shared instance
 	private static LocalFedoraPackagerPlugin plugin;

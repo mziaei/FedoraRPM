@@ -256,4 +256,16 @@ public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 		return nvrs;
 	}
 
+	@Override
+	public boolean validate(IContainer candidate) {
+		// FIXME: Determine rpm package name from a persistent property. In
+		// future the project name might not be equal to the RPM package name.
+		IFile specFile = candidate.getFile(new Path(candidate.getProject()
+				.getName() + ".spec")); //$NON-NLS-1$
+		if (specFile.exists()) {
+			return true;
+		}
+		return false;
+	}
+
 }

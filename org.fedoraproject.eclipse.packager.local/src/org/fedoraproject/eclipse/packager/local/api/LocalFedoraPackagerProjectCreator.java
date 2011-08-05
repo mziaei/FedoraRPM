@@ -34,6 +34,7 @@ import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
 import org.eclipse.linuxtools.rpmstubby.SpecfileWriter;
 import org.eclipse.linuxtools.rpmstubby.StubbyPomGenerator;
 import org.eclipse.ui.PlatformUI;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 
 public class LocalFedoraPackagerProjectCreator {
@@ -108,8 +109,8 @@ public class LocalFedoraPackagerProjectCreator {
 
 		// Set persistent property so that we know when to show the context
 		// menu item.
-//		 project.setPersistentProperty(PackagerPlugin.PROJECT_PROP,
-//							"true" /* unused value */); //$NON-NLS-1$
+		 project.setPersistentProperty(LocalFedoraPackagerPlugin.PROJECT_PROP,
+							"true" /* unused value */); //$NON-NLS-1$
 
 		ConnectProviderOperation connect = new ConnectProviderOperation(project);
 		connect.execute(null);
