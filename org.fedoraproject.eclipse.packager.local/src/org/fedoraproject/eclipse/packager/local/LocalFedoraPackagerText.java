@@ -52,8 +52,9 @@ public class LocalFedoraPackagerText extends NLS {
 	/****/ public static String LocalFedoraPackager_api_FirstCommit;
 
 	//Local Fedora Packager Project-api-errors
-	/****/ public static String LocalFedoraPackager_Utils_invalidProjectRootError;
-	
+	/****/ public static String LocalFedoraPackagerUtils_invalidLocalProjectRootError;
+	/****/ public static String invalidLocalFedoraProjectRootError;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, LocalFedoraPackagerText.class);

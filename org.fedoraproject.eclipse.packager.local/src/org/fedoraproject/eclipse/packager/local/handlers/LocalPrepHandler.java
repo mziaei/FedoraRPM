@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
-import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
@@ -32,6 +31,7 @@ import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredExcepti
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandNotFoundException;
 import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.local.utils.LocalFedoraPackagerUtils;
 import org.fedoraproject.eclipse.packager.rpm.RPMPlugin;
 import org.fedoraproject.eclipse.packager.rpm.RpmText;
@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 /**
  * Handler for preparing local sources for local build (prior building it). This is useful for testing
  * if patches apply properly.
- * 
+ *
  */
 public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
 
@@ -60,9 +60,9 @@ public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
 		try {
 			fedoraRPMProjectRoot = LocalFedoraPackagerUtils.getProjectRoot(eventResource);
 		} catch (InvalidProjectRootException e) {
-			logger.logError(FedoraPackagerText.invalidFedoraProjectRootError, e);
+			logger.logError(LocalFedoraPackagerText.invalidLocalFedoraProjectRootError, e);
 			FedoraHandlerUtils.showErrorDialog(shell, "Error", //$NON-NLS-1$
-					FedoraPackagerText.invalidFedoraProjectRootError);
+					LocalFedoraPackagerText.invalidLocalFedoraProjectRootError);
 			return null;
 		}
 		FedoraPackager fp = new FedoraPackager(fedoraRPMProjectRoot);
@@ -82,7 +82,7 @@ public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
 					fedoraRPMProjectRoot.getProductStrings().getProductName(), e.getMessage());
 			return null;
 		}
-		
+
 		// Need to nest jobs into this job for it to show up properly in the UI
 		// in terms of progress
 		Job job = new Job(fedoraRPMProjectRoot.getProductStrings().getProductName()) {

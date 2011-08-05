@@ -27,9 +27,9 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 /**
  * Utility class for Local Fedora Packager.
  */
-public class LocalFedoraPackagerUtils extends FedoraPackagerUtils {	
+public class LocalFedoraPackagerUtils extends FedoraPackagerUtils {
 
-	/* 
+	/*
 	 * @see org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils
 	 *   #isValidFedoraProjectRoot(IContainer resource)
 	 */
@@ -43,8 +43,8 @@ public class LocalFedoraPackagerUtils extends FedoraPackagerUtils {
 		}
 		return false;
 	}
-	
-	/* 
+
+	/*
 	 * @see org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils
 	 *   #getProjectRoot(IResource resource)
 	 */
@@ -67,11 +67,12 @@ public class LocalFedoraPackagerUtils extends FedoraPackagerUtils {
 				throw new InvalidProjectRootException(e.getMessage());
 			}
 		} else {
-			throw new InvalidProjectRootException(LocalFedoraPackagerText.LocalFedoraPackager_Utils_invalidProjectRootError);
+			throw new InvalidProjectRootException
+				(LocalFedoraPackagerText.LocalFedoraPackagerUtils_invalidLocalProjectRootError);
 		}
 	}
 
-	/* 
+	/*
 	 * @see org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils
 	 *   #instantiateProjectRoot(IContainer container, ProjectType type)
 	 */
@@ -83,5 +84,5 @@ public class LocalFedoraPackagerUtils extends FedoraPackagerUtils {
 			projectRoot.initialize(container, type);
 			return projectRoot;
 	}
-	
+
 }
