@@ -8,26 +8,26 @@
           <or>
               <!-- Filter on persistent property only . -->
               <reference
-                  definitionId="org.fedoraproject.eclipse.packager.persistentProperty">
+                  definitionId="org.fedoraproject.eclipse.packager.local.persistentProperty">
               </reference>
           </or>
       </definition>
       <definition
-            id="org.fedoraproject.eclipse.packager.persistentProperty">
+            id="org.fedoraproject.eclipse.packager.local.persistentProperty">
           <iterate
                ifEmpty="false">
             <or>
                <adapt
                      type="org.eclipse.core.resources.IProject">
                   <test
-                        args="org.fedoraproject.eclipse.packager.project"
+                        args="org.fedoraproject.eclipse.packager.local.project"
                         property="org.eclipse.core.resources.projectPersistentProperty">
                   </test>
                </adapt>
                <adapt
                      type="org.eclipse.core.resources.IResource">
                   <test
-                        args="org.fedoraproject.eclipse.packager.project"
+                        args="org.fedoraproject.eclipse.packager.local.project"
                         property="org.eclipse.core.resources.projectPersistentProperty">
                   </test>
                </adapt>
