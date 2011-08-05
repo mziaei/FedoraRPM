@@ -97,11 +97,6 @@ public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 		return null;
 	}
 	
-//	@Override
-//	public SourcesFile getSourcesFile() {
-//		return null;
-//	}
-	
 	/*
 	 * (non-Javadoc)
 	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#getPackageName()
@@ -256,6 +251,10 @@ public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 		return nvrs;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#validate(IContainer candidate)
+	 */
 	@Override
 	public boolean validate(IContainer candidate) {
 		// FIXME: Determine rpm package name from a persistent property. In

@@ -1,6 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+
+   <extension point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="org.fedoraproject.eclipse.packager.local.project">
+          <or>
+              <!-- Filter on persistent property only . -->
+              <reference
+                  definitionId="org.fedoraproject.eclipse.packager.persistentProperty">
+              </reference>
+          </or>
+      </definition>
+      <definition
+            id="org.fedoraproject.eclipse.packager.persistentProperty">
+          <iterate
+               ifEmpty="false">
+            <or>
+               <adapt
+                     type="org.eclipse.core.resources.IProject">
+                  <test
+                        args="org.fedoraproject.eclipse.packager.project"
+                        property="org.eclipse.core.resources.projectPersistentProperty">
+                  </test>
+               </adapt>
+               <adapt
+                     type="org.eclipse.core.resources.IResource">
+                  <test
+                        args="org.fedoraproject.eclipse.packager.project"
+                        property="org.eclipse.core.resources.projectPersistentProperty">
+                  </test>
+               </adapt>
+           </or>
+         </iterate>
+      </definition>
+   </extension>
+
    <extension
          point="org.eclipse.ui.newWizards">
 		<category 
@@ -31,6 +66,23 @@
                label="%LocalFedoraPackagercommand.label.prep"
                mnemonic="%LocalFedoraPackagercommand.mnemonic.prep"
                style="push">
+				<visibleWhen
+                     checkEnabled="false">
+                  <or>
+                     <with
+                           variable="activeMenuSelection">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.local.project">
+                        </reference>
+                     </with>
+                     <with
+                           variable="activeMenuEditorInput">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.local.project">
+                        </reference>
+                     </with>
+                  </or>
+               </visibleWhen>
          </command>
          <command
                commandId="org.fedoraproject.eclipse.packager.local.srpmCommand"
@@ -38,6 +90,23 @@
                label="%LocalFedoraPackagercommand.label.srpm"
                mnemonic="%LocalFedoraPackagercommand.mnemonic.srpm"
                style="push">
+				<visibleWhen
+                     checkEnabled="false">
+                  <or>
+                     <with
+                           variable="activeMenuSelection">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.local.project">
+                        </reference>
+                     </with>
+                     <with
+                           variable="activeMenuEditorInput">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.local.project">
+                        </reference>
+                     </with>
+                  </or>
+               </visibleWhen>
          </command>
          <command
                commandId="org.fedoraproject.eclipse.packager.local.BuildCommand"
@@ -45,6 +114,23 @@
                label="%LocalFedoraPackagercommand.label.build"
                mnemonic="%LocalFedoraPackagercommand.mnemonic.build"
                style="push">
+			<visibleWhen
+                     checkEnabled="false">
+                  <or>
+                     <with
+                           variable="activeMenuSelection">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.local.project">
+                        </reference>
+                     </with>
+                     <with
+                           variable="activeMenuEditorInput">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.local.project">
+                        </reference>
+                     </with>
+                  </or>
+               </visibleWhen>
          </command>
       </menuContribution>
       <menuContribution
@@ -77,15 +163,6 @@
             id="org.fedoraproject.eclipse.packager.local.BuildCommand"
             name="%LocalFedoraPackagercommand.name.build">
       </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="org.fedoraproject.eclipse.packager.local.commands.sampleCommand"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+6">
-      </key>
    </extension>
 	<extension
           point="org.eclipse.ui.perspectives">
