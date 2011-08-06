@@ -91,13 +91,13 @@ public class LocalFedoraPackagerProjectCreator {
 				StubbyPomGenerator generator = new StubbyPomGenerator(stubby);
 				generator.writeContent(stubby.getProject().getName());
 			}
-			
+
 		} else if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackager_IWizard_SRpm)) {
 			RPMProject rpmProject = new RPMProject(project,
 					RPMProjectLayout.FLAT);
 			rpmProject.importSourceRPM(externalFile);
 		}
-		
+
 		else {
 
 		}
@@ -109,7 +109,7 @@ public class LocalFedoraPackagerProjectCreator {
 
 		// Set persistent property so that we know when to show the context
 		// menu item.
-		 project.setPersistentProperty(LocalFedoraPackagerPlugin.PROJECT_PROP,
+		 project.setPersistentProperty (LocalFedoraPackagerPlugin.PROJECT_PROP,
 							"true" /* unused value */); //$NON-NLS-1$
 
 		ConnectProviderOperation connect = new ConnectProviderOperation(project);

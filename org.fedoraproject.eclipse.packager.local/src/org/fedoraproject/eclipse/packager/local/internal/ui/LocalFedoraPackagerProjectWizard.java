@@ -81,7 +81,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 //		addPage(pageTwo);
 		pageThree = new LocalFedoraPackagerProjectPageThree(PAGE_THREE);
 		addPage(pageThree);
-		pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR, selection);
+		pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR);
 		addPage(pageFour);
 	}
 
