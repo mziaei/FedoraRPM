@@ -27,13 +27,12 @@ import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.api.FileDialogRunable;
 
-
 public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 
 	private static final String PLAIN = "plain"; //$NON-NLS-1$
 	private static final String SRPM = "*.src.rpm"; //$NON-NLS-1$
 	private static final String[] STUBBY = new String[]{"feature.xml", "pom.xml"};
-	
+
 	private Button btnCheckStubby;
 	private Button btnStubbyBrowse;
 	private Button btnCheckSrpm;
@@ -43,10 +42,10 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 	private Text textStubby;
 	private Text textSrpm;
 	private Combo comboStubby;
-	
-	private String projectType = "";
+
+	private String projectType = PLAIN;
 	private File externalFile = null;
-	private boolean canFinish = false;
+	private boolean pageCanFinish;
 
 	/**
 	 * Create the wizard.
@@ -81,6 +80,7 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectControl();
+				setPageStatus(false, false);
 			}
 		});
 
@@ -103,9 +103,11 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				int comboIndex = comboStubby.getSelectionIndex();
 				fileDialog(STUBBY[comboIndex], textStubby, LocalFedoraPackagerText.LocalFedoraPackager_IWizard_Stubby);
+				if (textStubby.getText() != null) {
+					setPageStatus(true, true);
+				}
 			}
 		});
-
 
 		btnCheckSrpm = new Button(container, SWT.RADIO);
 		btnCheckSrpm.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageThree_btnCheckSrpm);
@@ -117,6 +119,7 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectControl();
+				setPageStatus(false, false);
 			}
 		});
 
@@ -137,6 +140,9 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				fileDialog(SRPM, textSrpm, LocalFedoraPackagerText.LocalFedoraPackager_IWizard_SRpm);
+				if (textSrpm.getText() != null) {
+					setPageStatus(true, true);
+				}
 			}
 		});
 
@@ -149,44 +155,38 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 		btnCheckPlain.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setPageComplete(true);
-				projectType = PLAIN;
-//				canFlipToNextPage();
-				
 				selectControl();
+				setPageStatus(true, false);
 			}
 		});
 		selectControl();
-		setPageComplete(canFinish);
+		setPageStatus(false, false);
 		setControl(container);
 	}
-	
+
 	/**
-	 * Runs the filaDialog and sets the project type and externalFile 
+	 * Runs the filaDialog and sets the project type and externalFile
 	 * to be passed to project creator
 	 *
 	 * @param String
 	 *  			filter for the fileDialog
-	 * @param Text 
+	 * @param Text
 	 *   			text box for file location
 	 * @param String
 	 * 				type of the project that user selected
 	 */
 	private void fileDialog(String filter, Text text, String projectType) {
-		FileDialogRunable fdr = new FileDialogRunable(filter, 
-				LocalFedoraPackagerText.LocalFedoraPackager_IWizard_fileDialog + 
+		FileDialogRunable fdr = new FileDialogRunable(filter,
+				LocalFedoraPackagerText.LocalFedoraPackager_IWizard_fileDialog +
 				filter + LocalFedoraPackagerText.LocalFedoraPackager_IWizard_file);
 		getShell().getDisplay().syncExec(fdr);
-		String filePath = fdr.getFile();		
+		String filePath = fdr.getFile();
 		text.setText(filePath.toString());
-		
+
 		this.externalFile = new File(filePath);
-		this.projectType = projectType;	
-		
-		canFinish = true;
-		setPageComplete(true);
+		this.projectType = projectType;
 	}
-	
+
 	/**
 	 * Return the external file to the user's selected file
 	 *
@@ -195,7 +195,7 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 	public File getExternalFile() {
 		return externalFile;
 	}
-	
+
 	/**
 	 * Return the type of the project based on the user's selection
 	 *
@@ -206,12 +206,26 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 		return projectType;
 	}
 
-	@Override
-	public boolean canFlipToNextPage() {
-		return (projectType.equals(PLAIN));
-//		return (btnCheckPlain.getSelection());
+	/**
+	 * If Finish button can be enabled, return true
+	 *
+	 * @return pageCanFinish
+	 */
+	public boolean pageCanFinish() {
+		return pageCanFinish;
 	}
-	
+
+	/**
+	 * Sets the status of page
+	 *
+	 * @param pageIsComplete, next or finish can be enabled
+	 * @param pageCanFinish, finish can be enabled
+	 */
+	private void setPageStatus(boolean pageIsComplete, boolean pageCanFinish) {
+		this.pageCanFinish = pageCanFinish;
+		setPageComplete(pageIsComplete);
+	}
+
 	/**
 	 * Sets the enabled properties based on the selected button
 	 */
@@ -223,6 +237,7 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 		    lblSrpm.setEnabled(false);
 		    textSrpm.setEnabled(false);
 		    btnSrpmBrowse.setEnabled(false);
+			textSrpm.setText("");
 		}
 		else if(btnCheckSrpm.getSelection()) {
 		    lblSrpm.setEnabled(true);
@@ -231,6 +246,7 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 		    comboStubby.setEnabled(false);
 		    textStubby.setEnabled(false);
 		    btnStubbyBrowse.setEnabled(false);
+			textStubby.setText("");
 		}
 		else {
 		    comboStubby.setEnabled(false);
@@ -239,6 +255,8 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 		    lblSrpm.setEnabled(false);
 		    textSrpm.setEnabled(false);
 		    btnSrpmBrowse.setEnabled(false);
+			textStubby.setText("");
+			textSrpm.setText("");
 		}
 	}
 

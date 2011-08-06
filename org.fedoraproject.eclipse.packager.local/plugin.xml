@@ -90,23 +90,6 @@
                label="%LocalFedoraPackagercommand.label.srpm"
                mnemonic="%LocalFedoraPackagercommand.mnemonic.srpm"
                style="push">
-				<visibleWhen
-                     checkEnabled="false">
-                  <or>
-                     <with
-                           variable="activeMenuSelection">
-                        <reference
-                              definitionId="org.fedoraproject.eclipse.packager.local.project">
-                        </reference>
-                     </with>
-                     <with
-                           variable="activeMenuEditorInput">
-                        <reference
-                              definitionId="org.fedoraproject.eclipse.packager.local.project">
-                        </reference>
-                     </with>
-                  </or>
-               </visibleWhen>
          </command>
          <command
                commandId="org.fedoraproject.eclipse.packager.local.BuildCommand"

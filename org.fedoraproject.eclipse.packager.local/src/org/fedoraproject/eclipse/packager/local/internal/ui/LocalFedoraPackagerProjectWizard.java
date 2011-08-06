@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
@@ -76,12 +77,12 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 		super.addPages();
 		pageOne = new LocalFedoraPackagerProjectPageOne(PAGE_ONE);
 		addPage(pageOne);
-		pageTwo = new LocalFedoraPackagerProjectPageTwo(PAGE_TWO);
-		addPage(pageTwo);
+//		pageTwo = new LocalFedoraPackagerProjectPageTwo(PAGE_TWO);
+//		addPage(pageTwo);
 		pageThree = new LocalFedoraPackagerProjectPageThree(PAGE_THREE);
 		addPage(pageThree);
-		pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR, selection);		
-		addPage(pageFour);		
+		pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR, selection);
+		addPage(pageFour);
 	}
 
 	/*
@@ -135,8 +136,19 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	 */
 	@Override
 	public boolean canFinish() {
-		return (getContainer().getCurrentPage() == pageThree && !pageThree.canFlipToNextPage())
+		return (getContainer().getCurrentPage() == pageThree && pageThree.pageCanFinish())
 				|| getContainer().getCurrentPage() == pageFour;
+	}
+
+	@Override
+	public IWizardPage getNextPage(IWizardPage page) {
+		if (page instanceof LocalFedoraPackagerProjectPageThree) {
+			LocalFedoraPackagerProjectPageThree page_three = (LocalFedoraPackagerProjectPageThree) page;
+			if (page_three.pageCanFinish()) {
+				return null;
+			}
+		}
+		return super.getNextPage(page);
 	}
 
 	/**
@@ -177,13 +189,13 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	 */
 	protected void createMainProject(IProgressMonitor monitor)
 			throws NoHeadException, NoMessageException,	ConcurrentRefUpdateException,
-			JGitInternalException, WrongRepositoryStateException, NoFilepatternException, 
+			JGitInternalException, WrongRepositoryStateException, NoFilepatternException,
 			IOException, CoreException {
-		
+
 		if (pageThree.getProjectType().equals("plain")) {
 			final String projectName = project.getName();
 			final String fileName = projectName + ".spec";
-			final InputStream contentInputStream = new ByteArrayInputStream(pageFour.getContent().getBytes());	
+			final InputStream contentInputStream = new ByteArrayInputStream(pageFour.getContent().getBytes());
 			final IFile file = project.getFile(new Path(fileName));
 
 			try {
@@ -198,7 +210,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 				e.printStackTrace();
 			}
 		}
-		
+
 		LocalFedoraPackagerProjectCreator fedoraRPMProjectCreator = new LocalFedoraPackagerProjectCreator();
 		fedoraRPMProjectCreator.create(pageThree.getProjectType(), pageThree.getExternalFile(), project, monitor);
 	}
