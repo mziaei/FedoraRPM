@@ -12,21 +12,23 @@ package org.fedoraproject.eclipse.packager.local.internal.ui;
 
 import org.eclipse.linuxtools.rpm.ui.editor.wizards.SpecfileNewWizardPage;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 
 public class LocalFedoraPackagerProjectPageFour extends SpecfileNewWizardPage {
+	private String projectName;
 
 	/**
 	 * Create the wizard.
 	 */
-	public LocalFedoraPackagerProjectPageFour(String pageName) {
+	public LocalFedoraPackagerProjectPageFour(String pageName, String projectName) {
 		super(null);
 		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
 		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
 		LocalFedoraPackagerPlugin
 				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
-
+		this.projectName = projectName;
 	}
 
 	/**
@@ -37,5 +39,13 @@ public class LocalFedoraPackagerProjectPageFour extends SpecfileNewWizardPage {
 	@Override
 	public void createControl(Composite parent) {
 		super.createControl(parent);
+		Text nameText = super.getNameText();
+		setDefaultValues(nameText);
+
+	}
+
+	private void setDefaultValues(Text nameText) {
+		nameText.setText(projectName);
+
 	}
 }

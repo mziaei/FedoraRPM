@@ -79,8 +79,8 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 //		addPage(pageTwo);
 		pageThree = new LocalFedoraPackagerProjectPageThree(PAGE_THREE);
 		addPage(pageThree);
-		pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR);
-		addPage(pageFour);
+//		pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR);
+//		addPage(pageFour);
 	}
 
 	/*
@@ -127,25 +127,25 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.jface.wizard.wizard#canFinish()
-	 */
-	@Override
-	public boolean canFinish() {
-		return getContainer().getCurrentPage() == pageThree;
-	}
+//	/*
+//	 * (non-Javadoc)
+//	 *
+//	 * @see org.eclipse.jface.wizard.wizard#canFinish()
+//	 */
+//	@Override
+//	public boolean canFinish() {
+////		return getContainer().getCurrentPage() == pageThree;
+//	}
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
 		if (page instanceof LocalFedoraPackagerProjectPageThree) {
-			return null;
-//			LocalFedoraPackagerProjectPageThree page_three = (LocalFedoraPackagerProjectPageThree) page;
+//			return null;
+			LocalFedoraPackagerProjectPageThree page_three = (LocalFedoraPackagerProjectPageThree) page;
 //			if (page_three.pageCanFinish()) {
-//				pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR, project);
-//				addPage(pageFour);
-//				return pageFour;
+				pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR, this.pageOne.getProjectName());
+				addPage(pageFour);
+				return pageFour;
 //			}
 
 		}
