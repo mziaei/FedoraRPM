@@ -119,7 +119,9 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectControl();
-				setPageStatus(false, false);
+//				setPageStatus(false, false);
+
+				setPageComplete(true);
 			}
 		});
 
@@ -141,7 +143,8 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				fileDialog(SRPM, textSrpm, LocalFedoraPackagerText.LocalFedoraPackager_IWizard_SRpm);
 				if (textSrpm.getText() != null) {
-					setPageStatus(true, true);
+//					setPageStatus(true, true);
+					setPageComplete(true);
 				}
 			}
 		});
@@ -156,7 +159,9 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectControl();
-				setPageStatus(true, false);
+//				setPageStatus(true, false);
+
+				setPageComplete(true);
 			}
 		});
 		selectControl();
