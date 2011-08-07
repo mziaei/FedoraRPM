@@ -4,7 +4,7 @@
 
    <extension point="org.eclipse.core.expressions.definitions">
       <definition
-            id="org.fedoraproject.eclipse.packager.local.project">
+            id="org.fedoraproject.eclipse.packager.local.localproject">
           <or>
               <!-- Filter on persistent property only . -->
               <reference
@@ -20,15 +20,15 @@
                <adapt
                      type="org.eclipse.core.resources.IProject">
                   <test
-                        args="org.fedoraproject.eclipse.packager.local.project"
-                        property="org.eclipse.core.resources.projectPersistentProperty">
+                        args="org.fedoraproject.eclipse.packager.local.localproject"
+                        property="org.eclipse.core.resources.persistentProperty">
                   </test>
                </adapt>
                <adapt
                      type="org.eclipse.core.resources.IResource">
                   <test
-                        args="org.fedoraproject.eclipse.packager.local.project"
-                        property="org.eclipse.core.resources.projectPersistentProperty">
+                        args="org.fedoraproject.eclipse.packager.local.localproject"
+                        property="org.eclipse.core.resources.persistentProperty">
                   </test>
                </adapt>
            </or>
@@ -45,15 +45,17 @@
 		<wizard 
 			category="org.fedoraproject.eclipse.packager.local.category.wizards" 
 			class="org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerProjectWizard" 
-			icon="icons/fedpkg3.png" id="org.fedoraproject.eclipse.packager.local.newprojectwizard" 
+			icon="icons/fedpkg1.png" id="org.fedoraproject.eclipse.packager.local.newprojectwizard" 
 			name="%FedoraGitWizardCommandName">
 		</wizard>
 	</extension>
+	
 	<extension
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="popup:org.eclipse.ui.popup.any?before=additions">
          <menu
+               icon="icons/fedora16x16.png"
                id="org.eclipse.fedoraproject.packager.main"
                label="%MenuProductName">
          </menu>
@@ -62,7 +64,7 @@
             locationURI="popup:org.eclipse.fedoraproject.packager.main?">
          <command
                commandId="org.fedoraproject.eclipse.packager.local.prepCommand"
-               icon="icons/fedpkg3.png"
+               icon="icons/fedpkg1.png"
                label="%LocalFedoraPackagercommand.label.prep"
                mnemonic="%LocalFedoraPackagercommand.mnemonic.prep"
                style="push">
@@ -72,13 +74,13 @@
                      <with
                            variable="activeMenuSelection">
                         <reference
-                              definitionId="org.fedoraproject.eclipse.packager.local.project">
+                              definitionId="org.fedoraproject.eclipse.packager.local.localproject">
                         </reference>
                      </with>
                      <with
                            variable="activeMenuEditorInput">
                         <reference
-                              definitionId="org.fedoraproject.eclipse.packager.local.project">
+                              definitionId="org.fedoraproject.eclipse.packager.local.localproject">
                         </reference>
                      </with>
                   </or>
@@ -86,47 +88,52 @@
          </command>
          <command
                commandId="org.fedoraproject.eclipse.packager.local.srpmCommand"
-               icon="icons/fedpkg3.png"
+               icon="icons/fedpkg1.png"
                label="%LocalFedoraPackagercommand.label.srpm"
                mnemonic="%LocalFedoraPackagercommand.mnemonic.srpm"
                style="push">
-         </command>
-         <command
-               commandId="org.fedoraproject.eclipse.packager.local.BuildCommand"
-               icon="icons/fedpkg3.png"
-               label="%LocalFedoraPackagercommand.label.build"
-               mnemonic="%LocalFedoraPackagercommand.mnemonic.build"
-               style="push">
-			<visibleWhen
+               <visibleWhen
                      checkEnabled="false">
                   <or>
                      <with
                            variable="activeMenuSelection">
                         <reference
-                              definitionId="org.fedoraproject.eclipse.packager.local.project">
+                              definitionId="org.fedoraproject.eclipse.packager.local.localproject">
                         </reference>
                      </with>
                      <with
                            variable="activeMenuEditorInput">
                         <reference
-                              definitionId="org.fedoraproject.eclipse.packager.local.project">
+                              definitionId="org.fedoraproject.eclipse.packager.local.localproject">
                         </reference>
                      </with>
                   </or>
                </visibleWhen>
          </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-         <toolbar
-               id="org.fedoraproject.eclipse.packager.local.toolbars.sampleToolbar">
-            <command
-                  commandId="org.fedoraproject.eclipse.packager.local.commands.sampleCommand"
-                  icon="icons/fedora16x16.png"
-                  id="org.fedoraproject.eclipse.packager.local.toolbars.sampleCommand"
-                  tooltip="Say hello world">
-            </command>
-         </toolbar>
+         <command
+               commandId="org.fedoraproject.eclipse.packager.local.BuildCommand"
+               icon="icons/fedpkg1.png"
+               label="%LocalFedoraPackagercommand.label.build"
+               mnemonic="%LocalFedoraPackagercommand.mnemonic.build"
+               style="push">
+				<visibleWhen
+                     checkEnabled="false">
+                  <or>
+                     <with
+                           variable="activeMenuSelection">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.local.localproject">
+                        </reference>
+                     </with>
+                     <with
+                           variable="activeMenuEditorInput">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.local.localproject">
+                        </reference>
+                     </with>
+                  </or>
+               </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -147,6 +154,8 @@
             name="%LocalFedoraPackagercommand.name.build">
       </command>
    </extension>
+   		
+   	<!-- perspective, used main fedora packager perspective-->	
 	<extension
           point="org.eclipse.ui.perspectives">
        <perspective
@@ -156,6 +165,31 @@
              name="%PerspectiveName">
        </perspective>
     </extension>
+    
+   <!-- Keyboard shortcut definitions, from fedora packager main rpm key bindings 
+   		Should make sure there is no key binding conflict -->
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.fedoraproject.eclipse.packager.local.prepCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+F P">
+      </key>
+      <key
+            commandId="org.fedoraproject.eclipse.packager.local.BuildCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+F L">
+      </key>
+      <key
+            commandId="org.fedoraproject.eclipse.packager.local.srpmCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+F S">
+      </key>
+    </extension>
+    
  <extension
        point="org.fedoraproject.eclipse.packager.projectRootProvider">
     <projectRoot

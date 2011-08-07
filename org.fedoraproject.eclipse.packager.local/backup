@@ -1,3 +1,17 @@
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="org.fedoraproject.eclipse.packager.local.toolbars.sampleToolbar">
+            <command
+                  commandId="org.fedoraproject.eclipse.packager.local.commands.sampleCommand"
+                  icon="icons/fedora16x16.png"
+                  id="org.fedoraproject.eclipse.packager.local.toolbars.sampleCommand"
+                  tooltip="Say hello world">
+            </command>
+         </toolbar>
+      </menuContribution>
+
+
 command LocalPrepHandler
 //		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 //		MessageDialog.openInformation(
@@ -91,7 +105,7 @@ command LocalPrepHandler
 				}
 				return prepJob.getResult();
 			}
-	
+
 		};
 		job.setSystem(true); // suppress UI. That's done in encapsulated jobs.
 		job.schedule();
@@ -119,7 +133,7 @@ Create PROJECT page
 //		}
 //		selection = TreeSelection(monitor.);
 //
-//		pageFour = new FedoraRPMProjectPageFour(PAGE_FOUR, selection);		
+//		pageFour = new FedoraRPMProjectPageFour(PAGE_FOUR, selection);
 //		addPage(pageFour);
 //		if (!Utils.fileExist("/usr/bin/rpmdev-newspec")) { //$NON-NLS-1$
 //			addPage(new NoExecutableWizardPage());
@@ -136,9 +150,9 @@ Create PROJECT page
 			final String fileName = projectName + ".spec";
 			final InputStream contentInputStream = new ByteArrayInputStream(pageFour.getContent().getBytes());
 //			IResource resource = root.findMember(new Path(projectName));
-//			IContainer container = (IContainer) resource;			
+//			IContainer container = (IContainer) resource;
 //			final IFile file = container.getFile(new Path(fileName));
-	
+
 			final IFile file = project.getFile(new Path(fileName));
 
 			try {
@@ -153,10 +167,10 @@ Create PROJECT page
 				e.printStackTrace();
 			}
 		}
-		
-		
-		
-		
+
+
+
+
 
 package org.fedoraproject.eclipse.packager.fedorarpm.core;
 
@@ -335,9 +349,9 @@ public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
 
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		
+
 //		// using linuxtools.rpm.ui package
-		
+
 //		IResource eventResource = FedoraHandlerUtils.getResource(event);
 //		RPMExportOperation rpmExport;
 //		try {
@@ -351,10 +365,10 @@ public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
 //		}
 //		return null;
 //	}
-		
-		
-		
-		
+
+
+
+
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 import org.eclipse.linuxtools.rpm.core.RPMProject;
 import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
@@ -370,7 +384,7 @@ public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		// Using fedoraproject.rpm
-		
+
 //		final Shell shell = getShell(event);
 //		final IProjectRoot fedoraRPMProjectRoot;
 
@@ -410,7 +424,7 @@ public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
 					fedoraRPMProjectRoot.getProductStrings().getProductName(), e.getMessage());
 			return null;
 		}
-		
+
 
 		// Need to nest jobs into this job for it to show up properly in the UI
 		// in terms of progress

@@ -81,8 +81,8 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 //		addPage(pageTwo);
 		pageThree = new LocalFedoraPackagerProjectPageThree(PAGE_THREE);
 		addPage(pageThree);
-		pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR);
-		addPage(pageFour);
+//		pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR);
+//		addPage(pageFour);
 	}
 
 	/*
@@ -134,20 +134,23 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	 *
 	 * @see org.eclipse.jface.wizard.wizard#canFinish()
 	 */
-	@Override
-	public boolean canFinish() {
-		return (getContainer().getCurrentPage() == pageThree && pageThree.pageCanFinish())
-				|| getContainer().getCurrentPage() == pageFour;
-	}
+//	@Override
+//	public boolean canFinish() {
+//		return (getContainer().getCurrentPage() == pageThree && pageThree.pageCanFinish())
+//				|| getContainer().getCurrentPage() == pageFour;
+//	}
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
 		if (page instanceof LocalFedoraPackagerProjectPageThree) {
 			LocalFedoraPackagerProjectPageThree page_three = (LocalFedoraPackagerProjectPageThree) page;
 			if (page_three.pageCanFinish()) {
+				pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR);
+				addPage(pageFour);
 				return null;
 			}
 		}
+
 		return super.getNextPage(page);
 	}
 
