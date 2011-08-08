@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Text;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 
-public class LocalFedoraPackagerProjectPageFour extends SpecfileNewWizardPage {
+public class LocalFedoraPackagerPageFour extends SpecfileNewWizardPage {
 	private String projectName;
 
 	// widgets from super class
@@ -34,7 +34,7 @@ public class LocalFedoraPackagerProjectPageFour extends SpecfileNewWizardPage {
 	/**
 	 * Create the wizard.
 	 */
-	public LocalFedoraPackagerProjectPageFour(String pageName, String projectName) {
+	public LocalFedoraPackagerPageFour(String pageName, String projectName) {
 		super(null);
 		LocalFedoraPackagerPlugin
 				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);

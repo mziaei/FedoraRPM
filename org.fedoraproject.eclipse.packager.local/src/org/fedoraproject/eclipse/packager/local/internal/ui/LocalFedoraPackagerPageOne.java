@@ -20,13 +20,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 
-public class LocalFedoraPackagerProjectPageOne extends WizardNewProjectCreationPage {
+public class LocalFedoraPackagerPageOne extends WizardNewProjectCreationPage {
 	private Label lblNoteGit;
 
 	/**
 	 * Create the wizard.
 	 */
-	public LocalFedoraPackagerProjectPageOne(String pageName) {
+	public LocalFedoraPackagerPageOne(String pageName) {
 		super(pageName);
 		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
 		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);

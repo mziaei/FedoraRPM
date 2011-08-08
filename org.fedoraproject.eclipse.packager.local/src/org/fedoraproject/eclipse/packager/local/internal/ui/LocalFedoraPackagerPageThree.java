@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Text;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.api.FileDialogRunable;
 
-public class LocalFedoraPackagerProjectPageThree extends WizardPage {
+public class LocalFedoraPackagerPageThree extends WizardPage {
 
 	private static final String PLAIN = "plain"; //$NON-NLS-1$
 	private static final String SRPM = "*.src.rpm"; //$NON-NLS-1$
@@ -52,7 +52,7 @@ public class LocalFedoraPackagerProjectPageThree extends WizardPage {
 	/**
 	 * Create the wizard.
 	 */
-	public LocalFedoraPackagerProjectPageThree(String pageName) {
+	public LocalFedoraPackagerPageThree(String pageName) {
 		super(pageName);
 		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
 		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);

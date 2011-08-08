@@ -50,10 +50,10 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	private static final String PAGE_THREE = "PageThree"; //$NON-NLS-1$
 	private static final String PAGE_FOUR = "PageFour"; //$NON-NLS-1$
 
-	private LocalFedoraPackagerProjectPageOne pageOne;
-	private LocalFedoraPackagerProjectPageTwo pageTwo;
-	private LocalFedoraPackagerProjectPageThree pageThree;
-	private LocalFedoraPackagerProjectPageFour pageFour;
+	private LocalFedoraPackagerPageOne pageOne;
+	private LocalFedoraPackagerPageTwo pageTwo;
+	private LocalFedoraPackagerPageThree pageThree;
+	private LocalFedoraPackagerPageFour pageFour;
 
 	private IWorkspaceRoot root;
 	private IProject project;
@@ -75,11 +75,11 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	@Override
 	public void addPages() {
 		super.addPages();
-		pageOne = new LocalFedoraPackagerProjectPageOne(PAGE_ONE);
+		pageOne = new LocalFedoraPackagerPageOne(PAGE_ONE);
 		addPage(pageOne);
-		pageTwo = new LocalFedoraPackagerProjectPageTwo(PAGE_TWO);
+		pageTwo = new LocalFedoraPackagerPageTwo(PAGE_TWO);
 		addPage(pageTwo);
-		pageThree = new LocalFedoraPackagerProjectPageThree(PAGE_THREE);
+		pageThree = new LocalFedoraPackagerPageThree(PAGE_THREE);
 		addPage(pageThree);
 	}
 
@@ -140,9 +140,9 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
-		if (page instanceof LocalFedoraPackagerProjectPageThree) {
-			if (!((LocalFedoraPackagerProjectPageThree) page).pageCanFinish()) {
-				pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR, this.pageOne.getProjectName());
+		if (page instanceof LocalFedoraPackagerPageThree) {
+			if (!((LocalFedoraPackagerPageThree) page).pageCanFinish()) {
+				pageFour = new LocalFedoraPackagerPageFour(PAGE_FOUR, this.pageOne.getProjectName());
 				addPage(pageFour);
 				return pageFour;
 			} else {

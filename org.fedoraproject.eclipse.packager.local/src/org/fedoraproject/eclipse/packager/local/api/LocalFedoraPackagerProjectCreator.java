@@ -39,7 +39,7 @@ import org.eclipse.linuxtools.rpmstubby.StubbyPomGenerator;
 import org.eclipse.ui.PlatformUI;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
-import org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerProjectPageFour;
+import org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerPageFour;
 
 public class LocalFedoraPackagerProjectCreator {
 	private static final String GITIGNORE = ".gitignore"; //$NON-NLS-1$
@@ -75,7 +75,7 @@ public class LocalFedoraPackagerProjectCreator {
 	 * @throws NoHeadException
 	 * @throws CoreException
 	 */
-	public void create(String projectType, File externalFile, LocalFedoraPackagerProjectPageFour pageFour,
+	public void create(String projectType, File externalFile, LocalFedoraPackagerPageFour pageFour,
 			IProject project, IProgressMonitor monitor) throws IOException,
 			NoFilepatternException, NoHeadException, NoMessageException,
 			ConcurrentRefUpdateException, JGitInternalException,

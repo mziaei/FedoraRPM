@@ -33,7 +33,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 
-public class LocalFedoraPackagerProjectPageTwo extends WizardPage {
+public class LocalFedoraPackagerPageTwo extends WizardPage {
 	private Group grpAccount;
 	private Button btnNewMaintainer;
 	private Button btnExistingMaintainer;
@@ -47,7 +47,7 @@ public class LocalFedoraPackagerProjectPageTwo extends WizardPage {
 	/**
 	 * Create the wizard.
 	 */
-	public LocalFedoraPackagerProjectPageTwo(String pageName) {
+	public LocalFedoraPackagerPageTwo(String pageName) {
 		super(pageName);
 		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
 		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
