@@ -45,7 +45,7 @@
 		<wizard 
 			category="org.fedoraproject.eclipse.packager.local.category.wizards" 
 			class="org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerProjectWizard" 
-			icon="icons/fedpkg1.png" id="org.fedoraproject.eclipse.packager.local.newprojectwizard" 
+			icon="icons/fedora16x16.png" id="org.fedoraproject.eclipse.packager.local.newprojectwizard" 
 			name="%FedoraGitWizardCommandName">
 		</wizard>
 	</extension>

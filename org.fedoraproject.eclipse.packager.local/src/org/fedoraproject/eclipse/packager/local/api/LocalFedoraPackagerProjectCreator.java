@@ -10,14 +10,17 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.local.api;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.egit.core.op.ConnectProviderOperation;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
@@ -36,6 +39,7 @@ import org.eclipse.linuxtools.rpmstubby.StubbyPomGenerator;
 import org.eclipse.ui.PlatformUI;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
+import org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerProjectPageFour;
 
 public class LocalFedoraPackagerProjectCreator {
 	private static final String GITIGNORE = ".gitignore"; //$NON-NLS-1$
@@ -71,7 +75,8 @@ public class LocalFedoraPackagerProjectCreator {
 	 * @throws NoHeadException
 	 * @throws CoreException
 	 */
-	public void create(String projectType, File externalFile, IProject project, IProgressMonitor monitor) throws IOException,
+	public void create(String projectType, File externalFile, LocalFedoraPackagerProjectPageFour pageFour,
+			IProject project, IProgressMonitor monitor) throws IOException,
 			NoFilepatternException, NoHeadException, NoMessageException,
 			ConcurrentRefUpdateException, JGitInternalException,
 			WrongRepositoryStateException, CoreException {
@@ -96,10 +101,22 @@ public class LocalFedoraPackagerProjectCreator {
 			RPMProject rpmProject = new RPMProject(project,
 					RPMProjectLayout.FLAT);
 			rpmProject.importSourceRPM(externalFile);
-		}
-
-		else {
-
+		} else {
+			final String projectName = project.getName();
+			final String fileName = projectName + ".spec";
+			final InputStream contentInputStream = new ByteArrayInputStream(pageFour.getContent().getBytes());
+			final IFile file = project.getFile(new Path(fileName));
+			try {
+				InputStream stream = contentInputStream;
+				if (file.exists()) {
+					file.setContents(stream, true, true, monitor);
+				} else {
+					file.create(stream, true, monitor);
+				}
+				stream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		File directory = createLocalGitRepo(project);

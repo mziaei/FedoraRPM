@@ -10,12 +10,9 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.local.internal.ui;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -23,9 +20,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
@@ -75,12 +70,10 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 		super.addPages();
 		pageOne = new LocalFedoraPackagerProjectPageOne(PAGE_ONE);
 		addPage(pageOne);
-//		pageTwo = new LocalFedoraPackagerProjectPageTwo(PAGE_TWO);
-//		addPage(pageTwo);
+		pageTwo = new LocalFedoraPackagerProjectPageTwo(PAGE_TWO);
+		addPage(pageTwo);
 		pageThree = new LocalFedoraPackagerProjectPageThree(PAGE_THREE);
 		addPage(pageThree);
-//		pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR);
-//		addPage(pageFour);
 	}
 
 	/*
@@ -127,29 +120,24 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 		return true;
 	}
 
-//	/*
-//	 * (non-Javadoc)
-//	 *
-//	 * @see org.eclipse.jface.wizard.wizard#canFinish()
-//	 */
-//	@Override
-//	public boolean canFinish() {
-////		return getContainer().getCurrentPage() == pageThree;
-//	}
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.eclipse.jface.wizard.wizard#canFinish()
+	 */
+	@Override
+	public boolean canFinish() {
+		return (getContainer().getCurrentPage() == pageThree && pageThree.pageCanFinish())
+				|| pageFour.isPageComplete();
+	}
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
 		if (page instanceof LocalFedoraPackagerProjectPageThree) {
-//			return null;
-			LocalFedoraPackagerProjectPageThree page_three = (LocalFedoraPackagerProjectPageThree) page;
-//			if (page_three.pageCanFinish()) {
 				pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR, this.pageOne.getProjectName());
 				addPage(pageFour);
 				return pageFour;
-//			}
-
 		}
-
 		return super.getNextPage(page);
 	}
 
@@ -194,27 +182,9 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 			JGitInternalException, WrongRepositoryStateException, NoFilepatternException,
 			IOException, CoreException {
 
-		if (pageThree.getProjectType().equals("plain")) {
-			final String projectName = project.getName();
-			final String fileName = projectName + ".spec";
-			final InputStream contentInputStream = new ByteArrayInputStream(pageFour.getContent().getBytes());
-			final IFile file = project.getFile(new Path(fileName));
-
-			try {
-				InputStream stream = contentInputStream;
-				if (file.exists()) {
-					file.setContents(stream, true, true, monitor);
-				} else {
-					file.create(stream, true, monitor);
-				}
-				stream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
 		LocalFedoraPackagerProjectCreator fedoraRPMProjectCreator = new LocalFedoraPackagerProjectCreator();
-		fedoraRPMProjectCreator.create(pageThree.getProjectType(), pageThree.getExternalFile(), project, monitor);
+		fedoraRPMProjectCreator.create(pageThree.getProjectType(), pageThree.getExternalFile(),
+				pageFour, project, monitor);
 	}
 
 }

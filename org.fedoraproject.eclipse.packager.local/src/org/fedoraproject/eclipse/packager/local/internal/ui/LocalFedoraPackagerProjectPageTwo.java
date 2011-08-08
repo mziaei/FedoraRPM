@@ -12,6 +12,7 @@ package org.fedoraproject.eclipse.packager.local.internal.ui;
 
 import java.net.URL;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -30,7 +31,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
-import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 
 public class LocalFedoraPackagerProjectPageTwo extends WizardPage {
@@ -51,8 +51,8 @@ public class LocalFedoraPackagerProjectPageTwo extends WizardPage {
 		super(pageName);
 		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
 		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
-		LocalFedoraPackagerPlugin
-				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
+		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
+				LocalFedoraPackagerText.LocalFedoraPackager_image));
 	}
 
 	/**

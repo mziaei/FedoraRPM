@@ -38,6 +38,7 @@ public class LocalFedoraPackagerText extends NLS {
 	/****/ public static String LocalFedoraPackager_PageTwo_btnRadioExistMaintainer;
 	/****/ public static String LocalFedoraPackager_PageTwo_grpAccountSetup;
 	//Local Fedora Packager Project-wizards-page Three
+	/****/ public static String LocalFedoraPackager_PageThree_grpSpec;
 	/****/ public static String LocalFedoraPackager_PageThree_btnCheckStubby;
 	/****/ public static String LocalFedoraPackager_PageThree_lblStubby;
 	/****/ public static String LocalFedoraPackager_PageThree_btnStubbyBrowse;

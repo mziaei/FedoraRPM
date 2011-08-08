@@ -1,4 +1,9 @@
 
+---------------------------
+		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
+				LocalFedoraPackagerText.LocalFedoraPackager_image));
+		//		LocalFedoraPackagerPlugin
+//				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
 ----------------------------------------
 	/*
 	 * (non-Javadoc)
