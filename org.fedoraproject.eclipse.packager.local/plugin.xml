@@ -154,17 +154,6 @@
             name="%LocalFedoraPackagercommand.name.build">
       </command>
    </extension>
-   		
-   	<!-- perspective, used main fedora packager perspective-->	
-	<extension
-          point="org.eclipse.ui.perspectives">
-       <perspective
-             class="org.fedoraproject.eclipse.packager.internal.perspective.PackagingPerspectiveFactory"
-             icon="icons/fedora16x16.png"
-             id="org.fedoraproject.eclipse.packager.perspective"
-             name="%PerspectiveName">
-       </perspective>
-    </extension>
     
    <!-- Keyboard shortcut definitions, from fedora packager main rpm key bindings 
    		Should make sure there is no key binding conflict -->

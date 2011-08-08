@@ -56,6 +56,10 @@ public class LocalFedoraPackagerText extends NLS {
 	/****/ public static String LocalFedoraPackagerUtils_invalidLocalProjectRootError;
 	/****/ public static String invalidLocalFedoraProjectRootError;
 
+	//Local Fedora Packager Project-perspective message
+	/****/ public static String LocalFedoraPackager_switchPerspectiveQuestionTitle;
+	/****/ public static String LocalFedoraPackager_switchPerspectiveQuestionMsg;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, LocalFedoraPackagerText.class);

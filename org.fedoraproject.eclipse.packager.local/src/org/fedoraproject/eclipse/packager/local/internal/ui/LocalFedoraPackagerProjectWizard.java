@@ -30,9 +30,16 @@ import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.NoMessageException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.INewWizard;
+import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.fedoraproject.eclipse.packager.PackagerPlugin;
+import org.fedoraproject.eclipse.packager.QuestionMessageDialog;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.local.api.LocalFedoraPackagerProjectCreator;
 
 public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWizard {
@@ -189,6 +196,34 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 		LocalFedoraPackagerProjectCreator fedoraRPMProjectCreator = new LocalFedoraPackagerProjectCreator();
 		fedoraRPMProjectCreator.create(pageThree.getProjectType(), pageThree.getExternalFile(),
 				pageFour, project, monitor);
+
+		// Finally ask if the Fedora Packaging perspective should be opened
+		// if not already open.
+		// Uses main Fedora Packager perspective
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+		IPerspectiveDescriptor perspective = window.getActivePage().getPerspective();
+		if (!perspective.getId().equals(PackagerPlugin.FEDORA_PACKAGING_PERSPECTIVE_ID)) {
+			if (shouldOpenPerspective()) {
+				// open the perspective
+				workbench.showPerspective(PackagerPlugin.FEDORA_PACKAGING_PERSPECTIVE_ID, window);
+			}
+		}
+	}
+
+
+	/**
+	 * Ask if Fedora Packager perspective should be opened.
+	 * @see org.fedoraproject.eclipse.packager.git.internal.ui.FedoraPackagerGitCloneWizard
+	 *   #shouldOpenPerspective()
+	 */
+	private boolean shouldOpenPerspective() {
+		QuestionMessageDialog op = new QuestionMessageDialog(
+				LocalFedoraPackagerText.LocalFedoraPackager_switchPerspectiveQuestionTitle,
+				LocalFedoraPackagerText.LocalFedoraPackager_switchPerspectiveQuestionMsg,
+				getShell());
+		Display.getDefault().syncExec(op);
+		return op.isOkPressed();
 	}
 
 }
