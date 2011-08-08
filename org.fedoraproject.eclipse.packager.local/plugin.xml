@@ -64,7 +64,6 @@
             locationURI="popup:org.eclipse.fedoraproject.packager.main?">
          <command
                commandId="org.fedoraproject.eclipse.packager.local.prepCommand"
-               icon="icons/fedpkg1.png"
                label="%LocalFedoraPackagercommand.label.prep"
                mnemonic="%LocalFedoraPackagercommand.mnemonic.prep"
                style="push">
@@ -88,7 +87,6 @@
          </command>
          <command
                commandId="org.fedoraproject.eclipse.packager.local.srpmCommand"
-               icon="icons/fedpkg1.png"
                label="%LocalFedoraPackagercommand.label.srpm"
                mnemonic="%LocalFedoraPackagercommand.mnemonic.srpm"
                style="push">
@@ -112,7 +110,6 @@
          </command>
          <command
                commandId="org.fedoraproject.eclipse.packager.local.BuildCommand"
-               icon="icons/fedpkg1.png"
                label="%LocalFedoraPackagercommand.label.build"
                mnemonic="%LocalFedoraPackagercommand.mnemonic.build"
                style="push">
@@ -155,30 +152,6 @@
       </command>
    </extension>
     
-   <!-- Keyboard shortcut definitions, from fedora packager main rpm key bindings 
-   		Should make sure there is no key binding conflict -->
-   <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="org.fedoraproject.eclipse.packager.local.prepCommand"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M3+F P">
-      </key>
-      <key
-            commandId="org.fedoraproject.eclipse.packager.local.BuildCommand"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M3+F L">
-      </key>
-      <key
-            commandId="org.fedoraproject.eclipse.packager.local.srpmCommand"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M3+F S">
-      </key>
-    </extension>
-    
  <extension
        point="org.fedoraproject.eclipse.packager.projectRootProvider">
     <projectRoot
@@ -186,35 +159,4 @@
     </projectRoot>
  </extension>
 
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="org.fedoraproject.eclipse.packager.perspective">
-         <actionSet
-               id="org.fedoraproject.eclipse.packager.local.FedoraPackagerActionSet">
-         </actionSet>
-      </perspectiveExtension>
-   </extension>
-   <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            description="Actions associated with Fedora Packager."
-            id="org.fedoraproject.eclipse.packager.local.FedoraPackagerActionSet"
-            label="Fedora Packager Action Set">
-         <action
-               class="org.fedoraproject.eclipse.packager.local.internal.action.PrepAction"
-               icon="icons/fedpkg1.png"
-               id="org.fedoraproject.eclipse.packager.local.FedoraPackagerConversionAction"
-               label="Upgrade existing Fedora Packager projects"
-               state="false"
-               style="pulldown"
-               toolbarPath="org.fedoraproject.eclipse.packager.local.FedoraPackagerActionSet/resource"
-               tooltip="Prepare sources for local build.">
-         </action>
-         <menu
-               id="org.fedoraproject.eclipse.packager.local.toolbarbuild"
-               label="Build Menu">
-         </menu>
-      </actionSet>
-   </extension>
 </plugin>
