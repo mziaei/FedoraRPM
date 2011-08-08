@@ -186,4 +186,35 @@
     </projectRoot>
  </extension>
 
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.fedoraproject.eclipse.packager.perspective">
+         <actionSet
+               id="org.fedoraproject.eclipse.packager.local.FedoraPackagerActionSet">
+         </actionSet>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            description="Actions associated with Fedora Packager."
+            id="org.fedoraproject.eclipse.packager.local.FedoraPackagerActionSet"
+            label="Fedora Packager Action Set">
+         <action
+               class="org.fedoraproject.eclipse.packager.local.internal.action.PrepAction"
+               icon="icons/fedpkg1.png"
+               id="org.fedoraproject.eclipse.packager.local.FedoraPackagerConversionAction"
+               label="Upgrade existing Fedora Packager projects"
+               state="false"
+               style="pulldown"
+               toolbarPath="org.fedoraproject.eclipse.packager.local.FedoraPackagerActionSet/resource"
+               tooltip="Prepare sources for local build.">
+         </action>
+         <menu
+               id="org.fedoraproject.eclipse.packager.local.toolbarbuild"
+               label="Build Menu">
+         </menu>
+      </actionSet>
+   </extension>
 </plugin>
