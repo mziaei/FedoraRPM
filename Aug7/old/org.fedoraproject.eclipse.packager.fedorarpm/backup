@@ -1,0 +1,163 @@
+Create PROJECT page
+package org.fedoraproject.eclipse.packager.fedorarpm.core;
+
+
+public class FedoraRPMProjectCreator {
+	private static final String GITIGNORE = ".gitignore";
+	private static final String SOURCES = "sources";
+	private IWorkspaceRoot root;
+	private IProject project;
+	private IProjectDescription description;
+//	private final List<Repository> toClose = new ArrayList<Repository>();
+	private Repository gitRepo;
+	/**
+	 * Creates a project with the given name in the given location.
+	 * @param projectName The name of the project.
+	 * @param projectPath The parent location of the project.
+	 * @param monitor Progress monitor to report back status.
+	 * @throws WrongRepositoryStateException 
+	 * @throws JGitInternalException 
+	 * @throws ConcurrentRefUpdateException 
+	 * @throws NoMessageException 
+	 * @throws NoHeadException 
+	 */
+	public void create(String projectName, IPath projectPath,
+			IProgressMonitor monitor) throws NoHeadException, NoMessageException, 
+			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException {
+		try {
+			root = ResourcesPlugin.getWorkspace().getRoot();
+			project = root.getProject(projectName);
+			description = ResourcesPlugin.getWorkspace()
+					.newProjectDescription(project.getName());
+			if (!Platform.getLocation().equals(projectPath))
+				description.setLocation(projectPath);
+			project.create(description, monitor);
+			monitor.worked(2);   //? TODO - Do we need this
+			project.open(monitor);  //?TODO - Do we need this
+			
+			createLocalGitRepo(monitor);
+//			createProjectContent(monitor);
+			
+			addContentToGitRepo();
+			
+			ConnectProviderOperation connect = new ConnectProviderOperation(
+					project);
+			connect.execute(null);
+
+			// Finally show the Git Repositories view for convenience
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+					.getActivePage().showView(
+							"org.eclipse.egit.ui.RepositoriesView"); //$NON-NLS-1$
+
+		} catch (CoreException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NoFilepatternException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Initialize a local git repository in project location
+	 *
+	 * @param IProgressMonitor
+	 * @throws IOException
+	 */
+	private void createLocalGitRepo(IProgressMonitor monitor) throws IOException {	
+		String gitdirName = project.getLocation().toString();
+		File directory = new File(gitdirName);
+		FileUtils.mkdirs(directory, true);
+		directory.getCanonicalFile();
+		
+		InitCommand command = new InitCommand();
+		command.setDirectory(directory);
+		command.setBare(false);
+		gitRepo = command.call().getRepository();
+//		addRepoToClose(repository);
+	}
+	
+	
+	/**
+	 * Adds new contents to the Git repository and 
+	 *      does the first commit
+	 * @throws NoFilepatternException 
+	 * @throws IOException 
+	 * @throws WrongRepositoryStateException 
+	 * @throws JGitInternalException 
+	 * @throws ConcurrentRefUpdateException 
+	 * @throws NoMessageException 
+	 * @throws NoHeadException 
+	 *
+	 */
+	private void addContentToGitRepo() throws IOException, NoFilepatternException, 
+			NoHeadException, NoMessageException, ConcurrentRefUpdateException, 
+			JGitInternalException, WrongRepositoryStateException {
+		addFiles(GITIGNORE, "/temp");
+		addFiles(SOURCES, null);
+//		File file = new File(gitRepo.getWorkTree(), "a.txt");
+//		FileUtils.createNewFile(file);
+//		PrintWriter writer = new PrintWriter(file);
+//		writer.print("content");
+//		writer.close();
+
+		Git git = new Git(gitRepo);
+
+		git.add().addFilepattern(GITIGNORE).call();
+		git.add().addFilepattern(SOURCES).call();
+		git.commit().setMessage("first init").call();
+
+
+	}
+	
+//	public void addRepoToClose(Repository r) {
+//		toClose.add(r);
+//	}
+	
+	private void addFiles(String fileName, String content) throws IOException {
+		File file = new File(gitRepo.getWorkTree(), fileName);
+		FileUtils.createNewFile(file);
+		PrintWriter writer = new PrintWriter(file);
+		writer.print(content);
+		writer.close();
+	}
+	
+	/**
+	 * Initialize the project with some folders and files
+	 *
+	 * @param IProgressMonitor
+	 */
+	private void createProjectContent(IProgressMonitor monitor) {
+		try {
+			project.getFolder("temp").create(true, true, monitor);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}			
+		createFile("sources", null, monitor);
+		createFile(".gitignore", "/temp", monitor);		
+	}
+	
+	/**
+	 * Creates ifiles in the project
+	 * 
+	 * @param fileName name of the file
+	 * @param content contents of the file
+	 * @param IProgressMonitor instance
+	 */
+	private void createFile(String fileName, String content, IProgressMonitor monitor) {
+		IFile file = project.getFile(fileName);
+		try {
+			if (content == null) {
+				file.create(new ByteArrayInputStream(new byte[0]), false, monitor);
+			}
+			else {
+				file.create(new ByteArrayInputStream(content.getBytes()), false, monitor);
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}		
+	}
+
+
+}

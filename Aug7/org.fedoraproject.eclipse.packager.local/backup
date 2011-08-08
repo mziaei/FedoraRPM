@@ -1,0 +1,631 @@
+
+---------------------------
+		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
+				LocalFedoraPackagerText.LocalFedoraPackager_image));
+		//		LocalFedoraPackagerPlugin
+//				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
+----------------------------------------
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.eclipse.jface.wizard.wizard#canFinish()
+	 */
+	@Override
+	public boolean canFinish() {
+		return (getContainer().getCurrentPage() == pageThree && pageThree.pageCanFinish())
+				|| getContainer().getCurrentPage() == pageFour;
+	}
+
+	@Override
+	public IWizardPage getNextPage(IWizardPage page) {
+		if (page instanceof LocalFedoraPackagerProjectPageThree) {
+			LocalFedoraPackagerProjectPageThree page_three = (LocalFedoraPackagerProjectPageThree) page;
+//			if (page_three.pageCanFinish()) {
+				pageFour = new LocalFedoraPackagerProjectPageFour(PAGE_FOUR, project);
+				addPage(pageFour);
+				return pageFour;
+//			}
+		}
+
+		return super.getNextPage(page);
+	}
+-----------------------
+package org.fedoraproject.eclipse.packager.local.internal.ui;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.linuxtools.rpm.ui.editor.wizards.Messages;
+import org.eclipse.linuxtools.rpm.ui.editor.wizards.SpecfileNewWizardPage;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
+import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
+
+public class LocalFedoraPackagerProjectPageFour extends SpecfileNewWizardPage {
+	private IProject project;
+
+
+	/**
+	 * Create the wizard.
+	 */
+	public LocalFedoraPackagerProjectPageFour(String pageName, IProject project) {
+		super(null);
+		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
+		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
+		LocalFedoraPackagerPlugin
+				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
+		this.project = project;
+
+	}
+
+	/**
+	 * Create contents of the wizard.
+	 *
+	 * @param parent
+	 */
+	@Override
+	public void createControl(Composite parent) {
+		super.createControl(parent);
+		Text nameText = super.getNameText();
+		setDefaultValues(nameText);
+	}
+
+
+
+	private void setDefaultValues(Text nameText) {
+		nameText.setText(project.getName());
+//		nameText.setText(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString());
+//		versionText.setText(VERSION);
+//		summaryText.setText(SUMMARY);
+//		groupCombo.setText(GROUP);
+//		licenseText.setText(LICENSE);
+//		urlText.setText(URL);
+//		source0Text.setText(SOURCE0);
+	}
+//	public void setProject(IWizardContainer container) {
+////		initialize();
+//	}
+
+
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="org.fedoraproject.eclipse.packager.local.toolbars.sampleToolbar">
+            <command
+                  commandId="org.fedoraproject.eclipse.packager.local.commands.sampleCommand"
+                  icon="icons/fedora16x16.png"
+                  id="org.fedoraproject.eclipse.packager.local.toolbars.sampleCommand"
+                  tooltip="Say hello world">
+            </command>
+         </toolbar>
+      </menuContribution>
+
+
+command LocalPrepHandler
+//		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
+//		MessageDialog.openInformation(
+//				window.getShell(),
+//				"Eclipse Fedora Packager Local project plug-in",
+//				"Hello, Eclipse world");
+
+		final Shell shell = getShell(event);
+		final IProjectRoot fedoraRPMProjectRoot;
+		try {
+			IResource eventResource = FedoraHandlerUtils.getResource(event);
+			fedoraRPMProjectRoot = FedoraPackagerUtils
+					.getProjectRoot(eventResource);
+		} catch (InvalidProjectRootException e) {
+//			logger.logError(FedoraPackagerText.invalidFedoraProjectRootError, e);
+			FedoraHandlerUtils.showErrorDialog(shell, "Error", //$NON-NLS-1$
+					FedoraPackagerText.invalidFedoraProjectRootError);
+			return null;
+		}
+		FedoraPackager fp = new FedoraPackager(fedoraRPMProjectRoot);
+		final RpmBuildCommand prepCommand;
+		try {
+			// get RPM build command in order to produce an SRPM
+			prepCommand = (RpmBuildCommand) fp
+					.getCommandInstance(RpmBuildCommand.ID);
+		} catch (FedoraPackagerCommandNotFoundException e) {
+//			logger.logError(e.getMessage(), e);
+			FedoraHandlerUtils.showErrorDialog(shell,
+					fedoraRPMProjectRoot.getProductStrings().getProductName(), e.getMessage());
+			return null;
+		} catch (FedoraPackagerCommandInitializationException e) {
+//			logger.logError(e.getMessage(), e);
+			FedoraHandlerUtils.showErrorDialog(shell,
+					fedoraRPMProjectRoot.getProductStrings().getProductName(), e.getMessage());
+			return null;
+		}
+		// Need to nest jobs into this job for it to show up properly in the UI
+		// in terms of progress
+		Job job = new Job(fedoraRPMProjectRoot.getProductStrings().getProductName()) {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+
+				// Do the prep job
+				Job prepJob = new Job(ResourcesPlugin.getWorkspace().getRoot().getProject().getName()) {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						try {
+							monitor.beginTask(
+									RpmText.PrepHandler_prepareSourcesForBuildMsg,
+									IProgressMonitor.UNKNOWN);
+							List<String> nodeps = new ArrayList<String>(1);
+							nodeps.add(RpmBuildCommand.NO_DEPS);
+							try {
+								prepCommand.buildType(BuildType.PREP)
+										.flags(nodeps).call(monitor);
+							} catch (CommandMisconfiguredException e) {
+								// This shouldn't happen, but report error
+								// anyway
+		//						logger.logError(e.getMessage(), e);
+								return FedoraHandlerUtils.errorStatus(
+										RPMPlugin.PLUGIN_ID, e.getMessage(), e);
+							} catch (CommandListenerException e) {
+								// There are no command listeners registered, so
+								// shouldn't
+								// happen. Do something reasonable anyway.
+		//						logger.logError(e.getMessage(), e);
+								return FedoraHandlerUtils.errorStatus(
+										RPMPlugin.PLUGIN_ID, e.getMessage(), e);
+							} catch (RpmBuildCommandException e) {
+		//						logger.logError(e.getMessage(), e.getCause());
+								return FedoraHandlerUtils.errorStatus(
+										RPMPlugin.PLUGIN_ID, e.getMessage(),
+										e.getCause());
+							} catch (IllegalArgumentException e) {
+								// nodeps flags can't be null
+							}
+						} finally {
+							monitor.done();
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				prepJob.setUser(true);
+				prepJob.schedule();
+				try {
+					// wait for job to finish
+					prepJob.join();
+				} catch (InterruptedException e1) {
+					throw new OperationCanceledException();
+				}
+				return prepJob.getResult();
+			}
+
+		};
+		job.setSystem(true); // suppress UI. That's done in encapsulated jobs.
+		job.schedule();
+
+
+
+
+
+
+
+Create PROJECT page
+
+
+//		public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+//			IStructuredSelection structuredSelection = null;
+//			ISelectionProvider provider = targetPart.getSite()
+//					.getSelectionProvider();
+//			if (provider != null) {
+//				ISelection selection = provider.getSelection();
+//				if (selection instanceof IStructuredSelection)
+//					structuredSelection = (IStructuredSelection) selection;
+//			}
+//			structuredSelection = StructuredSelection.EMPTY;
+//			this.selection = (ISelection) structuredSelection.getFirstElement();
+//		}
+//		selection = TreeSelection(monitor.);
+//
+//		pageFour = new FedoraRPMProjectPageFour(PAGE_FOUR, selection);
+//		addPage(pageFour);
+//		if (!Utils.fileExist("/usr/bin/rpmdev-newspec")) { //$NON-NLS-1$
+//			addPage(new NoExecutableWizardPage());
+//		} else {
+//			pageFour = new SpecfileNewWizardPage(selection);
+//			addPage(pageFour);
+//		}
+
+
+
+
+		if (pageThree.getProjectType().equals("plain")) {
+			final String projectName = project.getName();
+			final String fileName = projectName + ".spec";
+			final InputStream contentInputStream = new ByteArrayInputStream(pageFour.getContent().getBytes());
+//			IResource resource = root.findMember(new Path(projectName));
+//			IContainer container = (IContainer) resource;
+//			final IFile file = container.getFile(new Path(fileName));
+
+			final IFile file = project.getFile(new Path(fileName));
+
+			try {
+				InputStream stream = contentInputStream;
+				if (file.exists()) {
+					file.setContents(stream, true, true, monitor);
+				} else {
+					file.create(stream, true, monitor);
+				}
+				stream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+
+
+
+
+package org.fedoraproject.eclipse.packager.fedorarpm.core;
+
+
+#Properties file for org.fedoraproject.eclipse.packager.fedorarpm
+category.name = Fedora
+wizard.name = Fedora RPM Project
+Bundle-Name = Fedorarpm
+
+
+public class FedoraRPMProjectCreator {
+	private static final String GITIGNORE = ".gitignore";
+	private static final String SOURCES = "sources";
+	private IWorkspaceRoot root;
+	private IProject project;
+	private IProjectDescription description;
+//	private final List<Repository> toClose = new ArrayList<Repository>();
+	private Repository gitRepo;
+	/**
+	 * Creates a project with the given name in the given location.
+	 * @param projectName The name of the project.
+	 * @param projectPath The parent location of the project.
+	 * @param monitor Progress monitor to report back status.
+	 * @throws WrongRepositoryStateException
+	 * @throws JGitInternalException
+	 * @throws ConcurrentRefUpdateException
+	 * @throws NoMessageException
+	 * @throws NoHeadException
+	 */
+	public void create(String projectName, IPath projectPath,
+			IProgressMonitor monitor) throws NoHeadException, NoMessageException,
+			ConcurrentRefUpdateException, JGitInternalException, WrongRepositoryStateException {
+		try {
+			root = ResourcesPlugin.getWorkspace().getRoot();
+			project = root.getProject(projectName);
+			description = ResourcesPlugin.getWorkspace()
+					.newProjectDescription(project.getName());
+			if (!Platform.getLocation().equals(projectPath))
+				description.setLocation(projectPath);
+			project.create(description, monitor);
+			monitor.worked(2);   //? TODO - Do we need this
+			project.open(monitor);  //?TODO - Do we need this
+
+			createLocalGitRepo(monitor);
+//			createProjectContent(monitor);
+
+			addContentToGitRepo();
+
+			ConnectProviderOperation connect = new ConnectProviderOperation(
+					project);
+			connect.execute(null);
+
+			// Finally show the Git Repositories view for convenience
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+					.getActivePage().showView(
+							"org.eclipse.egit.ui.RepositoriesView"); //$NON-NLS-1$
+
+		} catch (CoreException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NoFilepatternException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Initialize a local git repository in project location
+	 *
+	 * @param IProgressMonitor
+	 * @throws IOException
+	 */
+	private void createLocalGitRepo(IProgressMonitor monitor) throws IOException {
+		String gitdirName = project.getLocation().toString();
+		File directory = new File(gitdirName);
+		FileUtils.mkdirs(directory, true);
+		directory.getCanonicalFile();
+
+		InitCommand command = new InitCommand();
+		command.setDirectory(directory);
+		command.setBare(false);
+		gitRepo = command.call().getRepository();
+//		addRepoToClose(repository);
+	}
+
+
+	/**
+	 * Adds new contents to the Git repository and
+	 *      does the first commit
+	 * @throws NoFilepatternException
+	 * @throws IOException
+	 * @throws WrongRepositoryStateException
+	 * @throws JGitInternalException
+	 * @throws ConcurrentRefUpdateException
+	 * @throws NoMessageException
+	 * @throws NoHeadException
+	 *
+	 */
+	private void addContentToGitRepo() throws IOException, NoFilepatternException,
+			NoHeadException, NoMessageException, ConcurrentRefUpdateException,
+			JGitInternalException, WrongRepositoryStateException {
+		addFiles(GITIGNORE, "/temp");
+		addFiles(SOURCES, null);
+//		File file = new File(gitRepo.getWorkTree(), "a.txt");
+//		FileUtils.createNewFile(file);
+//		PrintWriter writer = new PrintWriter(file);
+//		writer.print("content");
+//		writer.close();
+
+		Git git = new Git(gitRepo);
+
+		git.add().addFilepattern(GITIGNORE).call();
+		git.add().addFilepattern(SOURCES).call();
+		git.commit().setMessage("first init").call();
+
+
+	}
+
+//	public void addRepoToClose(Repository r) {
+//		toClose.add(r);
+//	}
+
+	private void addFiles(String fileName, String content) throws IOException {
+		File file = new File(gitRepo.getWorkTree(), fileName);
+		FileUtils.createNewFile(file);
+		PrintWriter writer = new PrintWriter(file);
+		writer.print(content);
+		writer.close();
+	}
+
+	/**
+	 * Initialize the project with some folders and files
+	 *
+	 * @param IProgressMonitor
+	 */
+	private void createProjectContent(IProgressMonitor monitor) {
+		try {
+			project.getFolder("temp").create(true, true, monitor);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		createFile("sources", null, monitor);
+		createFile(".gitignore", "/temp", monitor);
+	}
+
+	/**
+	 * Creates ifiles in the project
+	 *
+	 * @param fileName name of the file
+	 * @param content contents of the file
+	 * @param IProgressMonitor instance
+	 */
+	private void createFile(String fileName, String content, IProgressMonitor monitor) {
+		IFile file = project.getFile(fileName);
+		try {
+			if (content == null) {
+				file.create(new ByteArrayInputStream(new byte[0]), false, monitor);
+			}
+			else {
+				file.create(new ByteArrayInputStream(content.getBytes()), false, monitor);
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+}
+
+
+
+Local Handler
+public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
+
+
+	@Override
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
+
+//		// using linuxtools.rpm.ui package
+
+//		IResource eventResource = FedoraHandlerUtils.getResource(event);
+//		RPMExportOperation rpmExport;
+//		try {
+//			rpmExport = new RPMExportOperation(new RPMProject(FedoraRPMPackagerUtils.getProject(eventResource),
+//					RPMProjectLayout.FLAT), BuildType.ALL);
+//			rpmExport.setUser(true);
+//			rpmExport.schedule();
+//
+//		} catch (CoreException e) {
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
+
+
+
+
+import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
+import org.eclipse.linuxtools.rpm.core.RPMProject;
+import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
+//import org.eclipse.linuxtools.rpm.ui.IRPMUIConstants.BuildType;
+import org.eclipse.linuxtools.rpm.ui.RPMExportOperation;
+import org.eclipse.swt.widgets.Shell;
+
+
+
+public class LocalPrepHandler extends FedoraPackagerAbstractHandler {
+
+
+	@Override
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
+		// Using fedoraproject.rpm
+
+//		final Shell shell = getShell(event);
+//		final IProjectRoot fedoraRPMProjectRoot;
+
+//		final IProject fedoraRPMProject = FedoraRPMPackagerUtils.getProject(eventResource);   //none IProjectRoot
+
+		final Shell shell = getShell(event);
+		final FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
+		final IProjectRoot fedoraRPMProjectRoot;
+
+		IResource eventResource = FedoraHandlerUtils.getResource(event);
+		try {
+			fedoraRPMProjectRoot = FedoraRPMPackagerUtils.getProjectRoot(eventResource);
+		} catch (InvalidProjectRootException e) {
+			logger.logError(FedoraPackagerText.invalidFedoraProjectRootError, e);
+			FedoraHandlerUtils.showErrorDialog(shell, "Error", //$NON-NLS-1$
+					FedoraPackagerText.invalidFedoraProjectRootError);
+			return null;
+		}
+		FedoraPackager fp = new FedoraPackager(fedoraRPMProjectRoot);
+		final RpmBuildCommand prepCommand;
+//		final DownloadSourceCommand download;
+		try {
+//			// need to get sources for an SRPM build
+//			download = (DownloadSourceCommand) fp
+//					.getCommandInstance(DownloadSourceCommand.ID);
+			// get RPM build command in order to produce an SRPM
+			prepCommand = (RpmBuildCommand) fp
+					.getCommandInstance(RpmBuildCommand.ID);
+		} catch (FedoraPackagerCommandNotFoundException e) {
+			logger.logError(e.getMessage(), e);
+			FedoraHandlerUtils.showErrorDialog(shell,
+					fedoraRPMProjectRoot.getProductStrings().getProductName(), e.getMessage());
+			return null;
+		} catch (FedoraPackagerCommandInitializationException e) {
+			logger.logError(e.getMessage(), e);
+			FedoraHandlerUtils.showErrorDialog(shell,
+					fedoraRPMProjectRoot.getProductStrings().getProductName(), e.getMessage());
+			return null;
+		}
+
+
+		// Need to nest jobs into this job for it to show up properly in the UI
+		// in terms of progress
+		Job job = new Job(fedoraRPMProjectRoot.getProductStrings().getProductName()) {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				// Make sure we have sources locally
+//				final String downloadUrlPreference = PackagerPlugin
+//				.getStringPreference(FedoraPackagerPreferencesConstants.PREF_LOOKASIDE_DOWNLOAD_URL);
+//				Job downloadSourcesJob = new DownloadSourcesJob(
+//						RpmText.PrepHandler_downloadSourcesForPrep,
+//						download, fedoraProjectRoot, shell, downloadUrlPreference, true);
+//				downloadSourcesJob.setUser(true);
+//				downloadSourcesJob.schedule();
+//				try {
+//					// wait for download job to finish
+//					downloadSourcesJob.join();
+//				} catch (InterruptedException e1) {
+//					throw new OperationCanceledException();
+//				}
+//				if (!downloadSourcesJob.getResult().isOK()) {
+//					// bail if something failed
+//					return downloadSourcesJob.getResult();
+//				}
+				// Do the prep job
+				Job prepJob = new Job(fedoraRPMProjectRoot.getProductStrings().getProductName()) {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						try {
+							monitor.beginTask(
+									RpmText.PrepHandler_prepareSourcesForBuildMsg,
+									IProgressMonitor.UNKNOWN);
+							List<String> nodeps = new ArrayList<String>(1);
+							nodeps.add(RpmBuildCommand.NO_DEPS);
+//							RpmBuildCommand prepCommand = new RpmBuildCommand();
+								prepCommand.buildType(BuildType.PREP)
+										.flags(nodeps).call(monitor);
+						} catch (CommandMisconfiguredException e) {
+							e.printStackTrace();
+						} catch (CommandListenerException e) {
+							e.printStackTrace();
+						} catch (RpmBuildCommandException e) {
+							e.printStackTrace();
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						} finally {
+							monitor.done();
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				prepJob.setUser(true);
+				prepJob.schedule();
+				try {
+					// wait for job to finish
+					prepJob.join();
+				} catch (InterruptedException e1) {
+					throw new OperationCanceledException();
+				}
+				return prepJob.getResult();
+			}
+
+		};
+		job.setSystem(true); // suppress UI. That's done in encapsulated jobs.
+		job.schedule();
+		return null;
+	}
+
+}
+
+		// not sure yet
+//		try {
+//		fedoraRPMProjectRoot = FedoraRPMPackagerUtils.getProjectRoot(eventResource);
+//	} catch (InvalidProjectRootException e1) {
+//		// TODO Auto-generated catch block
+//		e1.printStackTrace();
+//	}
+
+//	try {
+//		RPMProject project = new RPMProject(FedoraRPMPackagerUtils.getProject(eventResource),
+//				RPMProjectLayout.FLAT);
+//	} catch (CoreException e) {
+//		e.printStackTrace();
+//	} catch (InvalidProjectRootException e) {
+//		e.printStackTrace();
+//	}
+//
+
+//// Need to nest jobs into this job for it to show up properly in the UI
+//// in terms of progress
+//Job job = new Job(FedoraRPMPackagerUtils.getProject(eventResource).getName()) {
+//
+//	@Override
+//	protected IStatus run(IProgressMonitor monitor) {
+//		try {
+//			monitor.beginTask(
+//					RpmText.PrepHandler_prepareSourcesForBuildMsg,
+//					IProgressMonitor.UNKNOWN);
+//			RpmBuildCommand prepCommand = new RpmBuildCommand();
+//			prepCommand.buildType(BuildType.PREP);
+//		} finally {
+//			monitor.done();
+//		}
+//		return Status.OK_STATUS;
+//	}
+//};
+//job.setUser(true);
+//job.schedule();
+//return null;
+//}

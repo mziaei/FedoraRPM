@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.newWizards">
+		<category 
+			id="org.fedoraproject.eclipse.packager.fedorarpm.category.wizards" 
+			name="Fedora">
+		</category>
+		<wizard 
+			category="org.fedoraproject.eclipse.packager.fedorarpm.category.wizards" 
+			class="org.fedoraproject.eclipse.packager.fedorarpm.wizards.FedoraRPMProjectWizard" 
+			icon="icons/fedora16x16.png" id="org.fedoraproject.eclipse.packager.fedorarpm.newprojectwizard" 
+			name="Fedora RPM Project">
+		</wizard>
+	</extension>
+
+</plugin>
