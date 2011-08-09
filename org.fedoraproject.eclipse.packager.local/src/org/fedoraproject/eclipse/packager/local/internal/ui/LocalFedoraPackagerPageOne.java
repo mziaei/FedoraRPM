@@ -28,10 +28,10 @@ public class LocalFedoraPackagerPageOne extends WizardNewProjectCreationPage {
 	 */
 	public LocalFedoraPackagerPageOne(String pageName) {
 		super(pageName);
-		setTitle(LocalFedoraPackagerText.LocalFedoraPackager_title);
-		setDescription(LocalFedoraPackagerText.LocalFedoraPackager_description);
+		setTitle(LocalFedoraPackagerText.LocalFedoraPackagerWizardPage_title);
+		setDescription(LocalFedoraPackagerText.LocalFedoraPackagerWizardPage_description);
 		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
-				LocalFedoraPackagerText.LocalFedoraPackager_image));
+				LocalFedoraPackagerText.LocalFedoraPackagerWizardPage_image));
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class LocalFedoraPackagerPageOne extends WizardNewProjectCreationPage {
 		GridLayout layout = new GridLayout();
 		container.setLayout(layout);
 		lblNoteGit = new Label(container, SWT.NONE);
-		lblNoteGit.setText(LocalFedoraPackagerText.LocalFedoraPackager_PageOne_lblNoteGit);
+		lblNoteGit.setText(LocalFedoraPackagerText.LocalFedoraPackagerPageOne_lblNoteGit);
 		lblNoteGit.setForeground(Display.getDefault().getSystemColor(
 				SWT.COLOR_BLUE));
 		GridData layoutData = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);

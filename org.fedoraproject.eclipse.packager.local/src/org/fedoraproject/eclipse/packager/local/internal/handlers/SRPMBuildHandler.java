@@ -35,7 +35,9 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 /**
  * Handler for the creating an SRPM
  * This is the modified version of org.fedoraproject.eclipse.packager.rpm.internal.handlers.SRPMBuildHandler.java
- * to make it work with Local Fedora Packager Project
+ * to make it work with Local Fedora Packager Project, since in the local version
+ * downloading source from lookaside cache is not applicable
+ * @link org.fedoraproject.eclipse.packager.rpm.internal.handlers.SRPMBuildHandler
  */
 public class SRPMBuildHandler extends FedoraPackagerAbstractHandler {
 

@@ -37,7 +37,7 @@ public class LocalFedoraPackagerPageFour extends SpecfileNewWizardPage {
 	public LocalFedoraPackagerPageFour(String pageName, String projectName) {
 		super(null);
 		LocalFedoraPackagerPlugin
-				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackager_image);
+				.getImageDescriptor(LocalFedoraPackagerText.LocalFedoraPackagerWizardPage_image);
 		this.projectName = projectName;
 	}
 

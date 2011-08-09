@@ -45,7 +45,9 @@ import org.eclipse.swt.widgets.Shell;
  * Handler for preparing local sources for local build (prior building it). This is useful for testing
  * if patches apply properly.
  * This is the modified version of org.fedoraproject.eclipse.packager.rpm.internal.handlers.PrepHandler.java
- * to make it work with Local Fedora Packager Project
+ * to make it work with Local Fedora Packager Project since in the local version
+ * downloading source from lookaside cache is not applicable
+ * @link org.fedoraproject.eclipse.packager.rpm.internal.handlers.PrepdHandler
  */
 public class PrepHandler extends FedoraPackagerAbstractHandler {
 

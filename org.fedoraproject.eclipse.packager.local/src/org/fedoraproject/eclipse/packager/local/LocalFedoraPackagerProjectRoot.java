@@ -45,8 +45,12 @@ import org.fedoraproject.eclipse.packager.utils.RPMUtils;
 public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 	
 	private IContainer rootContainer;
+	@SuppressWarnings("unused")
+	private SourcesFile sourcesFile;
 	private ProjectType type;
 	private IProductStrings productStrings;
+	@SuppressWarnings("unused")
+	private ILookasideCache lookAsideCache; // The lookaside cache abstraction
 
 
 	/**
@@ -66,6 +70,9 @@ public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 	public void initialize(IContainer container, ProjectType type) throws FedoraPackagerExtensionPointException {
 		this.rootContainer = container;
 		assert type != null;
+		// For the local project we don't need lookaside cache and sources file
+		this.sourcesFile = null;
+		this.lookAsideCache = null;
 		this.type = type;
 		this.productStrings = new ProductStringsNonTranslatable(this);
 	}
@@ -89,6 +96,7 @@ public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 	}
 
 	/*
+	 * sources file not applicable for local projects
 	 * (non-Javadoc)
 	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#getSourcesFile()
 	 */
@@ -105,7 +113,7 @@ public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 	public String getPackageName() {
 		return this.getSpecfileModel().getName();
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#getSpecFile()
@@ -186,6 +194,7 @@ public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 	}
 	
 	/*
+	 * lookaside cache not applicable for local projects
 	 * (non-Javadoc)
 	 * @see org.fedoraproject.eclipse.packager.IProjectRoot#getLookAsideCache()
 	 * @see also org.fedoraproject.eclipse.packager.FedoraProjectRoot#getLookAsideCache()
@@ -257,8 +266,8 @@ public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 	 */
 	@Override
 	public boolean validate(IContainer candidate) {
-		// FIXME: Determine rpm package name from a persistent property. In
-		// future the project name might not be equal to the RPM package name.
+		// For a local Fedora project we only require a .spec file. 
+		// That .spec file has to have the format <ProjectName>.spec.
 		IFile specFile = candidate.getFile(new Path(candidate.getProject()
 				.getName() + ".spec")); //$NON-NLS-1$
 		if (specFile.exists()) {

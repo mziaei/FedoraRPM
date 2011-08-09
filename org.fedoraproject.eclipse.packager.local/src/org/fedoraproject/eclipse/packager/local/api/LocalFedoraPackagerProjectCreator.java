@@ -36,7 +36,6 @@ import org.eclipse.linuxtools.rpm.core.RPMProject;
 import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
 import org.eclipse.linuxtools.rpmstubby.SpecfileWriter;
 import org.eclipse.linuxtools.rpmstubby.StubbyPomGenerator;
-import org.eclipse.ui.PlatformUI;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerPageFour;
@@ -49,13 +48,11 @@ public class LocalFedoraPackagerProjectCreator {
 	private static final String FEATURE = "feature.xml"; //$NON-NLS-1$
 	private static final String POM = "pom.xml"; //$NON-NLS-1$
 
-	private static final String EGIT_REPOSITORIESVIEW = "org.eclipse.egit.ui.RepositoriesView"; //$NON-NLS-1$
-
 	private Repository repository;
 	private Git git;
 
 	/**
-	 * Creates git repository inside the base project also adds the base
+	 * Creates git repository inside the base project also adds the
 	 * contents and the existing contents to the git repo.
 	 *
 	 * @param File
@@ -81,7 +78,7 @@ public class LocalFedoraPackagerProjectCreator {
 			ConcurrentRefUpdateException, JGitInternalException,
 			WrongRepositoryStateException, CoreException {
 
-		if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackager_IWizard_Stubby)) {
+		if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby)) {
 			IFile stubby = project.getFile(externalFile.getName());
 			stubby.create(new FileInputStream(externalFile), false, monitor);
 
@@ -97,7 +94,7 @@ public class LocalFedoraPackagerProjectCreator {
 				generator.writeContent(stubby.getProject().getName());
 			}
 
-		} else if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackager_IWizard_SRpm)) {
+		} else if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_SRpm)) {
 			RPMProject rpmProject = new RPMProject(project,
 					RPMProjectLayout.FLAT);
 			rpmProject.importSourceRPM(externalFile);
@@ -121,7 +118,7 @@ public class LocalFedoraPackagerProjectCreator {
 
 		File directory = createLocalGitRepo(project);
 
-		// add new and existing contents to the git repository
+		// add contents to the git repository
 		addContentToGitRepo(directory);
 
 		// Set persistent property so that we know when to show the context
@@ -131,9 +128,6 @@ public class LocalFedoraPackagerProjectCreator {
 
 		ConnectProviderOperation connect = new ConnectProviderOperation(project);
 		connect.execute(null);
-
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-				.showView(EGIT_REPOSITORIESVIEW);
 	}
 
 	/**
@@ -184,14 +178,14 @@ public class LocalFedoraPackagerProjectCreator {
 			if (name.contains(SPEC)) {
 				git.add().addFilepattern(name).call();
 			}
-
+			
 			if (name.equals(GITIGNORE) || name.equals(PROJECT)) {
 				git.add().addFilepattern(name).call();
 			}
 		}
 
 		// do the first commit
-		git.commit().setMessage(LocalFedoraPackagerText.LocalFedoraPackager_api_FirstCommit)
+		git.commit().setMessage(LocalFedoraPackagerText.LocalFedoraPackagerProjectCreator_FirstCommit)
 				.call();
 	}
 
