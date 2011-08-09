@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<!--
+    Copyright (c) 2010-2011 Red Hat Inc. and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        Red Hat Inc. - initial API and implementation
+ -->
+
+<plugin>
+   <extension-point id="vcsContribution" name="VCS interaction" schema="schema/vcsContribution.exsd"/>
+   <extension-point id="packagerCommandContribution" name="Eclipse Fedora Packager Command Contribution" schema="schema/packagerCommandContribution.exsd"/>
+   <extension-point id="projectRootProvider" name="Project Root Provider" schema="schema/projectRootProvider.exsd"/>
+   
+   <extension point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="org.fedoraproject.eclipse.packager.project">
+          <or>
+              <!-- Filter on persistent property only . -->
+              <reference
+                  definitionId="org.fedoraproject.eclipse.packager.persistentProperty">
+              </reference>
+          </or>
+      </definition>
+      <definition
+            id="org.fedoraproject.eclipse.packager.persistentProperty">
+          <iterate
+               ifEmpty="false">
+            <or>
+               <adapt
+                     type="org.eclipse.core.resources.IProject">
+                  <test
+                        args="org.fedoraproject.eclipse.packager.project"
+                        property="org.eclipse.core.resources.projectPersistentProperty">
+                  </test>
+               </adapt>
+               <adapt
+                     type="org.eclipse.core.resources.IResource">
+                  <test
+                        args="org.fedoraproject.eclipse.packager.project"
+                        property="org.eclipse.core.resources.projectPersistentProperty">
+                  </test>
+               </adapt>
+           </or>
+         </iterate>
+      </definition>
+   </extension>
+
+   <extension point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?before=additions">
+         <menu
+               icon="icons/fedora16x16.png"
+               id="org.eclipse.fedoraproject.packager.main"
+               label="%MenuProductName">
+            <separator
+                  name="org.fedoraproject.eclipse.packager.kojisep"
+                  visible="false">
+            </separator>
+            <separator
+                  name="org.fedoraproject.eclipse.packager.bodhisep"
+                  visible="true">
+            </separator>
+            
+            <separator
+                  name="org.fedoraproject.eclipse.packager.cvssep"
+                  visible="true">
+            </separator>
+            
+         </menu>
+      </menuContribution>
+      <menuContribution
+               locationURI="popup:org.eclipse.fedoraproject.packager.main?before=org.fedoraproject.eclipse.packager.cvssep">
+             <menu
+                  label="%LabelSubmenuUploadSources"
+                  mnemonic="%MnemonicSubmenuUploadSources">
+               <visibleWhen
+                     checkEnabled="false">
+                  <or>
+                     <with
+                           variable="activeMenuSelection">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.project">
+                        </reference>
+                     </with>
+                     <with
+                           variable="activeMenuEditorInput">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.project">
+                        </reference>
+                     </with>
+                  </or>
+               </visibleWhen>
+               <command
+                     commandId="org.fedoraproject.eclipse.packager.UploadCommand"
+                     label="%LabelUploadSources"
+                     mnemonic="%MnemonicUploadSources"
+                     style="push">
+         	   </command>
+               <command
+                     commandId="org.fedoraproject.eclipse.packager.NewSourcesCommand"
+                     label="%LabelReplaceSources"
+                     mnemonic="%MnemonicReplaceSources"
+                     style="push">
+               </command>
+            </menu>
+         <command
+                  commandId="org.fedoraproject.eclipse.packager.DownloadCommand"
+                  label="%LabelDownloadSources"
+                  mnemonic="%MnemonicDownloadSources"
+                  
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <or>
+                     <with
+                           variable="activeMenuSelection">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.project">
+                        </reference>
+                     </with>
+                     <with
+                           variable="activeMenuEditorInput">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.project">
+                        </reference>
+                     </with>
+                  </or>
+               </visibleWhen>
+         </command>
+       </menuContribution>
+    </extension>
+    
+    <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.fedoraproject.eclipse.packager.internal.handlers.DownloadHandler"
+            id="org.fedoraproject.eclipse.packager.DownloadCommand"
+            name="Download">
+      </command>
+      <command
+            defaultHandler="org.fedoraproject.eclipse.packager.internal.handlers.UploadHandler"
+            id="org.fedoraproject.eclipse.packager.UploadCommand"
+            name="Upload">
+      </command>
+      <command
+            defaultHandler="org.fedoraproject.eclipse.packager.internal.handlers.NewSourcesHandler"
+            id="org.fedoraproject.eclipse.packager.NewSourcesCommand"
+            name="Replace">
+      </command>
+    </extension>
+    
+    <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.fedoraproject.eclipse.packager.internal.preferences.FedoraPackagerPreferencePage"
+            id="org.fedoraproject.eclipse.packager.preferences"
+            name="%PreferencePageName"/>
+   </extension>
+    <extension
+          point="org.eclipse.equinox.preferences.preferences">
+       <initializer
+             class="org.fedoraproject.eclipse.packager.internal.preferences.FedoraPackagerPreferenceInitializer">
+       </initializer>
+    </extension>
+    <!-- Core plug-in contributes upload/download source commands  -->
+    <extension
+          point="org.fedoraproject.eclipse.packager.packagerCommandContribution">
+       <command id="UploadSourceCommand"
+                class="org.fedoraproject.eclipse.packager.api.UploadSourceCommand">
+       </command>
+       <command id="DownloadSourceCommand"
+                class="org.fedoraproject.eclipse.packager.api.DownloadSourceCommand">
+       </command>
+    </extension>
+    <!-- Keyboard shortcut definitions -->
+    <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.fedoraproject.eclipse.packager.DownloadCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+F D">
+      </key>
+    </extension>
+    <extension
+          point="org.fedoraproject.eclipse.packager.projectRootProvider">
+       <projectRoot
+             class="org.fedoraproject.eclipse.packager.FedoraProjectRoot">
+       </projectRoot>
+    </extension>
+    <extension
+          point="org.eclipse.ui.perspectives">
+       <perspective
+             class="org.fedoraproject.eclipse.packager.internal.perspective.PackagingPerspectiveFactory"
+             icon="icons/fedora16x16.png"
+             id="org.fedoraproject.eclipse.packager.perspective"
+             name="%PerspectiveName">
+       </perspective>
+    </extension>
+</plugin>
