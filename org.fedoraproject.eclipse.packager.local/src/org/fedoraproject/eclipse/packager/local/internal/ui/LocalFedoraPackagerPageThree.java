@@ -13,7 +13,10 @@ package org.fedoraproject.eclipse.packager.local.internal.ui;
 import java.io.File;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.linuxtools.rpmstubby.InputType;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -45,7 +48,9 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	private Label lblSrpm;
 	private Text textStubby;
 	private Text textSrpm;
-	private Combo comboStubby;
+	private ComboViewer comboStubby;
+	private InputType inputTypeFeature;
+	private InputType inputTypeMaven;
 
 	private String projectType = "";
 	private File externalFile = null;
@@ -97,12 +102,21 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			}
 		});
 
-		comboStubby = new Combo(grpSpec, SWT.READ_ONLY);
-		comboStubby.setItems(STUBBY);
-		comboStubby.select(0);
+//		comboStubby = new Combo(grpSpec, SWT.READ_ONLY);
+//		comboStubby.setItems(STUBBY);
+//		comboStubby.select(0);
+		
+		comboStubby = new ComboViewer(grpSpec, SWT.READ_ONLY);
+		comboStubby.getControl().setLayoutData(layoutData);		
+		comboStubby.setContentProvider(ArrayContentProvider.getInstance());
+		inputTypeFeature = InputType.ECLIPSE_FEATURE;
+		inputTypeMaven = InputType.MAVEN_POM;
+		comboStubby.setInput(inputTypeFeature);
+		comboStubby.setInput(inputTypeMaven);
+		comboStubby.getCombo().select(0);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 25;
-		comboStubby.setLayoutData(layoutData);
+		comboStubby.getCombo().setLayoutData(layoutData);
 
 		textStubby = new Text(grpSpec, SWT.BORDER | SWT.SINGLE);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -115,11 +129,15 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		btnStubbyBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int comboIndex = comboStubby.getSelectionIndex();
-				fileDialog(
-						STUBBY[comboIndex],
-						textStubby,
-						LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby);
+				int comboIndex = comboStubby.getCombo().getSelectionIndex();
+//				fileDialog(combotextStubby, LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby);
+				
+				
+//				int comboIndex = comboStubby.getSelectionIndex();
+//				fileDialog(
+//						STUBBY[comboIndex],
+//						textStubby,
+//						LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby);
 				if (textStubby.getText() != null) {
 					setPageStatus(true, true);
 				}
@@ -158,9 +176,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		btnSrpmBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fileDialog(
-						SRPM,
-						textSrpm,
+				fileDialog(	SRPM, textSrpm,
 						LocalFedoraPackagerText.LocalFedoraPackagerPageThree_SRpm);
 				if (textSrpm.getText() != null) {
 					setPageStatus(true, true);
@@ -257,7 +273,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	 */
 	protected void selectControl() {
 		if (btnCheckStubby.getSelection()) {
-			comboStubby.setEnabled(true);
+			comboStubby.getCombo().setEnabled(true);
 			textStubby.setEnabled(true);
 			btnStubbyBrowse.setEnabled(true);
 			lblSrpm.setEnabled(false);
@@ -268,12 +284,12 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			lblSrpm.setEnabled(true);
 			textSrpm.setEnabled(true);
 			btnSrpmBrowse.setEnabled(true);
-			comboStubby.setEnabled(false);
+			comboStubby.getCombo().setEnabled(false);
 			textStubby.setEnabled(false);
 			btnStubbyBrowse.setEnabled(false);
 			textStubby.setText("");
 		} else {
-			comboStubby.setEnabled(false);
+			comboStubby.getCombo().setEnabled(false);
 			textStubby.setEnabled(false);
 			btnStubbyBrowse.setEnabled(false);
 			lblSrpm.setEnabled(false);

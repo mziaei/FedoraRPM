@@ -34,6 +34,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.linuxtools.rpm.core.RPMProject;
 import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
+import org.eclipse.linuxtools.rpmstubby.Generator;
 import org.eclipse.linuxtools.rpmstubby.SpecfileWriter;
 import org.eclipse.linuxtools.rpmstubby.StubbyPomGenerator;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
@@ -82,20 +83,21 @@ public class LocalFedoraPackagerProjectCreator {
 		this.project = project;
 		if (projectType
 				.equals(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby)) {
-			IFile stubby = project.getFile(externalFile.getName());
-			stubby.create(new FileInputStream(externalFile), false, monitor);
+			IFile stubbyFile = project.getFile(externalFile.getName());
+			stubbyFile.create(new FileInputStream(externalFile), false, monitor);
 
 			String fileName = externalFile.getName();
-
-			if (fileName.equals(FEATURE)) {
-				SpecfileWriter specfileWriter = new SpecfileWriter();
-				specfileWriter.write(stubby);
-			}
-
-			if (fileName.equals(POM)) {
-				StubbyPomGenerator generator = new StubbyPomGenerator(stubby);
-				generator.writeContent(stubby.getProject().getName());
-			}
+			Generator specfilegGenerator = new Generator(inputType);
+			specfilegGenerator.generate(stubbyFile);
+//			if (fileName.equals(FEATURE)) {
+//				SpecfileWriter specfileWriter = new SpecfileWriter();
+//				specfileWriter.write(stubby);
+//			}
+//
+//			if (fileName.equals(POM)) {
+//				StubbyPomGenerator generator = new StubbyPomGenerator(stubby);
+//				generator.writeContent(stubby.getProject().getName());
+//			}
 		}
 
 		if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_SRpm)) {
