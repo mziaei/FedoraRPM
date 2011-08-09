@@ -14,6 +14,7 @@ import java.io.File;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -200,16 +201,14 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	 *            type of the project that user selected
 	 */
 	private void fileDialog(String filter, Text text, String projectType) {
-		FileDialogRunable fdr = new FileDialogRunable(
-				filter,
-				LocalFedoraPackagerText.LocalFedoraPackagerPageThree_fileDialog
-						+ filter
-						+ LocalFedoraPackagerText.LocalFedoraPackagerPageThree_file);
+		FileDialogRunable fdr = new FileDialogRunable(filter, 
+				NLS.bind(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_fileDialog, filter));
 		getShell().getDisplay().syncExec(fdr);
 		String filePath = fdr.getFile();
-		text.setText(filePath.toString());
-
-		this.externalFile = new File(filePath);
+		if (filePath != null) {
+			text.setText(filePath);
+			this.externalFile = new File(filePath);
+		}
 		this.projectType = projectType;
 	}
 
