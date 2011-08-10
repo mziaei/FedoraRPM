@@ -13,6 +13,7 @@ package org.fedoraproject.eclipse.packager.local.api;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -64,19 +65,11 @@ public class LocalFedoraPackagerProjectCreator {
 	 *            the base of the project
 	 * @param IProgressMonitor
 	 *            Progress monitor to report back status
-	 * @throws IOException
-	 * @throws NoFilepatternException
-	 * @throws WrongRepositoryStateException
-	 * @throws JGitInternalException
-	 * @throws ConcurrentRefUpdateException
-	 * @throws NoMessageException
-	 * @throws NoHeadException
+	 *            
 	 * @throws CoreException
 	 */
 	public void create(String projectType, File externalFile, IProject project,
-			IProgressMonitor monitor) throws CoreException, NoFilepatternException,
-			NoHeadException, NoMessageException, ConcurrentRefUpdateException,
-			JGitInternalException, WrongRepositoryStateException, IOException {
+			IProgressMonitor monitor) throws CoreException {
 
 		this.project = project;
 		if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_SRpm)) {
@@ -84,7 +77,6 @@ public class LocalFedoraPackagerProjectCreator {
 					RPMProjectLayout.FLAT);
 			rpmProject.importSourceRPM(externalFile);
 		}
-		createProjectStructure();
 	}
 
 	/**
@@ -99,25 +91,17 @@ public class LocalFedoraPackagerProjectCreator {
 	 *            the base of the project
 	 * @param IProgressMonitor
 	 *            Progress monitor to report back status
-	 * @throws CoreException
-	 * @throws IOException
-	 * @throws WrongRepositoryStateException
-	 * @throws JGitInternalException
-	 * @throws ConcurrentRefUpdateException
-	 * @throws NoMessageException
-	 * @throws NoHeadException
-	 * @throws NoFilepatternException
+	 * @throws CoreException 
+	 * @throws FileNotFoundException 
+	 * 
 	 */
 	public void create(InputType inputType, File externalFile, IProject project,
-			IProgressMonitor monitor) throws CoreException, NoFilepatternException,
-			NoHeadException, NoMessageException, ConcurrentRefUpdateException,
-			JGitInternalException, WrongRepositoryStateException, IOException {
+			IProgressMonitor monitor) throws FileNotFoundException, CoreException {
 
 		this.project = project;
 			IFile stubbyFile = project.getFile(externalFile.getName());
 			stubbyFile.create(new FileInputStream(externalFile), false, monitor);
 
-//			String fileName = externalFile.getName();
 			Generator specfilegGenerator;
 			switch(inputType) {
 			case ECLIPSE_FEATURE:
@@ -129,17 +113,6 @@ public class LocalFedoraPackagerProjectCreator {
 				specfilegGenerator.generate(stubbyFile);
 				break;
 			}
-
-//			if (fileName.equals(FEATURE)) {
-//				SpecfileWriter specfileWriter = new SpecfileWriter();
-//				specfileWriter.write(stubby);
-//			}
-//
-//			if (fileName.equals(POM)) {
-//				StubbyPomGenerator generator = new StubbyPomGenerator(stubby);
-//				generator.writeContent(stubby.getProject().getName());
-//			}
-		createProjectStructure();
 	}
 
 	/**
@@ -151,20 +124,12 @@ public class LocalFedoraPackagerProjectCreator {
 	 *            the base of the project
 	 * @param IProgressMonitor
 	 *            Progress monitor to report back status
-	 * @throws CoreException
-	 * @throws IOException
-	 * @throws WrongRepositoryStateException
-	 * @throws JGitInternalException
-	 * @throws ConcurrentRefUpdateException
-	 * @throws NoMessageException
-	 * @throws NoHeadException
-	 * @throws NoFilepatternException
+	 *            
+	 * @throws CoreException 
 	 *
 	 */
 	public void create(LocalFedoraPackagerPageFour pageFour, IProject project,
-			IProgressMonitor monitor) throws CoreException, NoFilepatternException,
-			NoHeadException, NoMessageException, ConcurrentRefUpdateException,
-			JGitInternalException, WrongRepositoryStateException, IOException {
+			IProgressMonitor monitor) throws CoreException{
 		this.project = project;
 		final String projectName = project.getName();
 		final String fileName = projectName + ".spec";
@@ -182,8 +147,6 @@ public class LocalFedoraPackagerProjectCreator {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		createProjectStructure();
 	}
 
 	/**
@@ -199,7 +162,7 @@ public class LocalFedoraPackagerProjectCreator {
 	 * @throws NoFilepatternException
 	 *
 	 */
-	private void createProjectStructure() throws NoFilepatternException,
+	public void createProjectStructure() throws NoFilepatternException,
 			NoHeadException, NoMessageException, ConcurrentRefUpdateException,
 			JGitInternalException, WrongRepositoryStateException, IOException,
 			CoreException {

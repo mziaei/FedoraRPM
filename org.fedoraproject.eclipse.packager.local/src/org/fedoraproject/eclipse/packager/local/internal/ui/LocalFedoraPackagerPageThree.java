@@ -16,7 +16,13 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.PojoObservables;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.linuxtools.rpmstubby.InputType;
+import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -97,7 +103,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 				setPageStatus(false, false);
 			}
 		});
-
+		
 		comboStubby = new ComboViewer(grpSpec, SWT.READ_ONLY);
 		comboStubby.getControl().setLayoutData(layoutData);
 		comboStubby.setContentProvider(ArrayContentProvider.getInstance());

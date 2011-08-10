@@ -206,6 +206,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 					pageThree.getExternalFile(), project, monitor);
 		} 
 
+		fedoraRPMProjectCreator.createProjectStructure();
 
 		// Finally ask if the Fedora Packaging perspective should be opened
 		// if not already open.
