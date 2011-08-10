@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2011 Red Hat Inc. and others.
+ * Copyright (c) 2011 Red Hat Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -194,15 +194,18 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 			IOException, CoreException {
 
 		LocalFedoraPackagerProjectCreator fedoraRPMProjectCreator = new LocalFedoraPackagerProjectCreator();
+		if (pageThree.getProjectType().equals("Stubby_Project")){ //$NON-NLS-1$
+			fedoraRPMProjectCreator.create(pageThree.getInputType(),
+					pageThree.getExternalFile(), project, monitor);
+		}
 		if (pageThree.getProjectType().equals("plain")) { //$NON-NLS-1$
 			fedoraRPMProjectCreator.create(pageFour, project, monitor);
-		} else if (pageThree.getProjectType().equals("srpm")){ //$NON-NLS-1$
+		} 
+		if (pageThree.getProjectType().equals("srpm")){ //$NON-NLS-1$
 			fedoraRPMProjectCreator.create(pageThree.getProjectType(),
 					pageThree.getExternalFile(), project, monitor);
-		} else {
-//			fedoraRPMProjectCreator.create(pageThree.getInputType(),
-//					pageThree.getExternalFile(), project, monitor);
-		}
+		} 
+
 
 		// Finally ask if the Fedora Packaging perspective should be opened
 		// if not already open.

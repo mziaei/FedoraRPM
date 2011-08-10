@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2011 Red Hat Inc. and others.
+ * Copyright (c) 2011 Red Hat Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -36,8 +35,6 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 
 	private static final String PLAIN = "plain"; //$NON-NLS-1$
 	private static final String SRPM = "*.src.rpm"; //$NON-NLS-1$
-	private static final String[] STUBBY = new String[] { "feature.xml",
-			"pom.xml" };
 
 	private Group grpSpec;
 	private Button btnCheckStubby;
@@ -49,10 +46,9 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	private Text textStubby;
 	private Text textSrpm;
 	private ComboViewer comboStubby;
-	private InputType inputTypeFeature;
-	private InputType inputTypeMaven;
+	private InputType inputType;
 
-	private String projectType = "";
+	private String projectType = null;
 	private File externalFile = null;
 	private boolean pageCanFinish;
 
@@ -105,8 +101,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		comboStubby = new ComboViewer(grpSpec, SWT.READ_ONLY);
 		comboStubby.getControl().setLayoutData(layoutData);
 		comboStubby.setContentProvider(ArrayContentProvider.getInstance());
-		comboStubby.setInput(InputType.ECLIPSE_FEATURE.getFileNamePattern());
-		comboStubby.setInput(InputType.MAVEN_POM.getFileNamePattern());
+		comboStubby.setInput(InputType.values());
 		comboStubby.getCombo().select(0);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 25;
@@ -124,15 +119,21 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int comboIndex = comboStubby.getCombo().getSelectionIndex();
+				inputType = InputType.valueOf(comboStubby.getCombo().getItem(comboIndex));
+				String filter = null;
+				switch(inputType) {
+				case ECLIPSE_FEATURE:
+					filter = InputType.ECLIPSE_FEATURE.getFileNamePattern();
+					break;
+				case MAVEN_POM:
+					filter = InputType.MAVEN_POM.getFileNamePattern();
+					break;
+				}
+				if (filter != null) {
+					fileDialog(filter, textStubby,
+							LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby);
+				}
 
-				fileDialog(comboStubby.getCombo()., LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby);
-
-
-//				int comboIndex = comboStubby.getSelectionIndex();
-//				fileDialog(
-//						STUBBY[comboIndex],
-//						textStubby,
-//						LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby);
 				if (textStubby.getText() != null) {
 					setPageStatus(true, true);
 				}
@@ -233,12 +234,22 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	}
 
 	/**
-	 * Return the type of the project based on the user's selection
+	 * Return the type of the populated project 
+	 * based on the user's selection
 	 *
-	 * @return String type of the populated project
+	 * @return String 
 	 */
 	public String getProjectType() {
 		return projectType;
+	}
+	
+	/**
+	 * Returns the input type of the stubby_project
+	 *
+	 * @return InputType
+	 */
+	public InputType getInputType() {
+		return inputType;
 	}
 
 	/**
@@ -254,9 +265,9 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	 * Sets the status of page
 	 *
 	 * @param pageIsComplete
-	 *            , next or finish can be enabled
+	 *            next or finish can be enabled
 	 * @param pageCanFinish
-	 *            , finish can be enabled
+	 *            finish can be enabled
 	 */
 	private void setPageStatus(boolean pageIsComplete, boolean pageCanFinish) {
 		this.pageCanFinish = pageCanFinish;
@@ -293,11 +304,6 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			textStubby.setText("");
 			textSrpm.setText("");
 		}
-	}
-
-	public LocalFedoraPackagerPageFour getInputType() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
