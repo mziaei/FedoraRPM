@@ -128,17 +128,8 @@ public class LocalFedoraPackagerProjectCreator {
 			IFile stubbyFile = project.getFile(externalFile.getName());
 			stubbyFile.create(new FileInputStream(externalFile), false, monitor);
 
-			Generator specfilegGenerator;
-			switch(inputType) {
-			case ECLIPSE_FEATURE:
-				specfilegGenerator = new Generator(InputType.ECLIPSE_FEATURE);
-				specfilegGenerator.generate(stubbyFile);
-				break;
-			case MAVEN_POM:
-				specfilegGenerator = new Generator(InputType.MAVEN_POM);
-				specfilegGenerator.generate(stubbyFile);
-				break;
-			}
+			Generator specfilegGenerator = new Generator(inputType);
+			specfilegGenerator.generate(stubbyFile);
 	}
 
 	/**
