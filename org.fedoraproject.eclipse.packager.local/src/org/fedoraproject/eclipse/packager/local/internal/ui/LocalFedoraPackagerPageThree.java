@@ -16,13 +16,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.beans.PojoObservables;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.linuxtools.rpmstubby.InputType;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -35,12 +29,10 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
+import org.fedoraproject.eclipse.packager.local.LocalProjectType;
 import org.fedoraproject.eclipse.packager.api.FileDialogRunable;
 
 public class LocalFedoraPackagerPageThree extends WizardPage {
-
-	private static final String PLAIN = "plain"; //$NON-NLS-1$
-	private static final String SRPM = "*.src.rpm"; //$NON-NLS-1$
 
 	private Group grpSpec;
 	private Button btnCheckStubby;
@@ -52,9 +44,9 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	private Text textStubby;
 	private Text textSrpm;
 	private ComboViewer comboStubby;
-	private InputType inputType;
 
-	private String projectType = null;
+	private InputType inputType;
+	private LocalProjectType projectType;
 	private File externalFile = null;
 	private boolean pageCanFinish;
 
@@ -124,6 +116,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		btnStubbyBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				projectType = LocalProjectType.STUBBY;
 				int comboIndex = comboStubby.getCombo().getSelectionIndex();
 				inputType = InputType.valueOf(comboStubby.getCombo().getItem(comboIndex));
 				String filter = null;
@@ -136,8 +129,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 					break;
 				}
 				if (filter != null) {
-					fileDialog(filter, textStubby,
-							LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby);
+					fileDialog(filter, textStubby);
 				}
 
 				if (textStubby.getText() != null) {
@@ -178,8 +170,8 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		btnSrpmBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fileDialog(	SRPM, textSrpm,
-						LocalFedoraPackagerText.LocalFedoraPackagerPageThree_SRpm);
+				projectType = LocalProjectType.SRPM;
+				fileDialog(	"*.src.rpm", textSrpm); //$NON-NLS-1$
 				if (textSrpm.getText() != null) {
 					setPageStatus(true, true);
 				}
@@ -197,7 +189,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectControl();
-				projectType = PLAIN;
+				projectType = LocalProjectType.PLAIN;
 				externalFile = null;
 				setPageStatus(true, false);
 			}
@@ -218,7 +210,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	 * @param String
 	 *            type of the project that user selected
 	 */
-	private void fileDialog(String filter, Text text, String projectType) {
+	private void fileDialog(String filter, Text text) {
 		FileDialogRunable fdr = new FileDialogRunable(filter,
 				NLS.bind(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_fileDialog, filter));
 		getShell().getDisplay().syncExec(fdr);
@@ -227,7 +219,6 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			text.setText(filePath);
 			this.externalFile = new File(filePath);
 		}
-		this.projectType = projectType;
 	}
 
 	/**
@@ -238,14 +229,14 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	public File getExternalFile() {
 		return externalFile;
 	}
-
+	
 	/**
 	 * Return the type of the populated project 
 	 * based on the user's selection
 	 *
-	 * @return String 
+	 * @return LocalProjectType 
 	 */
-	public String getProjectType() {
+	public LocalProjectType getProjectType() {
 		return projectType;
 	}
 	

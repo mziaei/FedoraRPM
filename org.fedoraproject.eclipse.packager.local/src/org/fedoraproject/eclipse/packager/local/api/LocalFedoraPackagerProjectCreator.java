@@ -41,98 +41,47 @@ import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerPageFour;
 
+/**
+ * Utility class to create to enable existing and 
+ *   new maintainers work with fedora packages locally
+ * 
+ */
 public class LocalFedoraPackagerProjectCreator {
-	private static final String GITIGNORE = ".gitignore"; //$NON-NLS-1$
-	private static final String PROJECT = ".project"; //$NON-NLS-1$
-	private static final String SPEC = ".spec"; //$NON-NLS-1$
 
-//	private static final String FEATURE = "feature.xml"; //$NON-NLS-1$
-//	private static final String POM = "pom.xml"; //$NON-NLS-1$
-
+	private IProject project;
+	private IProgressMonitor monitor;
 	private Repository repository;
 	private Git git;
-	private IProject project;
 
 	/**
-	 * Creates git repository inside the base project also adds the contents and
-	 * the existing contents to the git repo.
-	 *
-	 * @param String
-	 *            type of the porject
-	 * @param File
-	 *            the external xml file uploaded from file system
+	 * Construct the local fedora packager project 
+	 *   based on the created project in main wizard
 	 * @param IProject
 	 *            the base of the project
 	 * @param IProgressMonitor
 	 *            Progress monitor to report back status
-	 *            
-	 * @throws CoreException
-	 */
-	public void create(String projectType, File externalFile, IProject project,
-			IProgressMonitor monitor) throws CoreException {
-
-		this.project = project;
-		if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_SRpm)) {
-			RPMProject rpmProject = new RPMProject(project,
-					RPMProjectLayout.FLAT);
-			rpmProject.importSourceRPM(externalFile);
-		}
-	}
-
-	/**
-	 * Creates git repository inside the base project also adds the contents and
-	 * the existing contents to the git repo.
 	 *
-	 * @param InputType
-	 *            inputType of the stubby project
-	 * @param File
-	 *            the external xml file uploaded from file system
-	 * @param IProject
-	 *            the base of the project
-	 * @param IProgressMonitor
-	 *            Progress monitor to report back status
-	 * @throws CoreException 
-	 * @throws FileNotFoundException 
-	 * 
 	 */
-	public void create(InputType inputType, File externalFile, IProject project,
-			IProgressMonitor monitor) throws FileNotFoundException, CoreException {
-
+	public LocalFedoraPackagerProjectCreator(IProject project, IProgressMonitor monitor) {
 		this.project = project;
-			IFile stubbyFile = project.getFile(externalFile.getName());
-			stubbyFile.create(new FileInputStream(externalFile), false, monitor);
-
-			Generator specfilegGenerator;
-			switch(inputType) {
-			case ECLIPSE_FEATURE:
-				specfilegGenerator = new Generator(InputType.ECLIPSE_FEATURE);
-				specfilegGenerator.generate(stubbyFile);
-				break;
-			case MAVEN_POM:
-				specfilegGenerator = new Generator(InputType.MAVEN_POM);
-				specfilegGenerator.generate(stubbyFile);
-				break;
-			}
+		this.monitor = monitor;
 	}
-
+	
 	/**
-	 * Creates the projects using Spec File template
+	 * Starts a plain project using the specfile template
 	 *
 	 * @param LocalFedoraPackagerPageFour
 	 *            instance of this class to get the contents
 	 * @param IProject
 	 *            the base of the project
 	 * @param IProgressMonitor
-	 *            Progress monitor to report back status
-	 *            
+	 *            Progress monitor to report back status           
 	 * @throws CoreException 
 	 *
 	 */
-	public void create(LocalFedoraPackagerPageFour pageFour, IProject project,
-			IProgressMonitor monitor) throws CoreException{
-		this.project = project;
+	public void create(LocalFedoraPackagerPageFour pageFour) throws CoreException{
 		final String projectName = project.getName();
-		final String fileName = projectName + ".spec";
+		final String fileName = projectName + ".spec"; //$NON-NLS-1$
 		final InputStream contentInputStream = new ByteArrayInputStream(
 				pageFour.getContent().getBytes());
 		final IFile file = project.getFile(new Path(fileName));
@@ -147,6 +96,49 @@ public class LocalFedoraPackagerProjectCreator {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Populate the project based on the imported srpm file
+	 *
+	 * @param File
+	 *            the external xml file uploaded from file system     
+	 * @throws CoreException
+	 */
+	public void create(File externalFile) throws CoreException {
+		RPMProject rpmProject = new RPMProject
+				(project, RPMProjectLayout.FLAT);
+		rpmProject.importSourceRPM(externalFile);
+	}
+
+	/**
+	 * Populate the project using rpmstubby based on the 
+	 *  eclipse-feature or maven-pom choice of user
+	 *
+	 * @param InputType
+	 *            type of the stubby project
+	 * @param File
+	 *            the external xml file uploaded from file system
+	 * @throws CoreException 
+	 * @throws FileNotFoundException 
+	 * 
+	 */
+	public void create(InputType inputType, File externalFile) 
+			throws FileNotFoundException, CoreException {
+			IFile stubbyFile = project.getFile(externalFile.getName());
+			stubbyFile.create(new FileInputStream(externalFile), false, monitor);
+
+			Generator specfilegGenerator;
+			switch(inputType) {
+			case ECLIPSE_FEATURE:
+				specfilegGenerator = new Generator(InputType.ECLIPSE_FEATURE);
+				specfilegGenerator.generate(stubbyFile);
+				break;
+			case MAVEN_POM:
+				specfilegGenerator = new Generator(InputType.MAVEN_POM);
+				specfilegGenerator.generate(stubbyFile);
+				break;
+			}
 	}
 
 	/**
@@ -168,7 +160,6 @@ public class LocalFedoraPackagerProjectCreator {
 			CoreException {
 		File directory = createLocalGitRepo();
 
-		// add contents to the git repository
 		addContentToGitRepo(directory);
 
 		// Set persistent property so that we know when to show the context
@@ -201,8 +192,8 @@ public class LocalFedoraPackagerProjectCreator {
 	}
 
 	/**
-	 * Adds existing and new contents to the Git repository and does the first
-	 * commit
+	 * Add the contents to the Git repository and 
+	 * does the first commit
 	 *
 	 * @param File
 	 *            directory of the git repository
@@ -223,11 +214,11 @@ public class LocalFedoraPackagerProjectCreator {
 		for (File file : directory.listFiles()) {
 			String name = file.getName();
 
-			if (name.contains(SPEC)) {
+			if (name.contains(".spec")) { //$NON-NLS-1$
 				git.add().addFilepattern(name).call();
 			}
 
-			if (name.equals(GITIGNORE) || name.equals(PROJECT)) {
+			if (name.equals(".gitignore") || name.equals(".project")) { //$NON-NLS-1$
 				git.add().addFilepattern(name).call();
 			}
 		}

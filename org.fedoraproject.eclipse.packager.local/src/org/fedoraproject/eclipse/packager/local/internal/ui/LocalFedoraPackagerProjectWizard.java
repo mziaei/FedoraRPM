@@ -40,10 +40,14 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.QuestionMessageDialog;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
+import org.fedoraproject.eclipse.packager.local.LocalProjectType;
 import org.fedoraproject.eclipse.packager.local.api.LocalFedoraPackagerProjectCreator;
 
+/**
+ * wizard to ease the process of creating fedora packages
+ *  
+ */
 public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWizard {
-
 
 	private static final String PAGE_ONE = "PageOne"; //$NON-NLS-1$
 	private static final String PAGE_TWO = "PageTwo"; //$NON-NLS-1$
@@ -58,6 +62,8 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	private IWorkspaceRoot root;
 	private IProject project;
 	private IProjectDescription description;
+	
+	private LocalProjectType projectType;
 
 	public LocalFedoraPackagerProjectWizard() {
 	}
@@ -193,19 +199,21 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 			JGitInternalException, WrongRepositoryStateException, NoFilepatternException,
 			IOException, CoreException {
 
-		LocalFedoraPackagerProjectCreator fedoraRPMProjectCreator = new LocalFedoraPackagerProjectCreator();
-		if (pageThree.getProjectType().equals("Stubby_Project")){ //$NON-NLS-1$
+		LocalFedoraPackagerProjectCreator fedoraRPMProjectCreator = 
+				new LocalFedoraPackagerProjectCreator(project, monitor);
+		projectType = pageThree.getProjectType();
+		switch(projectType) {
+		case PLAIN:
+			fedoraRPMProjectCreator.create(pageFour);
+			break;
+		case SRPM:
+			fedoraRPMProjectCreator.create(pageThree.getExternalFile());
+			break;
+		case STUBBY:
 			fedoraRPMProjectCreator.create(pageThree.getInputType(),
-					pageThree.getExternalFile(), project, monitor);
+					pageThree.getExternalFile());
+			break;
 		}
-		if (pageThree.getProjectType().equals("plain")) { //$NON-NLS-1$
-			fedoraRPMProjectCreator.create(pageFour, project, monitor);
-		} 
-		if (pageThree.getProjectType().equals("srpm")){ //$NON-NLS-1$
-			fedoraRPMProjectCreator.create(pageThree.getProjectType(),
-					pageThree.getExternalFile(), project, monitor);
-		} 
-
 		fedoraRPMProjectCreator.createProjectStructure();
 
 		// Finally ask if the Fedora Packaging perspective should be opened
