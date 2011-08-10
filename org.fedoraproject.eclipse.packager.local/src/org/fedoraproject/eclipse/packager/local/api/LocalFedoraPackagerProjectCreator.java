@@ -35,8 +35,7 @@ import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.linuxtools.rpm.core.RPMProject;
 import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
 import org.eclipse.linuxtools.rpmstubby.Generator;
-import org.eclipse.linuxtools.rpmstubby.SpecfileWriter;
-import org.eclipse.linuxtools.rpmstubby.StubbyPomGenerator;
+import org.eclipse.linuxtools.rpmstubby.InputType;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerPageFour;
@@ -46,8 +45,8 @@ public class LocalFedoraPackagerProjectCreator {
 	private static final String PROJECT = ".project"; //$NON-NLS-1$
 	private static final String SPEC = ".spec"; //$NON-NLS-1$
 
-	private static final String FEATURE = "feature.xml"; //$NON-NLS-1$
-	private static final String POM = "pom.xml"; //$NON-NLS-1$
+//	private static final String FEATURE = "feature.xml"; //$NON-NLS-1$
+//	private static final String POM = "pom.xml"; //$NON-NLS-1$
 
 	private Repository repository;
 	private Git git;
@@ -56,15 +55,15 @@ public class LocalFedoraPackagerProjectCreator {
 	/**
 	 * Creates git repository inside the base project also adds the contents and
 	 * the existing contents to the git repo.
-	 * 
+	 *
+	 * @param String
+	 *            type of the porject
 	 * @param File
 	 *            the external xml file uploaded from file system
 	 * @param IProject
 	 *            the base of the project
 	 * @param IProgressMonitor
 	 *            Progress monitor to report back status
-	 * @param String
-	 *            type of the porject
 	 * @throws IOException
 	 * @throws NoFilepatternException
 	 * @throws WrongRepositoryStateException
@@ -75,20 +74,62 @@ public class LocalFedoraPackagerProjectCreator {
 	 * @throws CoreException
 	 */
 	public void create(String projectType, File externalFile, IProject project,
-			IProgressMonitor monitor) throws CoreException, IOException,
-			NoFilepatternException, NoHeadException, NoMessageException,
-			ConcurrentRefUpdateException, JGitInternalException,
-			WrongRepositoryStateException {
+			IProgressMonitor monitor) throws CoreException, NoFilepatternException,
+			NoHeadException, NoMessageException, ConcurrentRefUpdateException,
+			JGitInternalException, WrongRepositoryStateException, IOException {
 
 		this.project = project;
-		if (projectType
-				.equals(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby)) {
+		if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_SRpm)) {
+			RPMProject rpmProject = new RPMProject(project,
+					RPMProjectLayout.FLAT);
+			rpmProject.importSourceRPM(externalFile);
+		}
+		createProjectStructure();
+	}
+
+	/**
+	 * Creates git repository inside the base project also adds the contents and
+	 * the existing contents to the git repo.
+	 *
+	 * @param InputType
+	 *            inputType of the stubby project
+	 * @param File
+	 *            the external xml file uploaded from file system
+	 * @param IProject
+	 *            the base of the project
+	 * @param IProgressMonitor
+	 *            Progress monitor to report back status
+	 * @throws CoreException
+	 * @throws IOException
+	 * @throws WrongRepositoryStateException
+	 * @throws JGitInternalException
+	 * @throws ConcurrentRefUpdateException
+	 * @throws NoMessageException
+	 * @throws NoHeadException
+	 * @throws NoFilepatternException
+	 */
+	public void create(InputType inputType, File externalFile, IProject project,
+			IProgressMonitor monitor) throws CoreException, NoFilepatternException,
+			NoHeadException, NoMessageException, ConcurrentRefUpdateException,
+			JGitInternalException, WrongRepositoryStateException, IOException {
+
+		this.project = project;
 			IFile stubbyFile = project.getFile(externalFile.getName());
 			stubbyFile.create(new FileInputStream(externalFile), false, monitor);
 
-			String fileName = externalFile.getName();
-			Generator specfilegGenerator = new Generator(inputType);
-			specfilegGenerator.generate(stubbyFile);
+//			String fileName = externalFile.getName();
+			Generator specfilegGenerator;
+			switch(inputType) {
+			case ECLIPSE_FEATURE:
+				specfilegGenerator = new Generator(InputType.ECLIPSE_FEATURE);
+				specfilegGenerator.generate(stubbyFile);
+				break;
+			case MAVEN_POM:
+				specfilegGenerator = new Generator(InputType.MAVEN_POM);
+				specfilegGenerator.generate(stubbyFile);
+				break;
+			}
+
 //			if (fileName.equals(FEATURE)) {
 //				SpecfileWriter specfileWriter = new SpecfileWriter();
 //				specfileWriter.write(stubby);
@@ -98,20 +139,12 @@ public class LocalFedoraPackagerProjectCreator {
 //				StubbyPomGenerator generator = new StubbyPomGenerator(stubby);
 //				generator.writeContent(stubby.getProject().getName());
 //			}
-		}
-
-		if (projectType.equals(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_SRpm)) {
-			RPMProject rpmProject = new RPMProject(project,
-					RPMProjectLayout.FLAT);
-			rpmProject.importSourceRPM(externalFile);
-		}
-
 		createProjectStructure();
 	}
 
 	/**
 	 * Creates the projects using Spec File template
-	 * 
+	 *
 	 * @param LocalFedoraPackagerPageFour
 	 *            instance of this class to get the contents
 	 * @param IProject
@@ -126,11 +159,11 @@ public class LocalFedoraPackagerProjectCreator {
 	 * @throws NoMessageException
 	 * @throws NoHeadException
 	 * @throws NoFilepatternException
-	 * 
+	 *
 	 */
 	public void create(LocalFedoraPackagerPageFour pageFour, IProject project,
-			IProgressMonitor monitor) throws CoreException, NoFilepatternException, 
-			NoHeadException, NoMessageException, ConcurrentRefUpdateException, 
+			IProgressMonitor monitor) throws CoreException, NoFilepatternException,
+			NoHeadException, NoMessageException, ConcurrentRefUpdateException,
 			JGitInternalException, WrongRepositoryStateException, IOException {
 		this.project = project;
 		final String projectName = project.getName();
@@ -149,13 +182,13 @@ public class LocalFedoraPackagerProjectCreator {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		createProjectStructure();
 	}
 
 	/**
 	 * Creates project structure inside the base project
-	 * 
+	 *
 	 * @throws CoreException
 	 * @throws IOException
 	 * @throws WrongRepositoryStateException
@@ -164,7 +197,7 @@ public class LocalFedoraPackagerProjectCreator {
 	 * @throws NoMessageException
 	 * @throws NoHeadException
 	 * @throws NoFilepatternException
-	 * 
+	 *
 	 */
 	private void createProjectStructure() throws NoFilepatternException,
 			NoHeadException, NoMessageException, ConcurrentRefUpdateException,
@@ -230,7 +263,7 @@ public class LocalFedoraPackagerProjectCreator {
 			if (name.contains(SPEC)) {
 				git.add().addFilepattern(name).call();
 			}
-			
+
 			if (name.equals(GITIGNORE) || name.equals(PROJECT)) {
 				git.add().addFilepattern(name).call();
 			}

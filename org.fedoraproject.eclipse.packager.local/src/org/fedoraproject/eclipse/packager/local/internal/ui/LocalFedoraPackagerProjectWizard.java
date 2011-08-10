@@ -194,11 +194,14 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 			IOException, CoreException {
 
 		LocalFedoraPackagerProjectCreator fedoraRPMProjectCreator = new LocalFedoraPackagerProjectCreator();
-		if (pageThree.getProjectType().equals("plain")) {
+		if (pageThree.getProjectType().equals("plain")) { //$NON-NLS-1$
 			fedoraRPMProjectCreator.create(pageFour, project, monitor);
-		} else {
+		} else if (pageThree.getProjectType().equals("srpm")){ //$NON-NLS-1$
 			fedoraRPMProjectCreator.create(pageThree.getProjectType(),
 					pageThree.getExternalFile(), project, monitor);
+		} else {
+//			fedoraRPMProjectCreator.create(pageThree.getInputType(),
+//					pageThree.getExternalFile(), project, monitor);
 		}
 
 		// Finally ask if the Fedora Packaging perspective should be opened

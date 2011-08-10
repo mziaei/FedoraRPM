@@ -69,7 +69,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 
 	/**
 	 * Create contents of the wizard.
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override
@@ -102,17 +102,11 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			}
 		});
 
-//		comboStubby = new Combo(grpSpec, SWT.READ_ONLY);
-//		comboStubby.setItems(STUBBY);
-//		comboStubby.select(0);
-		
 		comboStubby = new ComboViewer(grpSpec, SWT.READ_ONLY);
-		comboStubby.getControl().setLayoutData(layoutData);		
+		comboStubby.getControl().setLayoutData(layoutData);
 		comboStubby.setContentProvider(ArrayContentProvider.getInstance());
-		inputTypeFeature = InputType.ECLIPSE_FEATURE;
-		inputTypeMaven = InputType.MAVEN_POM;
-		comboStubby.setInput(inputTypeFeature);
-		comboStubby.setInput(inputTypeMaven);
+		comboStubby.setInput(InputType.ECLIPSE_FEATURE.getFileNamePattern());
+		comboStubby.setInput(InputType.MAVEN_POM.getFileNamePattern());
 		comboStubby.getCombo().select(0);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 25;
@@ -130,9 +124,10 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int comboIndex = comboStubby.getCombo().getSelectionIndex();
-//				fileDialog(combotextStubby, LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby);
-				
-				
+
+				fileDialog(comboStubby.getCombo()., LocalFedoraPackagerText.LocalFedoraPackagerPageThree_Stubby);
+
+
 //				int comboIndex = comboStubby.getSelectionIndex();
 //				fileDialog(
 //						STUBBY[comboIndex],
@@ -208,7 +203,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	/**
 	 * Runs the filaDialog and sets the project type and externalFile to be
 	 * passed to project creator
-	 * 
+	 *
 	 * @param String
 	 *            filter for the fileDialog
 	 * @param Text
@@ -217,7 +212,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	 *            type of the project that user selected
 	 */
 	private void fileDialog(String filter, Text text, String projectType) {
-		FileDialogRunable fdr = new FileDialogRunable(filter, 
+		FileDialogRunable fdr = new FileDialogRunable(filter,
 				NLS.bind(LocalFedoraPackagerText.LocalFedoraPackagerPageThree_fileDialog, filter));
 		getShell().getDisplay().syncExec(fdr);
 		String filePath = fdr.getFile();
@@ -230,7 +225,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 
 	/**
 	 * Return the external file to the user's selected file
-	 * 
+	 *
 	 * @return File
 	 */
 	public File getExternalFile() {
@@ -239,7 +234,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 
 	/**
 	 * Return the type of the project based on the user's selection
-	 * 
+	 *
 	 * @return String type of the populated project
 	 */
 	public String getProjectType() {
@@ -248,7 +243,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 
 	/**
 	 * If Finish button can be enabled, return true
-	 * 
+	 *
 	 * @return pageCanFinish
 	 */
 	public boolean pageCanFinish() {
@@ -257,7 +252,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 
 	/**
 	 * Sets the status of page
-	 * 
+	 *
 	 * @param pageIsComplete
 	 *            , next or finish can be enabled
 	 * @param pageCanFinish
@@ -298,6 +293,11 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			textStubby.setText("");
 			textSrpm.setText("");
 		}
+	}
+
+	public LocalFedoraPackagerPageFour getInputType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
