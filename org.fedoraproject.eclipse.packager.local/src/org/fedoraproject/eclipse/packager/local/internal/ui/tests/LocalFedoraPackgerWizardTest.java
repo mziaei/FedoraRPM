@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.local.internal.ui.tests;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -32,10 +31,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.linuxtools.rpm.core.RPMProject;
 import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
-import org.eclipse.linuxtools.rpm.core.RPMProjectNature;
-import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.local.api.LocalFedoraPackagerProjectCreator;
-import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils.ProjectType;
 import org.junit.BeforeClass;
@@ -97,12 +93,10 @@ public class LocalFedoraPackgerWizardTest {
 		// add the contents and do the initial commit 
 		testMainProject.createProjectStructure();
 		
-//		final IProjectRoot localFedoraProjectRoot;
-//		IResource resource = baseProject.getProject();
-//		localFedoraProjectRoot = FedoraPackagerUtils
-//					.getProjectRoot(resource);
-		IResource resource = ResourcesPlugin.getWorkspace().getRoot().getProject("helloworld");
+		// Make sure the type of created project is GIT
+		IResource resource = baseProject.getProject();
 		ProjectType projectType = FedoraPackagerUtils.getProjectType(resource);
+		assertTrue(projectType.equals(ProjectType.GIT));
 		
 		// Make sure the original SRPM got copied into the workspace
 		IFile srpm = baseProject.getFile(new Path("helloworld-2-2.src.rpm"));
