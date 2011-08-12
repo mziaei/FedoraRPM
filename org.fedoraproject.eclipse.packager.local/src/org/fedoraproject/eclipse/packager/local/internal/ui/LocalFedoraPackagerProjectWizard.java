@@ -140,22 +140,21 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	 */
 	@Override
 	public boolean canFinish() {
-		return (getContainer().getCurrentPage() == pageThree && pageThree.pageCanFinish());
-//				|| getContainer().getCurrentPage() == pageFour && pageFour.isPageComplete();
+		return (getContainer().getCurrentPage() == pageThree && pageThree.pageCanFinish())
+				|| getContainer().getCurrentPage() == pageFour;
 	}
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
 		if (page instanceof LocalFedoraPackagerPageThree) {
-//			if (!((LocalFedoraPackagerPageThree) page).pageCanFinish()) {
+			// check if user chooses to use the Specfile template
+			if (((LocalFedoraPackagerPageThree) page).getSpecFile() == null) {
 				pageFour = new LocalFedoraPackagerPageFour(PAGE_FOUR, this.pageOne.getProjectName());
 				addPage(pageFour);
-//			}
-			return null;
-//				return pageFour;
-//			} else {
-//				return null;
-//			}
+				return pageFour;
+			} else {
+				return null;
+			}
 		}
 		return super.getNextPage(page);
 	}
@@ -206,7 +205,11 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 		projectType = pageThree.getProjectType();
 		switch(projectType) {
 		case PLAIN:
-			fedoraRPMProjectCreator.create(pageFour);
+			if (pageThree.getSpecFile() != null) {
+				fedoraRPMProjectCreator.create(pageThree.getSpecFile(), pageThree.getExternalFile());
+			} else {
+				fedoraRPMProjectCreator.create(pageFour,pageThree.getExternalFile());
+			}
 			break;
 		case SRPM:
 			fedoraRPMProjectCreator.create(pageThree.getExternalFile());

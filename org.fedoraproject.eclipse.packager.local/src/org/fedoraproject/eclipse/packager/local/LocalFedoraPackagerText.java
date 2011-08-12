@@ -41,7 +41,7 @@ public class LocalFedoraPackagerText extends NLS {
 	/****/ public static String LocalFedoraPackagerPageThree_btnBrowse;
 	/****/ public static String LocalFedoraPackagerPageThree_btnCheckSrpm;
 	/****/ public static String LocalFedoraPackagerPageThree_lblSrpm;
-	/****/ public static String LocalFedoraPackagerPageThree_lblPlain;
+	/****/ public static String LocalFedoraPackagerPageThree_lblSpecPlain;
 	/****/ public static String LocalFedoraPackagerPageThree_lblSourcePlain;
 	/****/ public static String LocalFedoraPackagerPageThree_btnCheckPlain;
 	/****/ public static String LocalFedoraPackagerPageThree_btnTemplateSpec;
