@@ -41,6 +41,7 @@ import org.eclipse.linuxtools.rpmstubby.InputType;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerPageFour;
+import org.fedoraproject.eclipse.packager.local.LocalProjectType;
 
 /**
  * Utility class to create to enable existing and 
@@ -77,17 +78,13 @@ public class LocalFedoraPackagerProjectCreator {
 	 * @throws CoreException 
 	 *
 	 */
-	public void create(LocalFedoraPackagerPageFour pageFour, File source) throws CoreException{
-		
-		IFile sourceFile = project.getFile(source.getName());
-		
+	public void create(LocalFedoraPackagerPageFour pageFour) throws CoreException{
 		final String projectName = project.getName();
 		final String fileName = projectName + ".spec"; //$NON-NLS-1$
 		final InputStream contentInputStream = new ByteArrayInputStream(
 				pageFour.getContent().getBytes());
 		final IFile specfile = project.getFile(new Path(fileName));
 		try {
-			sourceFile.create(new FileInputStream(source), false, monitor);
 			InputStream stream = contentInputStream;
 			if (specfile.exists()) {
 				specfile.setContents(stream, true, true, monitor);
@@ -101,35 +98,25 @@ public class LocalFedoraPackagerProjectCreator {
 	}
 	
 	/**
-	 * Starts a plain project using uploaded .spec and source files
-	 *
-	 * @param LocalFedoraPackagerPageFour
-	 *            instance of this class to get the contents
-	 * @throws CoreException 
-	 *
-	 */
-	public void create(File spec, File source) throws CoreException {
-		IFile specFile = project.getFile(spec.getName());
-		IFile sourceFile = project.getFile(source.getName());
-		try {
-			specFile.create(new FileInputStream(spec), false, monitor);
-			sourceFile.create(new FileInputStream(source), false, monitor);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Populate the project based on the imported srpm file
+	 * Populate the project based on the imported SRPM or .spec file
 	 *
 	 * @param File
 	 *            the external xml file uploaded from file system     
 	 * @throws CoreException
+	 * @throws FileNotFoundException 
 	 */
-	public void create(File externalFile) throws CoreException {
-		RPMProject rpmProject = new RPMProject
-				(project, RPMProjectLayout.FLAT);
-		rpmProject.importSourceRPM(externalFile);
+	public void create(File externalFile, LocalProjectType projectType) 
+			throws CoreException, FileNotFoundException {
+		switch(projectType) {
+		case PLAIN:
+			IFile specFile = project.getFile(externalFile.getName());
+			specFile.create(new FileInputStream(externalFile), false, monitor);
+			break;
+		case SRPM:
+			RPMProject rpmProject = new RPMProject(project, RPMProjectLayout.FLAT);
+			rpmProject.importSourceRPM(externalFile);
+			break;
+		}
 	}
 
 	/**
@@ -144,10 +131,10 @@ public class LocalFedoraPackagerProjectCreator {
 	 * @throws FileNotFoundException 
 	 * 
 	 */
-	public void create(InputType inputType, File externalFile) 
+	public void create(InputType inputType, File stubby) 
 			throws FileNotFoundException, CoreException {
-			IFile stubbyFile = project.getFile(externalFile.getName());
-			stubbyFile.create(new FileInputStream(externalFile), false, monitor);
+			IFile stubbyFile = project.getFile(stubby.getName());
+			stubbyFile.create(new FileInputStream(stubby), false, monitor);
 
 			Generator specfilegGenerator = new Generator(inputType);
 			specfilegGenerator.generate(stubbyFile);

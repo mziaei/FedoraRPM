@@ -41,20 +41,16 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	private Button btnStubbyBrowse;
 	private Button btnSrpmBrowse;
 	private Button btnSpecPlainBrowse;
-	private Button btnSourcePlainBrowse;
 	private Label lblSrpm;
 	private Label lblSpecPlain;
-	private Label lblSourcePlain;
 	private Text textStubby;
 	private Text textSrpm;
 	private Text textSpecPlain;
-	private Text textSourcePlain;
 	private ComboViewer comboStubby;
 
 	private InputType inputType;
 	private LocalProjectType projectType;
 	private File externalFile = null;
-	private File specFile = null;
 	private boolean pageCanFinish;
 
 
@@ -94,6 +90,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		btnCheckStubby.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				projectType = LocalProjectType.STUBBY;
 				selectControl();
 			}
 		});
@@ -113,7 +110,6 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		btnStubbyBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				projectType = LocalProjectType.STUBBY;
 				int comboIndex = comboStubby.getCombo().getSelectionIndex();
 				inputType = InputType.valueOf(comboStubby.getCombo().getItem(comboIndex));
 				String filter = null;
@@ -141,6 +137,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		btnCheckSrpm.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				projectType = LocalProjectType.SRPM;
 				selectControl();
 			}
 		});
@@ -153,7 +150,6 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		btnSrpmBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				projectType = LocalProjectType.SRPM;
 				fileDialog("*.src.rpm", textSrpm); //$NON-NLS-1$
 				if (textSrpm.getText().length() != 0) {
 					setPageStatus(true, true);
@@ -167,9 +163,10 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		btnCheckPlain.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				btnSpecTemplate.setSelection(true);
-				selectControl();
 				projectType = LocalProjectType.PLAIN;
+				selectControl();
+				btnSpecTemplate.setEnabled(true);
+				setPageStatus(true, false);
 			}
 		});
 
@@ -184,10 +181,11 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				if (btnSpecTemplate.getSelection()) {
 					setPlainControl(false);
+					setPageStatus(true, false);
 				} else {
 					setPlainControl(true);
+					setPageStatus(false, false);
 				}
-				setPageStatus(textSourcePlain.getText().length() != 0, false);
 			}
 		});
 
@@ -200,32 +198,13 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				fileDialog("*.spec", textSpecPlain); //$NON-NLS-1$
-				if (textSpecPlain.getText().length() != 0 && 
-						textSourcePlain.getText().length() != 0) {
-					setPageStatus(textSourcePlain.getText().length() != 0, true);
-				}
-			}
-		});
-
-		lblSourcePlain = createLabel
-				(grpSpec, LocalFedoraPackagerText.LocalFedoraPackagerPageThree_lblSourcePlain);
-		textSourcePlain = createText(grpSpec);
-		btnSourcePlainBrowse = createPushButton
-				(grpSpec, LocalFedoraPackagerText.LocalFedoraPackagerPageThree_btnBrowse);
-		btnSourcePlainBrowse.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				projectType = LocalProjectType.PLAIN;
-				fileDialog("*.zip;*.tar;*.tar.gz;*.tgz;*.tar.bz2", textSourcePlain); //$NON-NLS-1$
-				if (textSourcePlain.getText().length() != 0) {
-					setPageStatus((textSpecPlain.getText().length() != 0 || 
-							btnCheckPlain.getSelection()), (textSpecPlain.getText().length() != 0));
+				if (textSpecPlain.getText().length() != 0) {
+					setPageStatus(true, true);
 				}
 			}
 		});
 
 		selectControl();
-//		setPageComplete(false);
 		setPageStatus(false, false);
 		setControl(container);
 	}
@@ -306,11 +285,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		String filePath = fdr.getFile();
 		if (filePath != null) {
 			text.setText(filePath);
-			if (text == textSpecPlain) {
-				this.specFile = new File(filePath);
-			} else {
-				this.externalFile = new File(filePath);
-			}
+			this.externalFile = new File(filePath);
 		}
 	}
 
@@ -341,16 +316,15 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	public InputType getInputType() {
 		return inputType;
 	}
-
-	/**
-	 * Returns the uploaded .spec file
-	 *
-	 * @return File
-	 */
-	public File getSpecFile() {
-		return specFile;
-	}
 	
+	/**
+	 * Returns the button for later reference in main wizard
+	 *
+	 * @return Button
+	 */
+	public Button btnSpecTemplate() {
+		return btnSpecTemplate;
+	}
 	/**
 	 * If Finish button can be enabled, return true
 	 *
@@ -378,26 +352,25 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 	 */
 	protected void selectControl() {
 		setPageStatus(false, false);
+		btnSpecTemplate.setSelection(true);
+		btnSpecTemplate.setEnabled(false);
 		if (btnCheckStubby.getSelection()) {
 			setStubbyControl(true);
 			setSrpmControl(false);
 			setPlainControl(false);
-			setSourcePlainControl(false);
 		} else if (btnCheckSrpm.getSelection()) {
 			setStubbyControl(false);
 			setSrpmControl(true);
 			setPlainControl(false);
-			setSourcePlainControl(false);
 		} else if (btnCheckPlain.getSelection()){
+			btnSpecTemplate.setEnabled(true);
 			setStubbyControl(false);
 			setSrpmControl(false);
 			setPlainControl(false);
-			setSourcePlainControl(true);
 		} else {
 			setStubbyControl(false);
 			setSrpmControl(false);
 			setPlainControl(false);
-			setSourcePlainControl(false);
 		}
 	}
 
@@ -420,13 +393,5 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 		textSpecPlain.setEnabled(bool);
 		btnSpecPlainBrowse.setEnabled(bool);
 		textSpecPlain.setText("");
-	}
-
-	private void setSourcePlainControl(boolean bool) {
-		btnSpecTemplate.setEnabled(bool);
-		lblSourcePlain.setEnabled(bool);
-		textSourcePlain.setEnabled(bool);
-		btnSourcePlainBrowse.setEnabled(bool);
-		textSourcePlain.setText("");
 	}
 }
