@@ -140,20 +140,22 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	 */
 	@Override
 	public boolean canFinish() {
-		return (getContainer().getCurrentPage() == pageThree && pageThree.pageCanFinish())
-				|| getContainer().getCurrentPage() == pageFour && pageFour.isPageComplete();
+		return (getContainer().getCurrentPage() == pageThree && pageThree.pageCanFinish());
+//				|| getContainer().getCurrentPage() == pageFour && pageFour.isPageComplete();
 	}
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
 		if (page instanceof LocalFedoraPackagerPageThree) {
-			if (!((LocalFedoraPackagerPageThree) page).pageCanFinish()) {
+//			if (!((LocalFedoraPackagerPageThree) page).pageCanFinish()) {
 				pageFour = new LocalFedoraPackagerPageFour(PAGE_FOUR, this.pageOne.getProjectName());
 				addPage(pageFour);
-				return pageFour;
-			} else {
-				return null;
-			}
+//			}
+			return null;
+//				return pageFour;
+//			} else {
+//				return null;
+//			}
 		}
 		return super.getNextPage(page);
 	}

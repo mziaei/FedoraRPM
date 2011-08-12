@@ -172,7 +172,8 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 				selectControl();
 				projectType = LocalProjectType.PLAIN;
 				externalFile = null;
-				setPageStatus(true, false);
+//				setPageStatus(true, false);
+				setPageStatus(true, true);
 			}
 		});
 
@@ -208,7 +209,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 				projectType = LocalProjectType.PLAIN;
 				fileDialog("*.spec", textPlain); //$NON-NLS-1$
 				if (textPlain.getText() != null) {
-					setPageStatus(true, true);
+//					setPageStatus(true, true);
 				}
 			}
 		});
@@ -225,7 +226,7 @@ public class LocalFedoraPackagerPageThree extends WizardPage {
 				projectType = LocalProjectType.PLAIN;
 				fileDialog("*.zip;*.tar;*.tar.gz;*.tgz;*.tar.bz2", textSourcePlain); //$NON-NLS-1$
 				if (textSourcePlain.getText() != null) {
-					setPageStatus(true, true);
+//					setPageStatus(true, true);
 				}
 			}
 		});
