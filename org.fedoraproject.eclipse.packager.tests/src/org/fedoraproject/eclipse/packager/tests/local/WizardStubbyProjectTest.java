@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.local.tests;
+package org.fedoraproject.eclipse.packager.tests.local;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -54,7 +54,7 @@ public class WizardStubbyProjectTest {
 		
 		// Find the test feature.xml file and install it
 		URL url = FileLocator.find(FrameworkUtil
-				.getBundle(LocalFedoraPackgerWizardTest.class), new Path(
+				.getBundle(WizardStubbyProjectTest.class), new Path(
 				"resources" + IPath.SEPARATOR + "eclipse-packager" + IPath.SEPARATOR + //$NON-NLS-1$ //$NON-NLS-2$
 						"feature.xml"), null);
 		if (url == null) {

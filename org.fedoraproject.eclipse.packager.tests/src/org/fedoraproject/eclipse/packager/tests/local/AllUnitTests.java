@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.local.tests;
+package org.fedoraproject.eclipse.packager.tests.local;
 
 import org.junit.runners.Suite;
 import org.junit.runner.RunWith;

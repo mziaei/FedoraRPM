@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.local.tests;
+package org.fedoraproject.eclipse.packager.tests.local;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -54,7 +54,7 @@ public class WizardPlainProjectTest {
 		
 		// Find the test .spec file and install it
 		URL url = FileLocator.find(FrameworkUtil
-				.getBundle(LocalFedoraPackgerWizardTest.class), new Path(
+				.getBundle(WizardPlainProjectTest.class), new Path(
 				"resources" + IPath.SEPARATOR + "helloworld" + IPath.SEPARATOR + //$NON-NLS-1$ //$NON-NLS-2$
 						"helloworld.spec"), null);
 		if (url == null) {
