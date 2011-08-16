@@ -16,7 +16,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	LocalFedoraPackgerWizardTest.class,
+	WizardSRPMProjectTest.class,
+	WizardStubbyProjectTest.class,
+	WizardPlainProjectTest.class,
 })
 
 public class AllUnitTests {
