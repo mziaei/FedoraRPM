@@ -72,7 +72,7 @@ public class WizardSRPMProjectTest {
 		// poulate project using imported SRPM
 		testMainProject.create(externalFile, LocalProjectType.SRPM);
 
-		// Create the local git repository inside the project
+		// Create  the local git repository inside the project
 		// add the contents and do the initial commit
 		testMainProject.createProjectStructure();
 
