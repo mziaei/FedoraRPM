@@ -14,7 +14,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Scanner;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -68,7 +70,7 @@ public class WizardSRPMProjectTest {
 	}
 
 	@Test
-	public void testPopulateSrpm() throws Exception {
+	public void testPopulateSrpm() throws Exception {		
 		// poulate project using imported SRPM
 		testMainProject.create(externalFile, LocalProjectType.SRPM);
 
@@ -86,8 +88,25 @@ public class WizardSRPMProjectTest {
 		assertTrue(srpm.exists());
 
 		// Make sure everything got installed properly
-		IFile spec = baseProject.getFile(new Path("helloworld.spec"));
-		assertTrue(spec.exists());
+		IFile specFile = baseProject.getFile(new Path("helloworld.spec"));
+		assertTrue(specFile.exists());
+
+		// Check if the generated .spec file contains the correct information
+		boolean packageNameOK = false;
+		if (specFile.exists()) {
+			InputStream is = specFile.getContents();
+			String line = null;
+			Scanner scan = new Scanner(is);
+			while(scan.hasNext() && !packageNameOK) {
+				line = scan.nextLine();
+				if (line.contains("Name: helloworld")) {
+					packageNameOK = true;
+				}
+			}
+			scan.close();
+		} 
+		assertTrue(packageNameOK);
+		
 		IFile sourceBall = baseProject.getFile(new Path("helloworld-2.tar.bz2"));
 		assertTrue(sourceBall.exists());
 	}

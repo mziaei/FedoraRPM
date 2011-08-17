@@ -14,7 +14,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Scanner;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -67,20 +69,35 @@ public class WizardStubbyProjectTest {
 	}
 
 	@Test
-	public void testPopulateStubby() throws Exception {
+	public void testPopulateStubby() throws Exception {		
 		// poulate project using imported feature.xml
 		testMainProject.create(InputType.ECLIPSE_FEATURE, externalFile);
-
 
 		// Make sure the original feature.xml got copied into the workspace
 		IFile featureFile = baseProject.getFile(new Path("feature.xml"));
 		assertTrue(featureFile.exists());
 
 		// Make sure the proper .spec file is generated
-		IFile spec = baseProject.getFile(new Path("eclipse-packager.spec"));
+		IFile specFile = baseProject.getFile(new Path("eclipse-packager.spec"));
 		IDE.openEditor(Activator.getDefault()
-				.getWorkbench().getActiveWorkbenchWindow().getActivePage(),	spec);
-		assertTrue(spec.exists());
+				.getWorkbench().getActiveWorkbenchWindow().getActivePage(),	specFile);		
+		assertTrue(specFile.exists());
+		
+		// Check if the generated .spec file contains the correct information
+		boolean packageNameOK = false;
+		if (specFile.exists()) {
+			InputStream is = specFile.getContents();
+			String line = null;
+			Scanner scan = new Scanner(is);
+			while(scan.hasNext() && !packageNameOK) {
+				line = scan.nextLine();
+				if (line.contains("Name:           eclipse-packager")) {
+					packageNameOK = true;
+				}
+			}
+			scan.close();
+		} 
+		assertTrue(packageNameOK);
 	}
 
 	@After

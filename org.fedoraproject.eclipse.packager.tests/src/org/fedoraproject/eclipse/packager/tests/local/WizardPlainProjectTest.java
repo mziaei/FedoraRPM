@@ -70,8 +70,9 @@ public class WizardPlainProjectTest {
 		testMainProject.create(externalFile, LocalProjectType.PLAIN);
 
 		// Make sure the original .spec file got copied into the workspace
-		IFile featureFile = baseProject.getFile(new Path("helloworld.spec"));
-		assertTrue(featureFile.exists());
+		IFile specFile = baseProject.getFile(new Path("helloworld.spec"));
+		assertTrue(specFile.exists());
+		
 	}
 
 	@After
