@@ -26,7 +26,9 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.linuxtools.rpm.ui.editor.Activator;
 import org.eclipse.linuxtools.rpmstubby.InputType;
+import org.eclipse.ui.ide.IDE;
 import org.fedoraproject.eclipse.packager.local.api.LocalFedoraPackagerProjectCreator;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -39,7 +41,7 @@ public class WizardStubbyProjectTest {
 	static NullProgressMonitor monitor;
 	static IProject baseProject;
 	static LocalFedoraPackagerProjectCreator testMainProject;
-	private static File externalFile;
+	protected static File externalFile;
 	String pluginRoot;
 
 	@BeforeClass
@@ -69,18 +71,21 @@ public class WizardStubbyProjectTest {
 		// poulate project using imported feature.xml
 		testMainProject.create(InputType.ECLIPSE_FEATURE, externalFile);
 
+
 		// Make sure the original feature.xml got copied into the workspace
 		IFile featureFile = baseProject.getFile(new Path("feature.xml"));
 		assertTrue(featureFile.exists());
 
 		// Make sure the proper .spec file is generated
 		IFile spec = baseProject.getFile(new Path("eclipse-packager.spec"));
+		IDE.openEditor(Activator.getDefault()
+				.getWorkbench().getActiveWorkbenchWindow().getActivePage(),	spec);
 		assertTrue(spec.exists());
 	}
 
 	@After
-	public void tearDown() {
-//		baseProject.delete(true, null);
+	public void tearDown() throws CoreException {
+		baseProject.delete(true, true, null);
 	}
 }
 
