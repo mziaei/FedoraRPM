@@ -44,14 +44,14 @@ public class WizardStubbyProjectTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		// Create a base project for the test 
+		// Create a base project for the test
 		baseProject = ResourcesPlugin.getWorkspace().getRoot().getProject("eclipse-packager");
 		baseProject.create(null);
-		baseProject.open(null);		
-		
+		baseProject.open(null);
+
 		testMainProject = new
 				LocalFedoraPackagerProjectCreator(baseProject, null);
-		
+
 		// Find the test feature.xml file and install it
 		URL url = FileLocator.find(FrameworkUtil
 				.getBundle(WizardStubbyProjectTest.class), new Path(
@@ -79,8 +79,8 @@ public class WizardStubbyProjectTest {
 	}
 
 	@After
-	public void tearDown() throws CoreException {
-		baseProject.delete(true, false, null);
+	public void tearDown() {
+//		baseProject.delete(true, null);
 	}
 }
 
