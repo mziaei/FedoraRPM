@@ -31,6 +31,7 @@ import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
+import org.eclipse.egit.ui.internal.repository.tree.command.ConfigureRemoteCommand;
 
 /**
  * Handler to convert the local project Git repository
@@ -38,6 +39,7 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
  * Git repository. 
  * 
  */
+@SuppressWarnings("restriction")
 public class ConvertToGitHandler extends FedoraPackagerAbstractHandler {
 
 	@Override
@@ -70,9 +72,11 @@ public class ConvertToGitHandler extends FedoraPackagerAbstractHandler {
 							LocalFedoraPackagerPlugin.PROJECT_PROP, null);
 					fedoraProjectRoot.getProject().refreshLocal
 							(IResource.DEPTH_INFINITE, monitor);
-					message = NLS.bind
-							(LocalFedoraPackagerText.ConvertToGitHandler_ListHeader, 
-									projectName);
+//					message = NLS.bind
+//							(LocalFedoraPackagerText.ConvertToGitHandler_ListHeader, 
+//									projectName);
+					ConfigureRemoteCommand crc = new ConfigureRemoteCommand();
+					crc.execute(event);
 				} catch (CoreException e) {
 					logger.logError(e.getMessage(), e);
 					FedoraHandlerUtils.showErrorDialog(shell,
@@ -80,6 +84,9 @@ public class ConvertToGitHandler extends FedoraPackagerAbstractHandler {
 							NLS.bind(
 								LocalFedoraPackagerText.ConvertToGitHandler_TrackAddingFailure,
 								project.toString(),e.getMessage()));
+				} catch (ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				FedoraHandlerUtils.showInformationDialog(shell,
 						LocalFedoraPackagerText.ConvertToGitHandler_NotificationTitle,
