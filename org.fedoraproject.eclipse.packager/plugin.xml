@@ -163,6 +163,28 @@
                   </or>
                </visibleWhen>
          </command>
+         <command
+               commandId="org.fedoraproject.eclipse.packager.local.convertToGit"
+               label="%LabelConvertToGit"
+               style="push">
+				<visibleWhen
+                     checkEnabled="false">
+                  <or>
+                     <with
+                           variable="activeMenuSelection">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.local.localproject">
+                        </reference>
+                     </with>
+                     <with
+                           variable="activeMenuEditorInput">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.local.localproject">
+                        </reference>
+                     </with>
+                  </or>
+               </visibleWhen>
+         </command>
        </menuContribution>
     </extension>
     
@@ -182,6 +204,11 @@
             defaultHandler="org.fedoraproject.eclipse.packager.internal.handlers.NewSourcesHandler"
             id="org.fedoraproject.eclipse.packager.NewSourcesCommand"
             name="Replace">
+      </command>
+      <command
+            defaultHandler="org.fedoraproject.eclipse.packager.local.internal.handlers.ConvertToGitHandler"
+            id="org.fedoraproject.eclipse.packager.local.convertToGit"
+            name="Convert">
       </command>
     </extension>
     
