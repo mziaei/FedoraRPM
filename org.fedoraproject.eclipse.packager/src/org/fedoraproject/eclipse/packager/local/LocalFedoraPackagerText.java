@@ -61,6 +61,12 @@ public class LocalFedoraPackagerText extends NLS {
 	// LocalHandlerDispatcher
 	/****/ public static String LocalHandlerDispatcher_dispatchToHandlerMsg;
 
+	// Convert to Remote Git - texts are extracted from deprecated fedora packager .Compatibility plugin
+	/****/ public static String ConvertToGitHandler_Error;
+	/****/ public static String ConvertToGitHandler_TrackAddingFailure;
+	/****/ public static String ConvertToGitHandler_ListHeader;
+	/****/ public static String ConvertToGitHandler_NotificationTitle;
+				
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, LocalFedoraPackagerText.class);
