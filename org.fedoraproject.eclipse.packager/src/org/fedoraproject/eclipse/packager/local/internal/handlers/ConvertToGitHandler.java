@@ -10,43 +10,47 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.local.internal.handlers;
 
-import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.window.Window;
+import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteConfig;
+import org.eclipse.jgit.transport.TagOpt;
+import org.eclipse.jgit.transport.URIish;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
+import org.fedoraproject.eclipse.packager.FedoraSSL;
+import org.fedoraproject.eclipse.packager.FedoraSSLFactory;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
-import org.fedoraproject.eclipse.packager.PackagerPlugin;
-import org.fedoraproject.eclipse.packager.api.DownloadSourcesJob;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
 import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
+import org.fedoraproject.eclipse.packager.local.FedoraPackagerGitFetchOperation;
 import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
-import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerProjectRoot;
-import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
-import org.fedoraproject.eclipse.packager.local.api.AddRemoteGit;
 import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 import org.eclipse.egit.core.RepositoryCache;
+import org.eclipse.egit.core.RepositoryUtil;
+import org.eclipse.egit.core.op.FetchOperation;
 import org.eclipse.egit.ui.internal.dialogs.NewRemoteDialog;
 import org.eclipse.egit.ui.internal.fetch.SimpleConfigureFetchDialog;
 import org.eclipse.egit.ui.internal.push.SimpleConfigurePushDialog;
-import org.eclipse.egit.ui.internal.repository.tree.command.ConfigureRemoteCommand;
+import org.eclipse.egit.ui.internal.repository.SelectUriWizard;
 
 /**
  * Handler to convert the local project Git repository to a working directory of
@@ -72,8 +76,9 @@ public class ConvertToGitHandler extends FedoraPackagerAbstractHandler {
 					FedoraPackagerText.invalidFedoraProjectRootError);
 			return null;
 		}
+		
 		Job job = new Job(fedoraProjectRoot.getProductStrings().getProductName()) {
-
+		
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				String message = null;
@@ -81,39 +86,224 @@ public class ConvertToGitHandler extends FedoraPackagerAbstractHandler {
 				 Display.getDefault().syncExec(new Runnable() {
 		               @Override
 					public void run() {
+		           		// retrieve FAS username
+		           		String fasUserName = FedoraSSLFactory.getInstance().getUsernameFromCert();
+		           		
 		   				// Find repo we've just created and set gitRepo
 		   				RepositoryCache repoCache = org.eclipse.egit.core.Activator
 		   						.getDefault().getRepositoryCache();
 		   				Repository[] repo = repoCache.getAllRepositories();
 		   				for (Repository repository : repo) {
 		   					if (repository.getWorkTree().getName().equals(project.getName())) {
-		   						NewRemoteDialog nrd = new NewRemoteDialog(shell, repository);
-		   						nrd.open();
-//		   						if (nrd.open() != Window.OK) {
-//		   						}
 
-		   						if (nrd.getPushMode())
-		   							SimpleConfigurePushDialog.getDialog(shell, repository,
-		   									nrd.getName()).open();
-		   						else
-		   							SimpleConfigureFetchDialog.getDialog(shell, repository,
-		   									nrd.getName()).open();
+
+//								NewRemoteDialog nrd = new NewRemoteDialog(shell, repository);
+//		   						nrd.open();
+//		   						if (nrd.getPushMode())
+//		   							SimpleConfigurePushDialog.getDialog(shell, repository,
+//		   									nrd.getName()).open();
+//		   						else
+//		   							SimpleConfigureFetchDialog.getDialog(shell, repository,
+//		   									nrd.getName()).open();
+		   						
+//		   						SelectUriWizard wiz = new SelectUriWizard(true);
+//		   						wiz.getShell().open();
+
+//		   							SimpleConfigureFetchDialog.getDialog(shell, repository).open();
+		   						
+//		   						String srcName = getGitCloneURL(fasUserName, project.getName());
+
+		   						RemoteConfig config = null;
+		   						try {
+		   							config = new RemoteConfig(repository.getConfig(), "origin"); //$NON-NLS-1$
+		   							URIish uri = new URIish("git://pkgs.fedoraproject.org/eclipse-mercurial.git"); //$NON-NLS-1$
+		   							config.addURI(uri);
+		   							
+		   							final String dst = false ? Constants.R_HEADS : Constants.R_REMOTES
+		   									+ config.getName();
+		   							RefSpec refSpec = new RefSpec();
+		   							refSpec = refSpec.setForceUpdate(true);
+		   							refSpec = refSpec.setSourceDestination(Constants.R_HEADS + "*", dst + "/*"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		   							config.addFetchRefSpec(refSpec);
+		   							config.update(repository.getConfig());
+
+		   							repository.getConfig().save();
+
+//		   							// run the fetch command
+//		   							FetchCommand command = new FetchCommand(repository);
+//		   							command.setRemote("origin");
+//		   							command.setProgressMonitor(null);
+//		   							command.setTagOpt(TagOpt.FETCH_TAGS);
+//		   							command.setTimeout(0);
+//		   							if (credentialsProvider != null)
+//		   								command.setCredentialsProvider(credentialsProvider);
+//
+//		   							List<RefSpec> specs = calculateRefSpecs(dst);
+//		   							command.setRefSpecs(specs);
+//
+//		   							command.call();
+//		   							config.addFetchRefSpec(s);
+
+		   						} catch (URISyntaxException e) {
+		   							// TODO Auto-generated catch block
+		   							e.printStackTrace();
+		   						} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+
+		   						FetchOperation fetch = new FetchOperation(repository, config, 0, false);
+		   						try {
+		   							fetch.run(null);
+		   						} catch (InvocationTargetException e) {
+		   							// TODO Auto-generated catch block
+		   							e.printStackTrace();
+		   						}
 		   					}
-		   				}
+	   					}
+
 		   			}
 				 });
-
+		
 				return Status.OK_STATUS;
 			}
 		};
-
+		
 		// Suppress UI progress reporting. This is done by sub-jobs within.
 		job.setSystem(true);
 		job.schedule();
-
 		return null;
 	}
+	
+	/**
+	 * Determine the Git clone URL in the following order:
+	 * <ol>
+	 * <li>Use the Git base URL as set by the preference (if any) or</li>
+	 * <li>Check if ~/.fedora.cert is present, and if so retrieve the user name
+	 * from it.</li>
+	 * <li>If all else fails, or anonymous checkout is specified,
+	 * construct an anonymous clone URL</li>
+	 * </ol>
+	 * 
+	 * @return The full clone URL based on the package name.
+	 */
+//	private String getGitCloneURL(String fasUserName, String packageName) {
+//		String gitBaseURL = "pkgs.fedoraproject.org/"; //$NON-NLS-1$;
+////		if (gitBaseURL != null && !page.getCloneAnonymousButtonChecked()) {
+//		if (gitBaseURL != null) {
+//			return GitUtils.getFullGitURL(gitBaseURL, packageName);
+////		} else if (!fasUserName.equals(FedoraSSL.UNKNOWN_USER) && !page.getCloneAnonymousButtonChecked()) {
+//		} else if (!fasUserName.equals(FedoraSSL.UNKNOWN_USER)) {
+//			return GitUtils.getFullGitURL(
+//					GitUtils.getAuthenticatedGitBaseUrl(fasUserName),
+//					packageName);
+//		} else {
+//			// anonymous
+//			return GitUtils.getFullGitURL(GitUtils.getAnonymousGitBaseUrl(),
+//					packageName);
+//		}
+//	}
 }
+
+
+//FedoraPackagerGitFetchOperation fetch = 
+//new FedoraPackagerGitFetchOperation(repository);
+//try {
+//
+//fetch.setFetchURI(getGitCloneURL()).setPackageName(project.getName());
+//} catch (URISyntaxException e1) {
+//// TODO Auto-generated catch block
+//e1.printStackTrace();
+//}
+
+//UIJob job = new UIJob(fedoraProjectRoot.getProductStrings().getProductName()) {
+//	@Override
+//	public IStatus runInUIThread(IProgressMonitor monitor) {
+//		final IProject project = fedoraProjectRoot.getProject();
+//		 Display.getDefault().syncExec(new Runnable() {
+//               @Override
+//			public void run() {
+//   				// Find repo we've just created and set gitRepo
+//   				RepositoryCache repoCache = org.eclipse.egit.core.Activator
+//   						.getDefault().getRepositoryCache();
+//   				Repository[] repo = repoCache.getAllRepositories();
+//   				for (Repository repository : repo) {
+//   					if (repository.getWorkTree().getName().equals(project.getName())) {
+//   						RevWalk rw = new RevWalk(repository);
+//   						ObjectId id;
+//						try {
+//							id = repository.resolve(repository.getFullBranch());
+//							String commitId = rw.parseCommit(id).name();
+//
+//						} catch (AmbiguousObjectException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						} catch (IOException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//
+//   						NewRemoteDialog nrd = new NewRemoteDialog(shell, repository);
+//   						nrd.open();
+//   						if (nrd.getPushMode())
+//   							SimpleConfigurePushDialog.getDialog(shell, repository,
+//   									nrd.getName()).open();
+//   						else
+//   							SimpleConfigureFetchDialog.getDialog(shell, repository,
+//   									nrd.getName()).open();
+//   					}
+//   				}
+//   			}
+//		 });
+//		return Status.OK_STATUS;
+//	}
+//
+//};
+//job.setUser(true);
+//job.schedule();
+//return null;
+
+
+//Job job = new Job(fedoraProjectRoot.getProductStrings().getProductName()) {
+//
+//	@Override
+//	protected IStatus run(IProgressMonitor monitor) {
+//		String message = null;
+//		final IProject project = fedoraProjectRoot.getProject();
+//		 Display.getDefault().syncExec(new Runnable() {
+//               @Override
+//			public void run() {
+//   				// Find repo we've just created and set gitRepo
+//   				RepositoryCache repoCache = org.eclipse.egit.core.Activator
+//   						.getDefault().getRepositoryCache();
+//   				Repository[] repo = repoCache.getAllRepositories();
+//   				for (Repository repository : repo) {
+//   					if (repository.getWorkTree().getName().equals(project.getName())) {
+//   						NewRemoteDialog nrd = new NewRemoteDialog(shell, repository);
+//   						nrd.open();
+////   						if (nrd.open() != Window.OK) {
+////   						}
+//
+//   						if (nrd.getPushMode())
+//   							SimpleConfigurePushDialog.getDialog(shell, repository,
+//   									nrd.getName()).open();
+//   						else
+//   							SimpleConfigureFetchDialog.getDialog(shell, repository,
+//   									nrd.getName()).open();
+//   					}
+//   				}
+//   			}
+//		 });
+//
+//		return Status.OK_STATUS;
+//	}
+//};
+//
+//// Suppress UI progress reporting. This is done by sub-jobs within.
+//job.setSystem(true);
+//job.schedule();
+
 
 //try {
 //Job addRemoteJob = new AddRemoteGit(fedoraProjectRoot.getProductStrings().getProductName(),
