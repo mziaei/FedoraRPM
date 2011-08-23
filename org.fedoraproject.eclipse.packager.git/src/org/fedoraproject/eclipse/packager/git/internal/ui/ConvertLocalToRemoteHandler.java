@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.internal.handlers;
+package org.fedoraproject.eclipse.packager.git.internal.ui;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

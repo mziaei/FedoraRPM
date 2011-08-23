@@ -163,7 +163,7 @@
                   </or>
                </visibleWhen>
          </command>
-         <command
+<!--         <command
                commandId="org.fedoraproject.eclipse.packager.convertlocaltoremote"
                label="%LabelConvertLocalToRemote"
                style="push">
@@ -184,7 +184,7 @@
                      </with>
                   </or>
                </visibleWhen>
-         </command>
+         </command>-->
        </menuContribution>
     </extension>
     
@@ -205,11 +205,11 @@
             id="org.fedoraproject.eclipse.packager.NewSourcesCommand"
             name="Replace">
       </command>
-      <command
+<!--      <command
             defaultHandler="org.fedoraproject.eclipse.packager.internal.handlers.ConvertLocalToRemoteHandler"
             id="org.fedoraproject.eclipse.packager.convertlocaltoremote"
             name="Convert">
-      </command>
+      </command>-->
     </extension>
     
     <extension
