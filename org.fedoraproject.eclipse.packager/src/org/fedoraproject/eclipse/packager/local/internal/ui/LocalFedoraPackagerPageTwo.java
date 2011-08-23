@@ -87,6 +87,7 @@ public class LocalFedoraPackagerPageTwo extends WizardPage {
 		layoutData = new GridData();
 		layoutData.horizontalSpan = 3;
 		btnExistingMaintainer.setLayoutData(layoutData);
+		btnExistingMaintainer.setSelection(true);
 
 		btnNewMaintainer = new Button(grpAccount, SWT.RADIO);
 		btnNewMaintainer
