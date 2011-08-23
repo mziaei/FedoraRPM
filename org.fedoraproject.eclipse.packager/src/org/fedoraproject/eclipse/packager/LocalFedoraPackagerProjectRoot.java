@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.local;
+package org.fedoraproject.eclipse.packager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -220,7 +220,7 @@ public class LocalFedoraPackagerProjectRoot implements IProjectRoot {
 	 */
 	@Override
 	public QualifiedName[] getSupportedProjectPropertyNames() {
-		return new QualifiedName[] { LocalFedoraPackagerPlugin.PROJECT_PROP };
+		return new QualifiedName[] { PackagerPlugin.PROJECT_LOCAL_PROP };
 	}
 
 	/**

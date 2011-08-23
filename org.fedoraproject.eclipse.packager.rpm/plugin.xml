@@ -17,19 +17,19 @@
 		<menuContribution
                locationURI="popup:org.eclipse.fedoraproject.packager.main?after=org.fedoraproject.eclipse.packager.cvssep">
                <command
-                  commandId="org.fedoraproject.eclipse.packager.local.prepCommand"
+                  commandId="org.fedoraproject.eclipse.packager.prepCommandLocal"
                   label="%command.label.7"
                   mnemonic="%command.mnemonic.7"
                   style="push">
             </command>
             <command
-                  commandId="org.fedoraproject.eclipse.packager.local.srpmCommand"
+                  commandId="org.fedoraproject.eclipse.packager.srpmCommandLocal"
                   label="%command.label.8"
                   mnemonic="%command.mnemonic.8"
                   style="push">
             </command>
             <command
-                  commandId="org.fedoraproject.eclipse.packager.local.BuildCommand"
+                  commandId="org.fedoraproject.eclipse.packager.BuildCommandLocal"
                   label="%command.label.9"
                   mnemonic="%command.mnemonic.9"
                   style="push">
@@ -111,17 +111,17 @@
          point="org.eclipse.ui.commands">
 	  <command
             defaultHandler="org.fedoraproject.eclipse.packager.rpm.internal.handlers.local.PrepHandler"
-            id="org.fedoraproject.eclipse.packager.local.prepCommand"
+            id="org.fedoraproject.eclipse.packager.prepCommandLocal"
             name="%command.name.2">
       </command>
       <command
             defaultHandler="org.fedoraproject.eclipse.packager.rpm.internal.handlers.local.SRPMBuildHandler"
-            id="org.fedoraproject.eclipse.packager.local.srpmCommand"
+            id="org.fedoraproject.eclipse.packager.srpmCommandLocal"
             name="%command.name.4">
       </command>
       <command
             defaultHandler="org.fedoraproject.eclipse.packager.rpm.internal.handlers.local.LocalBuildHandler"
-            id="org.fedoraproject.eclipse.packager.local.BuildCommand"
+            id="org.fedoraproject.eclipse.packager.BuildCommandLocal"
             name="%command.name.3">
       </command>
       <command

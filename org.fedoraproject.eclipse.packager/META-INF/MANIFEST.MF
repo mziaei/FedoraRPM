@@ -70,8 +70,6 @@ Bundle-Localization: OSGI-INF/l10n/plugin
 Export-Package: org.fedoraproject.eclipse.packager,
  org.fedoraproject.eclipse.packager.api,
  org.fedoraproject.eclipse.packager.api.errors,
- org.fedoraproject.eclipse.packager.local,
- org.fedoraproject.eclipse.packager.local.api,
  org.fedoraproject.eclipse.packager.utils
 Bundle-Vendor: %BundleVendor
 Eclipse-ExtensibleAPI: true

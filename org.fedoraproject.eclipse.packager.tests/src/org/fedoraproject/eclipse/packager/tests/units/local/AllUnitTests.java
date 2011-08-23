@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Red Hat Inc. and others.
+ * Copyright (c) 2010-2011 Red Hat Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,17 +8,19 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.local;
+package org.fedoraproject.eclipse.packager.tests.units.local;
 
-/**
- * Type of the populated Local Fedora project based on the selected type by
- * user.
- */
-public enum LocalProjectType {
-	/** Start plain project using specfile template */
-	PLAIN,
-	/** using Source Rpm */
-	SRPM,
-	/** using rpmstubby */
-	STUBBY
+import org.junit.runners.Suite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite.SuiteClasses;
+
+@RunWith(Suite.class)
+@SuiteClasses({
+	WizardSRPMProjectTest.class,
+	WizardStubbyProjectTest.class,
+	WizardPlainProjectTest.class,
+})
+
+public class AllUnitTests {
+	// empty
 }

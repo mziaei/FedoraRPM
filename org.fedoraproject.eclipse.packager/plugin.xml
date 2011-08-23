@@ -49,30 +49,30 @@
          </iterate>
       </definition>
             <definition
-            id="org.fedoraproject.eclipse.packager.local.localproject">
+            id="org.fedoraproject.eclipse.packager.localproject">
           <or>
               <!-- Filter on persistent property only . -->
               <reference
-                  definitionId="org.fedoraproject.eclipse.packager.local.persistentProperty">
+                  definitionId="org.fedoraproject.eclipse.packager.persistentProperty">
               </reference>
           </or>
       </definition>
       <definition
-            id="org.fedoraproject.eclipse.packager.local.persistentProperty">
+            id="org.fedoraproject.eclipse.packager.persistentProperty">
           <iterate
                ifEmpty="false">
             <or>
                <adapt
                      type="org.eclipse.core.resources.IProject">
                   <test
-                        args="org.fedoraproject.eclipse.packager.local.localproject"
+                        args="org.fedoraproject.eclipse.packager.localproject"
                         property="org.eclipse.core.resources.projectPersistentProperty">
                   </test>
                </adapt>
                <adapt
                      type="org.eclipse.core.resources.IResource">
                   <test
-                        args="org.fedoraproject.eclipse.packager.local.localproject"
+                        args="org.fedoraproject.eclipse.packager.localproject"
                         property="org.eclipse.core.resources.projectPersistentProperty">
                   </test>
                </adapt>
@@ -164,8 +164,8 @@
                </visibleWhen>
          </command>
          <command
-               commandId="org.fedoraproject.eclipse.packager.local.convertToGit"
-               label="%LabelConvertToGit"
+               commandId="org.fedoraproject.eclipse.packager.convertlocaltoremote"
+               label="%LabelConvertLocalToRemote"
                style="push">
 				<visibleWhen
                      checkEnabled="false">
@@ -173,13 +173,13 @@
                      <with
                            variable="activeMenuSelection">
                         <reference
-                              definitionId="org.fedoraproject.eclipse.packager.local.localproject">
+                              definitionId="org.fedoraproject.eclipse.packager.localproject">
                         </reference>
                      </with>
                      <with
                            variable="activeMenuEditorInput">
                         <reference
-                              definitionId="org.fedoraproject.eclipse.packager.local.localproject">
+                              definitionId="org.fedoraproject.eclipse.packager.localproject">
                         </reference>
                      </with>
                   </or>
@@ -206,8 +206,8 @@
             name="Replace">
       </command>
       <command
-            defaultHandler="org.fedoraproject.eclipse.packager.local.internal.handlers.ConvertToGitHandler"
-            id="org.fedoraproject.eclipse.packager.local.convertToGit"
+            defaultHandler="org.fedoraproject.eclipse.packager.internal.handlers.ConvertLocalToRemoteHandler"
+            id="org.fedoraproject.eclipse.packager.convertlocaltoremote"
             name="Convert">
       </command>
     </extension>
@@ -252,12 +252,12 @@
              class="org.fedoraproject.eclipse.packager.FedoraProjectRoot">
        </projectRoot>
     </extension>
-<!--    <extension
+    <extension
        point="org.fedoraproject.eclipse.packager.projectRootProvider">
 	    <projectRoot
-	          class="org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerProjectRoot">
+	          class="org.fedoraproject.eclipse.packager.LocalFedoraPackagerProjectRoot">
 	    </projectRoot>
-	</extension>-->
+	</extension>
 	
     <extension
           point="org.eclipse.ui.perspectives">
@@ -272,14 +272,14 @@
     <extension
          point="org.eclipse.ui.newWizards">
 		<category 
-			id="org.fedoraproject.eclipse.packager.local.category.wizards" 
+			id="org.fedoraproject.eclipse.packager.category.localwizards" 
 			name="%LocalFedoraPackagerWizardName">
 		</category>
 		<wizard
-        category="org.fedoraproject.eclipse.packager.local.category.wizards"
+        category="org.fedoraproject.eclipse.packager.category.localwizards"
         class="org.fedoraproject.eclipse.packager.internal.ui.LocalFedoraPackagerProjectWizard"
         icon="icons/fedora16x16.png"
-        id="org.fedoraproject.eclipse.packager.local.newprojectwizard"
+        id="org.fedoraproject.eclipse.packager.newlocalprojectwizard"
         name="%FedoraGitWizardCommandName">
 		</wizard>
 	</extension>

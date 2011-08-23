@@ -39,15 +39,16 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.QuestionMessageDialog;
-import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
-import org.fedoraproject.eclipse.packager.local.LocalProjectType;
-import org.fedoraproject.eclipse.packager.local.api.LocalFedoraPackagerProjectCreator;
+import org.fedoraproject.eclipse.packager.FedoraPackagerText;
+import org.fedoraproject.eclipse.packager.LocalProjectType;
+import org.fedoraproject.eclipse.packager.api.LocalFedoraPackagerProjectCreator;
 
 /**
  * wizard to ease the process of creating fedora packages
- *  
+ * 
  */
-public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWizard {
+public class LocalFedoraPackagerProjectWizard extends Wizard implements
+		INewWizard {
 
 	private static final String PAGE_ONE = "PageOne"; //$NON-NLS-1$
 	private static final String PAGE_TWO = "PageTwo"; //$NON-NLS-1$
@@ -62,7 +63,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	private IWorkspaceRoot root;
 	private IProject project;
 	private IProjectDescription description;
-	
+
 	private LocalProjectType projectType;
 
 	@Override
@@ -72,7 +73,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.eclipse.jface.wizard.Wizard#addPages()
 	 */
 	@Override
@@ -88,7 +89,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.eclipse.jface.wizard.Wizard#performFinish()
 	 */
 	@Override
@@ -132,12 +133,13 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.eclipse.jface.wizard.wizard#canFinish()
 	 */
 	@Override
 	public boolean canFinish() {
-		return (getContainer().getCurrentPage() == pageThree && pageThree.pageCanFinish())
+		return (getContainer().getCurrentPage() == pageThree && pageThree
+				.pageCanFinish())
 				|| getContainer().getCurrentPage() == pageFour;
 	}
 
@@ -146,7 +148,8 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 		if (page instanceof LocalFedoraPackagerPageThree) {
 			// check if user chooses to use the Specfile template
 			if (!((LocalFedoraPackagerPageThree) page).pageCanFinish()) {
-				pageFour = new LocalFedoraPackagerPageFour(PAGE_FOUR, this.pageOne.getProjectName());
+				pageFour = new LocalFedoraPackagerPageFour(PAGE_FOUR,
+						this.pageOne.getProjectName());
 				addPage(pageFour);
 				return pageFour;
 			} else {
@@ -158,7 +161,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 
 	/**
 	 * Creates the base of the project.
-	 *
+	 * 
 	 * @param IProgressMonitor
 	 *            Progress monitor to report back status
 	 */
@@ -180,7 +183,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 
 	/**
 	 * Creates a new instance of the FedoraRPM project.
-	 *
+	 * 
 	 * @param IProgressMonitor
 	 *            Progress monitor to report back status
 	 * @throws WrongRepositoryStateException
@@ -193,23 +196,26 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 	 * @throws CoreException
 	 */
 	protected void createMainProject(IProgressMonitor monitor)
-			throws NoHeadException, NoMessageException,	ConcurrentRefUpdateException,
-			JGitInternalException, WrongRepositoryStateException, NoFilepatternException,
-			IOException, CoreException {
+			throws NoHeadException, NoMessageException,
+			ConcurrentRefUpdateException, JGitInternalException,
+			WrongRepositoryStateException, NoFilepatternException, IOException,
+			CoreException {
 
-		LocalFedoraPackagerProjectCreator fedoraRPMProjectCreator = 
-				new LocalFedoraPackagerProjectCreator(project, monitor);
+		LocalFedoraPackagerProjectCreator fedoraRPMProjectCreator = new LocalFedoraPackagerProjectCreator(
+				project, monitor);
 		projectType = pageThree.getProjectType();
-		switch(projectType) {
+		switch (projectType) {
 		case PLAIN:
 			if (pageThree.btnSpecTemplate().getSelection()) {
 				fedoraRPMProjectCreator.create(pageFour.getContent());
 			} else {
-				fedoraRPMProjectCreator.create(pageThree.getExternalFile(), projectType);
+				fedoraRPMProjectCreator.create(pageThree.getExternalFile(),
+						projectType);
 			}
 			break;
 		case SRPM:
-			fedoraRPMProjectCreator.create(pageThree.getExternalFile(), projectType);
+			fedoraRPMProjectCreator.create(pageThree.getExternalFile(),
+					projectType);
 			break;
 		case STUBBY:
 			fedoraRPMProjectCreator.create(pageThree.getInputType(),
@@ -223,25 +229,28 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements INewWiza
 		// Uses main Fedora Packager perspective
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-		IPerspectiveDescriptor perspective = window.getActivePage().getPerspective();
-		if (!perspective.getId().equals(PackagerPlugin.FEDORA_PACKAGING_PERSPECTIVE_ID)) {
+		IPerspectiveDescriptor perspective = window.getActivePage()
+				.getPerspective();
+		if (!perspective.getId().equals(
+				PackagerPlugin.FEDORA_PACKAGING_PERSPECTIVE_ID)) {
 			if (shouldOpenPerspective()) {
 				// open the perspective
-				workbench.showPerspective(PackagerPlugin.FEDORA_PACKAGING_PERSPECTIVE_ID, window);
+				workbench.showPerspective(
+						PackagerPlugin.FEDORA_PACKAGING_PERSPECTIVE_ID, window);
 			}
 		}
 	}
 
-
 	/**
 	 * Ask if Fedora Packager perspective should be opened.
+	 * 
 	 * @see org.fedoraproject.eclipse.packager.git.internal.ui.FedoraPackagerGitCloneWizard
-	 *   #shouldOpenPerspective()
+	 *      #shouldOpenPerspective()
 	 */
 	private boolean shouldOpenPerspective() {
 		QuestionMessageDialog op = new QuestionMessageDialog(
-				LocalFedoraPackagerText.LocalFedoraPackager_switchPerspectiveQuestionTitle,
-				LocalFedoraPackagerText.LocalFedoraPackager_switchPerspectiveQuestionMsg,
+				FedoraPackagerText.LocalFedoraPackager_switchPerspectiveQuestionTitle,
+				FedoraPackagerText.LocalFedoraPackager_switchPerspectiveQuestionMsg,
 				getShell());
 		Display.getDefault().syncExec(op);
 		return op.isOkPressed();

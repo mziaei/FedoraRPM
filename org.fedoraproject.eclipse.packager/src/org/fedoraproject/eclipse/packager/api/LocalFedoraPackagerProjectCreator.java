@@ -38,9 +38,9 @@ import org.eclipse.linuxtools.rpm.core.RPMProject;
 import org.eclipse.linuxtools.rpm.core.RPMProjectLayout;
 import org.eclipse.linuxtools.rpmstubby.Generator;
 import org.eclipse.linuxtools.rpmstubby.InputType;
-import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
-import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
-import org.fedoraproject.eclipse.packager.local.LocalProjectType;
+import org.fedoraproject.eclipse.packager.PackagerPlugin;
+import org.fedoraproject.eclipse.packager.FedoraPackagerText;
+import org.fedoraproject.eclipse.packager.LocalProjectType;
 
 /**
  * Utility class to create to enable existing and 
@@ -162,7 +162,7 @@ public class LocalFedoraPackagerProjectCreator {
 
 		// Set persistent property so that we know when to show the context
 		// menu item.
-		project.setPersistentProperty(LocalFedoraPackagerPlugin.PROJECT_PROP,
+		project.setPersistentProperty(PackagerPlugin.PROJECT_LOCAL_PROP,
 				"true" /* unused value */); //$NON-NLS-1$
 
 		ConnectProviderOperation connect = new ConnectProviderOperation(project);
@@ -227,7 +227,7 @@ public class LocalFedoraPackagerProjectCreator {
 		}
 
 		// do the first commit
-		git.commit().setMessage(LocalFedoraPackagerText.LocalFedoraPackagerProjectCreator_FirstCommit)
+		git.commit().setMessage(FedoraPackagerText.LocalFedoraPackagerProjectCreator_FirstCommit)
 				.call();
 	}
 

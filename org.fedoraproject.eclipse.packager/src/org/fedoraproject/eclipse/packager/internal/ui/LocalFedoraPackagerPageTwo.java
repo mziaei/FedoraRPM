@@ -31,13 +31,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
-import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
+import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 
 /**
- * Select the type of maintainers
- * if a user is a new maintainer she can go through steps
- * of the process from within the wizard
- *
+ * Select the type of maintainers if a user is a new maintainer she can go
+ * through steps of the process from within the wizard
+ * 
  */
 public class LocalFedoraPackagerPageTwo extends WizardPage {
 	private Group grpAccount;
@@ -52,19 +51,20 @@ public class LocalFedoraPackagerPageTwo extends WizardPage {
 
 	/**
 	 * Create the wizard.
-	 * @param pageName 
+	 * 
+	 * @param pageName
 	 */
 	public LocalFedoraPackagerPageTwo(String pageName) {
 		super(pageName);
-		setTitle(LocalFedoraPackagerText.LocalFedoraPackagerWizardPage_title);
-		setDescription(LocalFedoraPackagerText.LocalFedoraPackagerWizardPage_description);
+		setTitle(FedoraPackagerText.LocalFedoraPackagerWizardPage_title);
+		setDescription(FedoraPackagerText.LocalFedoraPackagerWizardPage_description);
 		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
-				LocalFedoraPackagerText.LocalFedoraPackagerWizardPage_image));
+				FedoraPackagerText.LocalFedoraPackagerWizardPage_image));
 	}
 
 	/**
 	 * Create contents of the wizard.
-	 *
+	 * 
 	 * @param parent
 	 */
 	@Override
@@ -79,11 +79,11 @@ public class LocalFedoraPackagerPageTwo extends WizardPage {
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		grpAccount.setLayoutData(layoutData);
 		grpAccount
-				.setText(LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_grpAccountSetup);
+				.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_grpAccountSetup);
 
 		btnExistingMaintainer = new Button(grpAccount, SWT.RADIO);
 		btnExistingMaintainer
-				.setText(LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_btnRadioExistMaintainer);
+				.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_btnRadioExistMaintainer);
 		layoutData = new GridData();
 		layoutData.horizontalSpan = 3;
 		btnExistingMaintainer.setLayoutData(layoutData);
@@ -91,17 +91,18 @@ public class LocalFedoraPackagerPageTwo extends WizardPage {
 
 		btnNewMaintainer = new Button(grpAccount, SWT.RADIO);
 		btnNewMaintainer
-				.setText(LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_btnRadioNewMaintainer);
+				.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_btnRadioNewMaintainer);
 		layoutData = new GridData();
 		layoutData.horizontalSpan = 3;
 		btnNewMaintainer.setLayoutData(layoutData);
 
 		linkFAS = new Link(grpAccount, SWT.NONE);
-		linkFAS.setText(LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_linkFAS);
+		linkFAS.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_linkFAS);
 		setLayout(linkFAS);
 
 		lblTextFAS = new Label(grpAccount, SWT.NONE);
-		lblTextFAS.setText(LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_lblTextFAS);
+		lblTextFAS
+				.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_lblTextFAS);
 		layoutData = new GridData();
 		layoutData.horizontalIndent = 45;
 		lblTextFAS.setLayoutData(layoutData);
@@ -113,25 +114,27 @@ public class LocalFedoraPackagerPageTwo extends WizardPage {
 
 		linkBugzilla = new Link(grpAccount, SWT.NONE);
 		linkBugzilla
-				.setText(LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_linkBugzilla);
+				.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_linkBugzilla);
 		setLayout(linkBugzilla);
 
 		linkInitial = new Link(grpAccount, SWT.NONE);
-		linkInitial.setText(LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_linkInitial);
+		linkInitial
+				.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_linkInitial);
 		setLayout(linkInitial);
 
 		linkIntroduce = new Link(grpAccount, SWT.NONE);
 		linkIntroduce
-				.setText(LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_linkIntroduce);
+				.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_linkIntroduce);
 		setLayout(linkIntroduce);
 
-		addListener(linkFAS, LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_urlFAS);
+		addListener(linkFAS,
+				FedoraPackagerText.LocalFedoraPackagerPageTwo_urlFAS);
 		addListener(linkBugzilla,
-				LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_urlBugzilla);
+				FedoraPackagerText.LocalFedoraPackagerPageTwo_urlBugzilla);
 		addListener(linkInitial,
-				LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_urlInitial);
+				FedoraPackagerText.LocalFedoraPackagerPageTwo_urlInitial);
 		addListener(linkIntroduce,
-				LocalFedoraPackagerText.LocalFedoraPackagerPageTwo_urlIntroduce);
+				FedoraPackagerText.LocalFedoraPackagerPageTwo_urlIntroduce);
 
 		btnNewMaintainer.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -197,7 +200,7 @@ public class LocalFedoraPackagerPageTwo extends WizardPage {
 
 	/**
 	 * Sets the layout for Link widgets
-	 *
+	 * 
 	 * @param Link
 	 */
 	private void setLayout(Link link) {
@@ -209,7 +212,7 @@ public class LocalFedoraPackagerPageTwo extends WizardPage {
 
 	/**
 	 * Check if the page is ready to move to the next page
-	 *
+	 * 
 	 * @return boolean
 	 */
 	private boolean checkPageComplete() {

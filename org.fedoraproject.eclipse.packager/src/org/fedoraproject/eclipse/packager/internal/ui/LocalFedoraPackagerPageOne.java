@@ -18,30 +18,31 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
-import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
+import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 
 /**
  * Start a plain project
- *
+ * 
  */
 public class LocalFedoraPackagerPageOne extends WizardNewProjectCreationPage {
 	private Label lblNoteGit;
 
 	/**
 	 * Create the wizard.
-	 * @param pageName 
+	 * 
+	 * @param pageName
 	 */
 	public LocalFedoraPackagerPageOne(String pageName) {
 		super(pageName);
-		setTitle(LocalFedoraPackagerText.LocalFedoraPackagerWizardPage_title);
-		setDescription(LocalFedoraPackagerText.LocalFedoraPackagerWizardPage_description);
+		setTitle(FedoraPackagerText.LocalFedoraPackagerWizardPage_title);
+		setDescription(FedoraPackagerText.LocalFedoraPackagerWizardPage_description);
 		setImageDescriptor(ImageDescriptor.createFromFile(getClass(),
-				LocalFedoraPackagerText.LocalFedoraPackagerWizardPage_image));
+				FedoraPackagerText.LocalFedoraPackagerWizardPage_image));
 	}
 
 	/**
 	 * Create contents of the wizard.
-	 *
+	 * 
 	 * @param parent
 	 */
 	@Override
@@ -52,7 +53,8 @@ public class LocalFedoraPackagerPageOne extends WizardNewProjectCreationPage {
 		GridLayout layout = new GridLayout();
 		container.setLayout(layout);
 		lblNoteGit = new Label(container, SWT.NONE);
-		lblNoteGit.setText(LocalFedoraPackagerText.LocalFedoraPackagerPageOne_lblNoteGit);
+		lblNoteGit
+				.setText(FedoraPackagerText.LocalFedoraPackagerPageOne_lblNoteGit);
 		lblNoteGit.setForeground(Display.getDefault().getSystemColor(
 				SWT.COLOR_BLUE));
 		GridData layoutData = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);

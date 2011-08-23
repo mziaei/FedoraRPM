@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.tests.local;
+package org.fedoraproject.eclipse.packager.tests.units.local;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -23,8 +23,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.fedoraproject.eclipse.packager.local.LocalProjectType;
-import org.fedoraproject.eclipse.packager.local.api.LocalFedoraPackagerProjectCreator;
+import org.fedoraproject.eclipse.packager.LocalProjectType;
+import org.fedoraproject.eclipse.packager.api.LocalFedoraPackagerProjectCreator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

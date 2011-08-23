@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.local.internal.handlers;
+package org.fedoraproject.eclipse.packager.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -27,8 +27,6 @@ import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
 import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
-import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerPlugin;
-import org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerText;
 import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
@@ -38,7 +36,7 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
  * Git repository. 
  * 
  */
-public class ConvertToGitHandler extends FedoraPackagerAbstractHandler {
+public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
@@ -67,22 +65,22 @@ public class ConvertToGitHandler extends FedoraPackagerAbstractHandler {
 					project.setPersistentProperty(
 							PackagerPlugin.PROJECT_PROP, "true"); //$NON-NLS-1$
 					project.setPersistentProperty(
-							LocalFedoraPackagerPlugin.PROJECT_PROP, null);
+							PackagerPlugin.PROJECT_LOCAL_PROP, null);
 					fedoraProjectRoot.getProject().refreshLocal
 							(IResource.DEPTH_INFINITE, monitor);
 					message = NLS.bind
-							(LocalFedoraPackagerText.ConvertToGitHandler_ListHeader, 
+							(FedoraPackagerText.ConvertToGitHandler_ListHeader, 
 									projectName);
 				} catch (CoreException e) {
 					logger.logError(e.getMessage(), e);
 					FedoraHandlerUtils.showErrorDialog(shell,
-							LocalFedoraPackagerText.ConvertToGitHandler_Error,
+							FedoraPackagerText.ConvertToGitHandler_Error,
 							NLS.bind(
-								LocalFedoraPackagerText.ConvertToGitHandler_TrackAddingFailure,
+								FedoraPackagerText.ConvertToGitHandler_TrackAddingFailure,
 								project.toString(),e.getMessage()));
 				}
 				FedoraHandlerUtils.showInformationDialog(shell,
-						LocalFedoraPackagerText.ConvertToGitHandler_NotificationTitle,
+						FedoraPackagerText.ConvertToGitHandler_NotificationTitle,
 							message);
 
 				return Status.OK_STATUS;
