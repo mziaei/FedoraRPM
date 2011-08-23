@@ -252,12 +252,12 @@
              class="org.fedoraproject.eclipse.packager.FedoraProjectRoot">
        </projectRoot>
     </extension>
-    <extension
+<!--    <extension
        point="org.fedoraproject.eclipse.packager.projectRootProvider">
 	    <projectRoot
 	          class="org.fedoraproject.eclipse.packager.local.LocalFedoraPackagerProjectRoot">
 	    </projectRoot>
-	</extension>
+	</extension>-->
 	
     <extension
           point="org.eclipse.ui.perspectives">
@@ -277,7 +277,7 @@
 		</category>
 		<wizard
         category="org.fedoraproject.eclipse.packager.local.category.wizards"
-        class="org.fedoraproject.eclipse.packager.local.internal.ui.LocalFedoraPackagerProjectWizard"
+        class="org.fedoraproject.eclipse.packager.internal.ui.LocalFedoraPackagerProjectWizard"
         icon="icons/fedora16x16.png"
         id="org.fedoraproject.eclipse.packager.local.newprojectwizard"
         name="%FedoraGitWizardCommandName">
