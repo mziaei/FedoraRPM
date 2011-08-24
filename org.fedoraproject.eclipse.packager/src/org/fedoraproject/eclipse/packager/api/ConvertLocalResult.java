@@ -8,25 +8,27 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.tests.commands;
+package org.fedoraproject.eclipse.packager.api;
 
-import org.junit.runners.Suite;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
+/**
+ * Represents the result of a {@code ConvertLocalToRemoteCommand}.
+ * 
+ */
+public class ConvertLocalResult implements ICommandResult {	
+	private boolean successful = true;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	FedoraPackagerCommandTest.class,
-	DownloadSourceCommandTest.class,
-	ConvertLocalToRemoteCommandTest.class,
-	UploadSourceCommandTest.class,
-	KojiBuildCommandTest.class,
-	RpmBuildCommandTest.class,
-	RpmEvalCommandTest.class,
-	SCMMockBuildCommandGitTest.class,
-	MockBuildCommandTest.class
-})
+	/**
+	 * @param successful the successful to set
+	 */
+	public void setSuccessful(boolean successful) {
+		this.successful = successful;
+	}
 
-public class AllCommandsTests {
-	// empty
+	/**
+	 * See {@link ICommandResult#wasSuccessful()}.
+	 */
+	@Override
+	public boolean wasSuccessful() {
+		return successful;
+	}
 }
