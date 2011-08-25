@@ -11,6 +11,7 @@
 package org.fedoraproject.eclipse.packager.git;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteConfig;
+import org.eclipse.jgit.transport.URIish;
 import org.fedoraproject.eclipse.packager.FedoraSSLFactory;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
@@ -513,6 +516,39 @@ public class FpGitProjectBits implements IFpProjectBits {
 		} catch (NoFilepatternException e) {
 			// ignore, allow adds with no files
 		}
+	}
+
+	@Override
+	public Git getGit() {
+		return this.git;
+	}
+
+	@Override
+	public void addRemoteOrigin() {
+		RemoteConfig config;
+		try {
+			config = new RemoteConfig(
+					git.getRepository().getConfig(), "origin"); //$NON-NLS-1$
+			config.addURI(new URIish(getScmUrl()));
+			String dst = Constants.R_REMOTES + config.getName();
+			RefSpec refSpec = new RefSpec();
+			refSpec = refSpec.setForceUpdate(true);
+			refSpec = refSpec.setSourceDestination(
+					Constants.R_HEADS + "*", dst + "/*"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			config.addFetchRefSpec(refSpec);
+			config.update(git.getRepository().getConfig());
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			git.getRepository().getConfig().save();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 
 }

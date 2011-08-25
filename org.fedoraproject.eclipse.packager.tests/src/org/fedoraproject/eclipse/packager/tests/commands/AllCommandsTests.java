@@ -18,6 +18,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	FedoraPackagerCommandTest.class,
 	DownloadSourceCommandTest.class,
+	ConvertLocalToRemoteCommandTest.class,
 	UploadSourceCommandTest.class,
 	KojiBuildCommandTest.class,
 	RpmBuildCommandTest.class,

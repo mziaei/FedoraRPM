@@ -47,6 +47,7 @@ import org.eclipse.team.internal.ccvs.core.client.Tag;
 import org.eclipse.team.internal.ccvs.core.client.listeners.TagListener;
 import org.eclipse.team.internal.ccvs.core.resources.CVSWorkspaceRoot;
 import org.eclipse.team.internal.ccvs.core.syncinfo.FolderSyncInfo;
+import org.eclipse.jgit.api.Git;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
@@ -587,5 +588,14 @@ public class FpCVSProjectBits implements IFpProjectBits {
 	@Override
 	public void stageChanges(String[] files){
 		//TODO implement
+	}
+	@Override
+	public Git getGit() {
+		// just for .git vcs
+		return null;
+	}
+	@Override
+	public void addRemoteOrigin() {
+		// just for .git vcs		
 	}
 }
