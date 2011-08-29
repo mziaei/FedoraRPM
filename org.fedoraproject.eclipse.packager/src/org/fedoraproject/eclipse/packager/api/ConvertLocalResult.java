@@ -12,9 +12,9 @@ package org.fedoraproject.eclipse.packager.api;
 
 /**
  * Represents the result of a {@code ConvertLocalToRemoteCommand}.
- * 
+ *
  */
-public class ConvertLocalResult implements ICommandResult {	
+public class ConvertLocalResult implements ICommandResult {
 	private boolean successful = true;
 
 	/**

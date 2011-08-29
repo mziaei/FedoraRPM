@@ -13,6 +13,7 @@ package org.fedoraproject.eclipse.packager.git;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -23,11 +24,25 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.egit.core.project.RepositoryMapping;
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.MergeCommand;
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
+import org.eclipse.jgit.api.ListBranchCommand.ListMode;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
+import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
+import org.eclipse.jgit.api.errors.InvalidMergeHeadsException;
+import org.eclipse.jgit.api.errors.InvalidRefNameException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
+import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
@@ -44,22 +59,22 @@ import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
 
 /**
- * Git specific project bits (branches management and such).
- * Implementation of
- * org.fedoraproject.eclipse.packager.vcsContribution
- * extension point.
+ * Git specific project bits (branches management and such). Implementation of
+ * org.fedoraproject.eclipse.packager.vcsContribution extension point.
  * 
  * @author Red Hat Inc.
- *
+ * 
  */
 public class FpGitProjectBits implements IFpProjectBits {
-	
+
 	private IResource project; // The underlying project
 	private HashMap<String, String> branches; // All branches
 	private Git git; // The Git repository abstraction for this project
-	private boolean initialized = false; // keep track if instance is initialized
+	private boolean initialized = false; // keep track if instance is
+											// initialized
 	private String currentBranch = null;
-	// String regexp pattern used for branch mapping this should basically be the
+	// String regexp pattern used for branch mapping this should basically be
+	// the
 	// same pattern as fedpkg uses. ATM this pattern is:
 	// BRANCHFILTER = 'f\d\d\/master|master|el\d\/master|olpc\d\/master'
 	// Severin, 2011-01-11: Make '/master' postfix of branch name optional.
@@ -68,7 +83,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 					"(?:origin/)?(master)|(?:origin/)?(el)(\\d)(?:/master)?|" + //$NON-NLS-1$
 					"(?:origin/)?(olpc)(\\d)(?:/master)?" //$NON-NLS-1$
 			);
-	
+
 	/**
 	 * See {@link IFpProjectBits#getBranchName(String)}
 	 */
@@ -103,9 +118,9 @@ public class FpGitProjectBits implements IFpProjectBits {
 		}
 		return mapBranchName(currentBranch);
 	}
-	
+
 	@Override
-	public String getRawCurrentBranchName(){
+	public String getRawCurrentBranchName() {
 		getCurrentBranchName();
 		return currentBranch;
 	}
@@ -127,7 +142,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 					+ packageName + ".git"; //$NON-NLS-1$
 		}
 	}
-	
+
 	/**
 	 * Git should always return anonymous checkout with git protocol for koji.
 	 * 
@@ -141,7 +156,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 		String packageName = this.project.getProject().getName();
 		return "git://pkgs.fedoraproject.org/" + packageName + ".git?#" + getCommitHash(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	/**
 	 * Get the SHA1 representing the current branch.
 	 * 
@@ -167,8 +182,8 @@ public class FpGitProjectBits implements IFpProjectBits {
 	private HashMap<String, String> getBranches() {
 		HashMap<String, String> branches = new HashMap<String, String>();
 		try {
-			Map<String, Ref> remotes = git.getRepository().getRefDatabase().getRefs(
-					Constants.R_REMOTES);
+			Map<String, Ref> remotes = git.getRepository().getRefDatabase()
+					.getRefs(Constants.R_REMOTES);
 			Set<String> keyset = remotes.keySet();
 			String branch;
 			for (String key : keyset) {
@@ -198,7 +213,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 		this.branches = getBranches();
 		this.initialized = true;
 	}
-	
+
 	/**
 	 * Determine if instance has been properly initialized
 	 */
@@ -207,8 +222,8 @@ public class FpGitProjectBits implements IFpProjectBits {
 	}
 
 	/**
-	 * Determine distribution qualifier. This is VCS specific because
-	 * branch determination is VCS specific.
+	 * Determine distribution qualifier. This is VCS specific because branch
+	 * determination is VCS specific.
 	 * 
 	 * See {@link IFpProjectBits#getDist()}
 	 */
@@ -219,14 +234,14 @@ public class FpGitProjectBits implements IFpProjectBits {
 			return ".fc" + getDistVal(); //$NON-NLS-1$
 		} else if (currBranch.startsWith("EL-")) { //$NON-NLS-1$
 			return ".el" + getDistVal(); //$NON-NLS-1$
-		} else if (currBranch.startsWith("OLPC-")) {  //$NON-NLS-1$
+		} else if (currBranch.startsWith("OLPC-")) { //$NON-NLS-1$
 			return ".olpc" + getDistVal(); //$NON-NLS-1$
 		} else if (currBranch.equals("devel")) { //$NON-NLS-1$
 			return ".fc" + determineNextReleaseNumber(); //$NON-NLS-1$
 		}
 		return null;
 	}
-	
+
 	/**
 	 * See {@link IFpProjectBits#getDistVal()}
 	 */
@@ -249,7 +264,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 			return "fedora"; //$NON-NLS-1$" +
 		} else if (currBranch.startsWith("EL-")) { //$NON-NLS-1$
 			return "rhel"; //$NON-NLS-1$
-		} else if (currBranch.startsWith("OLPC-")) {  //$NON-NLS-1$
+		} else if (currBranch.startsWith("OLPC-")) { //$NON-NLS-1$
 			return "olpc"; //$NON-NLS-1$
 		} else if (currBranch.equals("devel")) { //$NON-NLS-1$
 			return "fedora"; //$NON-NLS-1$
@@ -267,7 +282,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 			return "f" + getDistVal() + "-candidate"; //$NON-NLS-1$" //$NON-NLS-2$
 		} else if (currBranch.startsWith("EL-")) { //$NON-NLS-1$
 			return "dist-" + getDistVal() + "E-epel-testing-candidate"; //$NON-NLS-1$ //$NON-NLS-2$
-		} else if (currBranch.startsWith("OLPC-")) {  //$NON-NLS-1$
+		} else if (currBranch.startsWith("OLPC-")) { //$NON-NLS-1$
 			return "dist-olpc" + getDistVal(); //$NON-NLS-1$
 		} else if (currBranch.equals("devel")) { //$NON-NLS-1$
 			return "dist-rawhide"; //$NON-NLS-1$
@@ -282,8 +297,8 @@ public class FpGitProjectBits implements IFpProjectBits {
 	 * return <code>"devel"</code>.
 	 * 
 	 * @param from
-	 *            The original raw branch name with "refs/something"
-	 *            prefixes omitted.
+	 *            The original raw branch name with "refs/something" prefixes
+	 *            omitted.
 	 * @return The mapped branch name.
 	 */
 	private String mapBranchName(String from) {
@@ -295,9 +310,11 @@ public class FpGitProjectBits implements IFpProjectBits {
 			return null;
 		}
 		for (int i = 1; i < branchMatcher.groupCount(); i++) {
-			prefix = branchMatcher.group(i); // null if group didn't match at all
-			version = branchMatcher.group(i+1);
-			if (version == null && prefix != null && prefix.equals(Constants.MASTER)) {
+			prefix = branchMatcher.group(i); // null if group didn't match at
+												// all
+			version = branchMatcher.group(i + 1);
+			if (version == null && prefix != null
+					&& prefix.equals(Constants.MASTER)) {
 				// matched master
 				return "devel"; //$NON-NLS-1$
 			} else if (version != null && prefix != null) {
@@ -308,7 +325,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 		// something's fishy
 		return null;
 	}
-	
+
 	/**
 	 * Returns true if given branch name is NOT an ObjectId in string format.
 	 * I.e. if branchName has been created by doing repo.getBranch(), it would
@@ -330,25 +347,24 @@ public class FpGitProjectBits implements IFpProjectBits {
 	 * See {@link IFpProjectBits#updateVCS(IProjectRoot, IProgressMonitor)}
 	 */
 	@Override
-	public IStatus updateVCS(IProjectRoot projectRoot,
-			IProgressMonitor monitor) {
+	public IStatus updateVCS(IProjectRoot projectRoot, IProgressMonitor monitor) {
 		// FIXME: Not working just, yet. Use projectRoot and monitor!.
-//		return performPull();
+		// return performPull();
 		// Return OK status to not see NPEs
 		return Status.OK_STATUS;
 	}
-	
+
 	/**
 	 * Get the JGit repository.
 	 */
 	private Repository getGitRepository() {
-		RepositoryMapping  repoMapping = RepositoryMapping.getMapping(project);
+		RepositoryMapping repoMapping = RepositoryMapping.getMapping(project);
 		return repoMapping.getRepository();
 	}
-	
+
 	/**
-	 * Determine what the next release number (in terms of the
-	 * distribution) will be.
+	 * Determine what the next release number (in terms of the distribution)
+	 * will be.
 	 * 
 	 * @return The next release number in String representation
 	 */
@@ -364,13 +380,16 @@ public class FpGitProjectBits implements IFpProjectBits {
 			branchName = this.branches.get(key);
 			if (branchName.startsWith("F-") || branchName.startsWith("FC-")) { //$NON-NLS-1$ //$NON-NLS-2$
 				// fedora
-				maxRelease = Math.max(maxRelease, Integer.parseInt(branchName.substring("F-".length()))); //$NON-NLS-1$
+				maxRelease = Math.max(maxRelease,
+						Integer.parseInt(branchName.substring("F-".length()))); //$NON-NLS-1$
 			} else if (branchName.startsWith("EL-")) { //$NON-NLS-1$
 				// EPEL
-				maxRelease = Math.max(maxRelease, Integer.parseInt(branchName.substring("EL-".length()))); //$NON-NLS-1$
-			} else if (branchName.startsWith("OLPC-")) {  //$NON-NLS-1$
+				maxRelease = Math.max(maxRelease,
+						Integer.parseInt(branchName.substring("EL-".length()))); //$NON-NLS-1$
+			} else if (branchName.startsWith("OLPC-")) { //$NON-NLS-1$
 				// OLPC
-				maxRelease = Math.max(maxRelease, Integer.parseInt(branchName.substring("OLPC-".length()))); //$NON-NLS-1$
+				maxRelease = Math.max(maxRelease, Integer.parseInt(branchName
+						.substring("OLPC-".length()))); //$NON-NLS-1$
 			}
 			// ignore
 		}
@@ -381,7 +400,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 			return Integer.toString(maxRelease + 1);
 		}
 	}
-	
+
 	@Override
 	public IStatus ignoreResource(IResource resourceToIgnore) {
 		// TODO Auto-generated method stub
@@ -421,12 +440,12 @@ public class FpGitProjectBits implements IFpProjectBits {
 	 * See {@link IFpProjectBits#tagVcs(IProjectRoot, IProgressMonitor)}
 	 */
 	@Override
-	public IStatus tagVcs(IProjectRoot projectRoot,
-			IProgressMonitor monitor) {
+	public IStatus tagVcs(IProjectRoot projectRoot, IProgressMonitor monitor) {
 		if (!isInitialized()) {
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Git tag error. Not initialized!"); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+					"Git tag error. Not initialized!"); //$NON-NLS-1$
 		}
-		//FIXME: no-op ATM. use git.tag().
+		// FIXME: no-op ATM. use git.tag().
 		return new Status(IStatus.OK, Activator.PLUGIN_ID, "Tag succeeded!"); //$NON-NLS-1$
 	}
 
@@ -442,6 +461,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 
 	/**
 	 * Determine if there are unpushed changes on the current branch.
+	 * 
 	 * @return If there are unpushed changes.
 	 */
 	@Override
@@ -454,11 +474,11 @@ public class FpGitProjectBits implements IFpProjectBits {
 			// get remote ref from config
 			String branchName = git.getRepository().getBranch();
 			String trackingRemoteBranch = git
-			.getRepository()
-			.getConfig()
-			.getString(ConfigConstants.CONFIG_BRANCH_SECTION,
-					branchName, ConfigConstants.CONFIG_KEY_MERGE);
-			///////////////////////////////////////////////////////////
+					.getRepository()
+					.getConfig()
+					.getString(ConfigConstants.CONFIG_BRANCH_SECTION,
+							branchName, ConfigConstants.CONFIG_KEY_MERGE);
+			// /////////////////////////////////////////////////////////
 			// FIXME: Temp work-around for Eclipse EGit/JGit BZ #317411
 			FetchCommand fetch = git.fetch();
 			fetch.setRemote("origin"); //$NON-NLS-1$
@@ -467,12 +487,14 @@ public class FpGitProjectBits implements IFpProjectBits {
 			// branch names. Need to fetch into remotes/origin/f14/master since
 			// this is what is later used for local changes comparison.
 			String fetchBranchSpec = Constants.R_HEADS + branchName + ":" + //$NON-NLS-1$
-				Constants.R_REMOTES + "origin/" + branchName; //$NON-NLS-1$
+					Constants.R_REMOTES + "origin/" + branchName; //$NON-NLS-1$
 			if (trackingRemoteBranch != null) {
 				// have f14/master like branch
-				trackingRemoteBranch = trackingRemoteBranch.substring(Constants.R_HEADS.length());
-				fetchBranchSpec = Constants.R_HEADS + trackingRemoteBranch + ":" + //$NON-NLS-1$
-					Constants.R_REMOTES + "origin/" + trackingRemoteBranch; //$NON-NLS-1$
+				trackingRemoteBranch = trackingRemoteBranch
+						.substring(Constants.R_HEADS.length());
+				fetchBranchSpec = Constants.R_HEADS + trackingRemoteBranch
+						+ ":" + //$NON-NLS-1$
+						Constants.R_REMOTES + "origin/" + trackingRemoteBranch; //$NON-NLS-1$
 			}
 			RefSpec spec = new RefSpec(fetchBranchSpec);
 			fetch.setRefSpecs(spec);
@@ -483,8 +505,8 @@ public class FpGitProjectBits implements IFpProjectBits {
 			} catch (InvalidRemoteException e) {
 				e.printStackTrace();
 			}
-			//--- End temp work-around for EGit/JGit bug.
-			
+			// --- End temp work-around for EGit/JGit bug.
+
 			RevWalk rw = new RevWalk(git.getRepository());
 			ObjectId objHead = git.getRepository().resolve(branchName);
 			if (trackingRemoteBranch == null) {
@@ -492,9 +514,10 @@ public class FpGitProjectBits implements IFpProjectBits {
 				trackingRemoteBranch = branchName;
 			}
 			RevCommit commitHead = rw.parseCommit(objHead);
-			ObjectId objRemoteTrackingHead = git.getRepository().resolve("origin/" +  //$NON-NLS-1$
-					trackingRemoteBranch);				
-		    RevCommit remoteCommitHead = rw.parseCommit(objRemoteTrackingHead);
+			ObjectId objRemoteTrackingHead = git.getRepository().resolve(
+					"origin/" + //$NON-NLS-1$
+							trackingRemoteBranch);
+			RevCommit remoteCommitHead = rw.parseCommit(objRemoteTrackingHead);
 			return !commitHead.equals(remoteCommitHead);
 		} catch (NoWorkTreeException e) {
 			e.printStackTrace();
@@ -503,14 +526,18 @@ public class FpGitProjectBits implements IFpProjectBits {
 		}
 		return true;
 	}
+
 	/*
 	 * (non-Javadoc)
-	 * @see org.fedoraproject.eclipse.packager.IFpProjectBits#stageChanges(java.lang.String[])
+	 * 
+	 * @see
+	 * org.fedoraproject.eclipse.packager.IFpProjectBits#stageChanges(java.lang
+	 * .String[])
 	 */
 	@Override
-	public void stageChanges(String[] files){
+	public void stageChanges(String[] files) {
 		try {
-			for (String filePattern : files){ 
+			for (String filePattern : files) {
 				git.add().addFilepattern(filePattern).call();
 			}
 		} catch (NoFilepatternException e) {
@@ -523,12 +550,17 @@ public class FpGitProjectBits implements IFpProjectBits {
 		return this.git;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.fedoraproject.eclipse.packager.IFpProjectBits#addRemoteRepository()
+	 */
 	@Override
-	public void addRemoteOrigin() {
+	public void addRemoteRepository() {
 		RemoteConfig config;
 		try {
-			config = new RemoteConfig(
-					git.getRepository().getConfig(), "origin"); //$NON-NLS-1$
+			config = new RemoteConfig(git.getRepository().getConfig(), "origin"); //$NON-NLS-1$
 			config.addURI(new URIish(getScmUrl()));
 			String dst = Constants.R_REMOTES + config.getName();
 			RefSpec refSpec = new RefSpec();
@@ -538,17 +570,99 @@ public class FpGitProjectBits implements IFpProjectBits {
 
 			config.addFetchRefSpec(refSpec);
 			config.update(git.getRepository().getConfig());
+			git.getRepository().getConfig().save();
+
+			// fetch all the remote branches,
+			// create correspondent branches locally and merge them
+			FetchCommand fetch = git.fetch();
+			fetch.setRemote("origin"); //$NON-NLS-1$
+			fetch.setTimeout(0);
+			fetch.setRefSpecs(refSpec);
+			fetch.call();
+
 		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (JGitInternalException e) {
+			e.printStackTrace();
+		} catch (InvalidRemoteException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+		createLocalBranches();
+
+		MergeCommand merge = git.merge();
+		merge.getRepository();
 		try {
-			git.getRepository().getConfig().save();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			merge.include(git.getRepository().getRef(
+					Constants.R_REMOTES + "origin/" + Constants.MASTER)); //$NON-NLS-1$
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+			merge.call();
+		} catch (NoHeadException e) {
 			e.printStackTrace();
-		}		
+		} catch (ConcurrentRefUpdateException e) {
+			e.printStackTrace();
+		} catch (CheckoutConflictException e) {
+			e.printStackTrace();
+		} catch (InvalidMergeHeadsException e) {
+			e.printStackTrace();
+		} catch (WrongRepositoryStateException e) {
+			e.printStackTrace();
+		} catch (NoMessageException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Create local branches based on existing remotes (uses the JGit API).
+	 * 
+	 * @see org.eclipse.fedoraproject.git.FedoraPackagerGitCloneOperation
+	 */
+	private void createLocalBranches() {
+		// get a list of remote branches
+		ListBranchCommand branchList = git.branchList();
+		branchList.setListMode(ListMode.REMOTE); // want all remote branches
+		List<Ref> remoteRefs = branchList.call();
+		for (Ref remoteRef : remoteRefs) {
+			String name = remoteRef.getName();
+			int index = (Constants.R_REMOTES + "origin/").length(); //$NON-NLS-1$
+			// Remove "refs/remotes/origin/" part in branch name
+			name = name.substring(index);
+			// Use "f14"-like branch naming
+			if (name.endsWith("/" + Constants.MASTER)) { //$NON-NLS-1$
+				index = name.indexOf("/" + Constants.MASTER); //$NON-NLS-1$
+				name = name.substring(0, index);
+			}
+			// Create all remote branches, except "master"
+			if (!name.equals(Constants.MASTER)) {
+				CreateBranchCommand branchCreateCmd = git.branchCreate();
+				branchCreateCmd.setName(name);
+				// Need to set starting point this way in order for tracking
+				// to work properly. See:
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=333899
+				branchCreateCmd.setStartPoint(remoteRef.getName());
+				// Add remote tracking config in order to not confuse
+				// fedpkg
+				branchCreateCmd.setUpstreamMode(SetupUpstreamMode.TRACK);
+				try {
+					branchCreateCmd.call();
+				} catch (JGitInternalException e) {
+					e.printStackTrace();
+				} catch (RefAlreadyExistsException e) {
+					e.printStackTrace();
+				} catch (RefNotFoundException e) {
+					e.printStackTrace();
+				} catch (InvalidRefNameException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 }

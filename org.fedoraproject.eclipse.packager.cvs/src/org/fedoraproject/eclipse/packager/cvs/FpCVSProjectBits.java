@@ -589,13 +589,23 @@ public class FpCVSProjectBits implements IFpProjectBits {
 	public void stageChanges(String[] files){
 		//TODO implement
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.fedoraproject.eclipse.packager.IFpProjectBits#getGit()
+	 */
 	@Override
 	public Git getGit() {
 		// just for .git vcs
 		return null;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.fedoraproject.eclipse.packager.IFpProjectBits#addRemoteRepository()
+	 */
 	@Override
-	public void addRemoteOrigin() {
-		// just for .git vcs		
+	public void addRemoteRepository() {
+		// just for .git vcs
 	}
 }

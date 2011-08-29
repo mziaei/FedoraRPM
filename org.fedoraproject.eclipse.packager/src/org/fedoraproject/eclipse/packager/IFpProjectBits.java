@@ -20,7 +20,7 @@ import org.eclipse.jgit.api.Git;
  * handle branch related things and other VCS specific parts.
  * 
  * @author Red Hat Inc.
- * 
+ *
  */
 public interface IFpProjectBits {
 
@@ -173,7 +173,10 @@ public interface IFpProjectBits {
 	public Git getGit();
 
 	/**
+	 * Adds the remote repository to the local one,
+	 * also creates a copy of remote branches locally,
+	 * merges the local master with remote one
 	 * 
 	 */
-	public void addRemoteOrigin();
+	public void addRemoteRepository();
 }

@@ -10,16 +10,14 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.tests.commands;
 
-import static org.junit.Assert.fail;
-
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.api.ConvertLocalToRemoteCommand;
 import org.fedoraproject.eclipse.packager.api.FedoraPackager;
+import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandNotFoundException;
-import org.fedoraproject.eclipse.packager.api.errors.SourcesUpToDateException;
 import org.fedoraproject.eclipse.packager.tests.utils.LocalTestProject;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 import org.junit.After;
@@ -27,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Eclipse plug-in test for DownloadSourceCommand.
+ * Eclipse plug-in test for ConvertLocalToRemoteCommand.
  */
 public class ConvertLocalToRemoteCommandTest {
 
@@ -37,7 +35,7 @@ public class ConvertLocalToRemoteCommandTest {
 	private FedoraPackager packager;
 	// Local Fedora packager root
 	private IProjectRoot lfpRoot;
-	
+
 	/**
 	 * Set up a Fedora project and run the command.
 	 * 
@@ -58,28 +56,23 @@ public class ConvertLocalToRemoteCommandTest {
 	}
 
 	/**
-	 * Positive results test. Should work fine. Since this is downloading
-	 * Eclipse sources it might take a while.
-	 * @throws FedoraPackagerCommandNotFoundException 
-	 * @throws FedoraPackagerCommandInitializationException 
+	 * Fails if there is not any existing 
+	 * remote repositories for this project
 	 * 
-	 * @throws Exception
+	 * @throws FedoraPackagerCommandNotFoundException
+	 * @throws FedoraPackagerCommandInitializationException
+	 * @throws CommandListenerException
+	 * @throws CommandMisconfiguredException
 	 */
 	@Test
-	public void failNonExistingRemoteRepositories() throws Exception {
+	public void failNonExistingRemoteRepositories()
+			throws FedoraPackagerCommandInitializationException,
+			FedoraPackagerCommandNotFoundException,
+			CommandMisconfiguredException, CommandListenerException {
 
 		ConvertLocalToRemoteCommand convertCmd = (ConvertLocalToRemoteCommand) packager
 				.getCommandInstance(ConvertLocalToRemoteCommand.ID);
-		
-
-		try {
-			convertCmd.call(new NullProgressMonitor());
-		} catch (SourcesUpToDateException e) {
-			fail("sources for " + testProject.getProject().getName() + " should not be present");  //$NON-NLS-1$//$NON-NLS-2$
-		} catch (CommandMisconfiguredException e) {
-			fail("Cmd should be properly configured"); //$NON-NLS-1$
-		}
-		// pass
+		convertCmd.call(new NullProgressMonitor());
 	}
 
 }

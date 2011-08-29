@@ -35,8 +35,8 @@ import org.fedoraproject.eclipse.packager.tests.local.WizardSRPMProjectTest;
 import org.osgi.framework.FrameworkUtil;
 
 public class LocalTestProject {
-	private static final String PROJECT = "eclipse-mercurial"; //$NON-NLS-1$
-	private static final String SRPM = "eclipse-mercurial-1.8.2-1.fc15.src.rpm"; //$NON-NLS-1$
+	private static final String PROJECT = "alchemist"; //$NON-NLS-1$
+	private static final String SPEC = "alchemist.spec"; //$NON-NLS-1$
 
 	private IProject project;
 	private LocalFedoraPackagerProjectCreator mainProject;
@@ -57,21 +57,20 @@ public class LocalTestProject {
 		URL url = FileLocator.find(FrameworkUtil
 				.getBundle(WizardSRPMProjectTest.class), new Path(
 				"resources" + IPath.SEPARATOR + PROJECT + IPath.SEPARATOR + //$NON-NLS-1$
-						SRPM), null);
+						SPEC), null);
 		if (url == null) {
 			fail("Unable to find resource" + IPath.SEPARATOR + PROJECT //$NON-NLS-1$
-					+ IPath.SEPARATOR + SRPM);
+					+ IPath.SEPARATOR + SPEC);
 		}
 
 		File externalFile = new File(FileLocator.toFileURL(url).getPath());
 
-		// poulate project using imported SRPM
-		mainProject.create(externalFile, LocalProjectType.SRPM);
+		// poulate project using imported .spec file
+		mainProject.create(externalFile, LocalProjectType.PLAIN);
 
 		// create the local git repository inside the project
 		// add the contents and do the initial commit
 		mainProject.createProjectStructure();
-
 	}
 
 	public IProject getProject() {
