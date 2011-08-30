@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.api;
+package org.fedoraproject.eclipse.packager.git.api;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
+import org.fedoraproject.eclipse.packager.api.FedoraPackagerCommand;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
@@ -92,6 +93,7 @@ public class ConvertLocalToRemoteCommand extends
 					PackagerPlugin.PROJECT_PROP, "true"); //$NON-NLS-1$
 			localFedoraProject.setPersistentProperty(
 					PackagerPlugin.PROJECT_LOCAL_PROP, null);
+			// TODO
 			// String message = NLS
 			// .bind(FedoraPackagerText.ConvertToGitHandler_ListHeader,
 			// localFedoraProject.getName());

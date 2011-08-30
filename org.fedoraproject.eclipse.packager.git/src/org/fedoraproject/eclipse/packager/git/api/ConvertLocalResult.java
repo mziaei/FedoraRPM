@@ -8,7 +8,9 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.api;
+package org.fedoraproject.eclipse.packager.git.api;
+
+import org.fedoraproject.eclipse.packager.api.ICommandResult;
 
 /**
  * Represents the result of a {@code ConvertLocalToRemoteCommand}.
