@@ -35,6 +35,8 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
  */
 public class ConvertLocalToRemoteCommand extends
 		FedoraPackagerCommand<ConvertLocalResult> {
+	
+	private Git git;
 
 	/**
 	 * The unique ID of this command.
@@ -70,10 +72,10 @@ public class ConvertLocalToRemoteCommand extends
 
 		// Find the local repository
 		RepositoryCache repoCache = org.eclipse.egit.core.Activator
-		.getDefault().getRepositoryCache();
-		
+				.getDefault().getRepositoryCache();
+
 		try {
-			Git git = new Git(repoCache.lookupRepository(projectBits.getDirectory()));
+			git = new Git(repoCache.lookupRepository(projectBits.getDirectory()));
 			String uri = projectBits.getScmUrl();
 			
 			GitUtils.addRemoteRepository(git, uri, monitor);
@@ -104,7 +106,7 @@ public class ConvertLocalToRemoteCommand extends
 			e.printStackTrace();
 		}
 
-		ConvertLocalResult result = new ConvertLocalResult();
+		ConvertLocalResult result = new ConvertLocalResult(git);
 
 		// Call post-exec listeners
 		callPostExecListeners();

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.git.api;
 
+import org.eclipse.jgit.api.Git;
 import org.fedoraproject.eclipse.packager.api.ICommandResult;
 
 /**
@@ -18,6 +19,7 @@ import org.fedoraproject.eclipse.packager.api.ICommandResult;
  */
 public class ConvertLocalResult implements ICommandResult {
 	private boolean successful = false;
+	private Git git;
 
 	/**
 	 * @param successful the successful to set
@@ -27,10 +29,25 @@ public class ConvertLocalResult implements ICommandResult {
 	}
 
 	/**
+	 * @param git
+	 */
+	public ConvertLocalResult(Git git) {
+		super();
+		this.git = git;
+	}
+
+	/**
 	 * See {@link ICommandResult#wasSuccessful()}.
 	 */
 	@Override
 	public boolean wasSuccessful() {
 		return successful;
+	}
+	
+	/**
+	 * @return Git
+	 */
+	public Git getGit() {
+		return this.git;
 	}
 }

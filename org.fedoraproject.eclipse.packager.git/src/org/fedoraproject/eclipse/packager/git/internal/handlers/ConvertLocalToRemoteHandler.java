@@ -2,17 +2,123 @@ package org.fedoraproject.eclipse.packager.git.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.swt.widgets.Shell;
+import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
+import org.fedoraproject.eclipse.packager.FedoraPackagerText;
+import org.fedoraproject.eclipse.packager.IFpProjectBits;
+import org.fedoraproject.eclipse.packager.IProjectRoot;
+import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
+import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
+import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
+import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
+import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandNotFoundException;
+import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
+import org.fedoraproject.eclipse.packager.git.FedoraPackagerGitText;
+import org.fedoraproject.eclipse.packager.git.api.ConvertLocalToRemoteCommand;
+import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
+import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
 /**
+ * Class responsible for converting local project to the main fedora packager
  * 
- *
  */
 public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 
+	/**
+	 * Converts the Local project to a remote fedora packager project Adds the
+	 * remote repository to the local git, creates the corresponding branches
+	 * locally, merges the remote master with the local one, sets the properties
+	 * of the local to main fedora packager
+	 * 
+	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// TODO Auto-generated method stub
+		final Shell shell = getShell(event);
+		final FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
+		final IProjectRoot localfedoraProjectRoot;
+		try {
+			IResource eventResource = FedoraHandlerUtils.getResource(event);
+			localfedoraProjectRoot = FedoraPackagerUtils
+					.getProjectRoot(eventResource);
+		} catch (InvalidProjectRootException e) {
+			logger.logError(FedoraPackagerText.invalidFedoraProjectRootError, e);
+			FedoraHandlerUtils.showErrorDialog(shell, "Error", //$NON-NLS-1$
+					FedoraPackagerText.invalidFedoraProjectRootError);
+			return null;
+		}
+
+		final FedoraPackager packager = new FedoraPackager(
+				localfedoraProjectRoot);
+		final ConvertLocalToRemoteCommand convertCmd;
+		try {
+			// Get ConvertLocalToRemoteCommand from Fedora packager registry
+			convertCmd = (ConvertLocalToRemoteCommand) packager
+					.getCommandInstance(ConvertLocalToRemoteCommand.ID);
+		} catch (FedoraPackagerCommandNotFoundException e) {
+			logger.logError(e.getMessage(), e);
+			FedoraHandlerUtils.showErrorDialog(shell, localfedoraProjectRoot
+					.getProductStrings().getProductName(), e.getMessage());
+			return null;
+		} catch (FedoraPackagerCommandInitializationException e) {
+			logger.logError(e.getMessage(), e);
+			FedoraHandlerUtils.showErrorDialog(shell, localfedoraProjectRoot
+					.getProductStrings().getProductName(), e.getMessage());
+			return null;
+		}
+		final IFpProjectBits projectBits = FedoraPackagerUtils
+				.getVcsHandler(localfedoraProjectRoot);
+		// Do the converting
+		Job job = new Job(FedoraPackagerGitText.ConvertLocalToRemoteHandler_taskName) {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+
+				monitor.beginTask(
+						FedoraPackagerGitText.ConvertLocalToRemoteHandler_taskName,
+						IProgressMonitor.UNKNOWN);
+				ConvertLocalToRemoteCommand convertCmd = null;
+				try {
+					convertCmd = (ConvertLocalToRemoteCommand) packager
+							.getCommandInstance(ConvertLocalToRemoteCommand.ID);
+				} catch (FedoraPackagerCommandInitializationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (FedoraPackagerCommandNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					convertCmd.call(new NullProgressMonitor());
+				} catch (CommandMisconfiguredException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (CommandListenerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				IStatus res = Status.OK_STATUS;
+				// Do VCS update
+				res = projectBits.updateVCS(localfedoraProjectRoot, monitor);
+				if (res.isOK()) {
+					if (monitor.isCanceled()) {
+						throw new OperationCanceledException();
+					}
+				}
+				return res;
+			}
+
+		};
+		job.setUser(true);
+		job.schedule();
 		return null;
 	}
 

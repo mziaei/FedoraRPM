@@ -87,7 +87,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 		FedoraPackager packager = new FedoraPackager(fedoraProjectRoot);
 		final UploadSourceCommand uploadCmd;
 		try {
-			// Get DownloadSourceCommand from Fedora packager registry
+			// Get UploadSourceCommand from Fedora packager registry
 			uploadCmd = (UploadSourceCommand) packager
 					.getCommandInstance(UploadSourceCommand.ID);
 		} catch (FedoraPackagerCommandNotFoundException e) {
