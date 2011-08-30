@@ -17,7 +17,7 @@ import org.fedoraproject.eclipse.packager.api.ICommandResult;
  *
  */
 public class ConvertLocalResult implements ICommandResult {
-	private boolean successful = true;
+	private boolean successful = false;
 
 	/**
 	 * @param successful the successful to set

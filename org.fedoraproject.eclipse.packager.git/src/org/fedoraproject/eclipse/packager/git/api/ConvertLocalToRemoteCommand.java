@@ -10,18 +10,18 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.git.api;
 
-import org.eclipse.core.resources.IProject;
+import java.io.IOException;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.egit.core.RepositoryCache;
 import org.eclipse.jgit.api.Git;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
-import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerCommand;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
-import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
 import org.fedoraproject.eclipse.packager.git.GitUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
@@ -36,28 +36,10 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 public class ConvertLocalToRemoteCommand extends
 		FedoraPackagerCommand<ConvertLocalResult> {
 
-	private IProjectRoot localFedoraProjectRoot;
-	private IProject localFedoraProject;
-
 	/**
 	 * The unique ID of this command.
 	 */
 	public static final String ID = "ConvertLocalToRemoteCommand"; //$NON-NLS-1$
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.fedoraproject.eclipse.packager.api.FedoraPackagerCommand#initialize
-	 * (org.fedoraproject.eclipse.packager.FedoraProjectRoot)
-	 */
-	@Override
-	public void initialize(IProjectRoot projectRoot)
-			throws FedoraPackagerCommandInitializationException {
-		super.initialize(projectRoot);
-		this.localFedoraProjectRoot = projectRoot;
-		this.localFedoraProject = localFedoraProjectRoot.getProject();
-	}
 
 	/**
 	 * Implementation of the {@code ConvertLocalToRemoteCommand}.
@@ -82,33 +64,41 @@ public class ConvertLocalToRemoteCommand extends
 			}
 			throw e;
 		}
-
+		
 		IFpProjectBits projectBits = FedoraPackagerUtils
-				.getVcsHandler(localFedoraProjectRoot);
+				.getVcsHandler(projectRoot);
 
-		Git git = projectBits.getGit();
-		String uri = projectBits.getScmUrl();
-
-		GitUtils.addRemoteRepository(git, uri, monitor);
+		// Find the local repository
+		RepositoryCache repoCache = org.eclipse.egit.core.Activator
+		.getDefault().getRepositoryCache();
+		
 		try {
+			Git git = new Git(repoCache.lookupRepository(projectBits.getDirectory()));
+			String uri = projectBits.getScmUrl();
+			
+			GitUtils.addRemoteRepository(git, uri, monitor);
 			GitUtils.createLocalBranches(git, monitor);
-		} catch (CoreException e1) {
-			e1.printStackTrace();
+			GitUtils.mergeLocalRemoteBranches(git, monitor);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		GitUtils.mergeLocalRemoteBranches(git, monitor);
+
 
 		// set the project property to main fedora packager's
 		// property
 		try {
-			localFedoraProject.setPersistentProperty(
+			projectRoot.getProject().setPersistentProperty(
 					PackagerPlugin.PROJECT_PROP, "true"); //$NON-NLS-1$
-			localFedoraProject.setPersistentProperty(
+			projectRoot.getProject().setPersistentProperty(
 					PackagerPlugin.PROJECT_LOCAL_PROP, null);
 			// TODO
 			// String message = NLS
 			// .bind(FedoraPackagerText.ConvertToGitHandler_ListHeader,
 			// localFedoraProject.getName());
-			localFedoraProject.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+			projectRoot.getProject().refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

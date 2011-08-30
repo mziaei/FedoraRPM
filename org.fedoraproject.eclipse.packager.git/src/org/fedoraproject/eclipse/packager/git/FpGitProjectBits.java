@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.git;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,11 +53,9 @@ public class FpGitProjectBits implements IFpProjectBits {
 	private IResource project; // The underlying project
 	private HashMap<String, String> branches; // All branches
 	private Git git; // The Git repository abstraction for this project
-	private boolean initialized = false; // keep track if instance is
-											// initialized
+	private boolean initialized = false; // keep track if instance is initialized
 	private String currentBranch = null;
-	// String regexp pattern used for branch mapping this should basically be
-	// the
+	// String regexp pattern used for branch mapping this should basically be the
 	// same pattern as fedpkg uses. ATM this pattern is:
 	// BRANCHFILTER = 'f\d\d\/master|master|el\d\/master|olpc\d\/master'
 	// Severin, 2011-01-11: Make '/master' postfix of branch name optional.
@@ -292,8 +291,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 			return null;
 		}
 		for (int i = 1; i < branchMatcher.groupCount(); i++) {
-			prefix = branchMatcher.group(i); // null if group didn't match at
-												// all
+			prefix = branchMatcher.group(i); // null if group didn't match at all
 			version = branchMatcher.group(i + 1);
 			if (version == null && prefix != null
 					&& prefix.equals(Constants.MASTER)) {
@@ -526,9 +524,15 @@ public class FpGitProjectBits implements IFpProjectBits {
 			// ignore, allow adds with no files
 		}
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.fedoraproject.eclipse.packager.IFpProjectBits#getDirectory()
+	 */
 	@Override
-	public Git getGit() {
-		return this.git;
+	public File getDirectory() {
+		return this.git.getRepository().getDirectory();
 	}
 }

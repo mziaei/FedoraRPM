@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -166,9 +168,9 @@ public interface IFpProjectBits {
 	public void stageChanges(String[] files);
 
 	/**
-	 * Returns the Git repository abstraction of this project
+	 * Returns the Git directory of this project
 	 * 
-	 * @return Git
+	 * @return File
 	 */
-	public Git getGit();
+	public File getDirectory();
 }

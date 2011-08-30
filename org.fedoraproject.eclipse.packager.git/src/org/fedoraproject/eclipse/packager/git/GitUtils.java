@@ -100,7 +100,8 @@ public class GitUtils {
 	 */
 	public static void createLocalBranches(Git git, IProgressMonitor monitor)
 			throws CoreException {
-
+		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
+				IProgressMonitor.UNKNOWN);
 		try {
 			// get a list of remote branches
 			ListBranchCommand branchList = git.branchList();
@@ -142,7 +143,7 @@ public class GitUtils {
 	}
 
 	/**
-	 * Adds the correspondent remote repository as the default name 'origin' to
+	 * Adds the corresponding remote repository as the default name 'origin' to
 	 * the existing local repository (uses the JGit API)
 	 * 
 	 * @param git
@@ -151,6 +152,9 @@ public class GitUtils {
 	 */
 	public static void addRemoteRepository(Git git, String uri,
 			IProgressMonitor monitor) {
+		// TODO change the message to a proper one for add remote
+		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
+				IProgressMonitor.UNKNOWN);
 		RemoteConfig config;
 		try {
 			config = new RemoteConfig(git.getRepository().getConfig(), "origin"); //$NON-NLS-1$
@@ -166,7 +170,7 @@ public class GitUtils {
 			git.getRepository().getConfig().save();
 
 			// fetch all the remote branches,
-			// create correspondent branches locally and merge them
+			// create corresponding branches locally and merge them
 			FetchCommand fetch = git.fetch();
 			fetch.setRemote("origin"); //$NON-NLS-1$
 			fetch.setTimeout(0);
@@ -193,8 +197,10 @@ public class GitUtils {
 	 */
 	public static void mergeLocalRemoteBranches(Git git,
 			IProgressMonitor monitor) {
+		// TODO change the message to a proper one for merge 
+		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
+				IProgressMonitor.UNKNOWN);
 		MergeCommand merge = git.merge();
-		merge.getRepository();
 		try {
 			merge.include(git.getRepository().getRef(
 					Constants.R_REMOTES + "origin/" + Constants.MASTER)); //$NON-NLS-1$

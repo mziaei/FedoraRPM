@@ -104,8 +104,7 @@ public class FedoraPackagerGitCloneOperation {
 		.getDefault().getRepositoryCache();
 		Git git = new Git(repoCache.lookupRepository(clone.getGitDir()));
 		
-		
-		createLocalBranches(git, monitor);
+		GitUtils.createLocalBranches(git, monitor);
 		
 		// Add cloned repository to the list of Git repositories so that it
 		// shows up in the Git repositories view.
@@ -115,19 +114,5 @@ public class FedoraPackagerGitCloneOperation {
 		this.hasRun = true; // disallow two runs of the same instance
 		
 		return git;
-	}
-	
-	/**
-	 * Create local branches based on existing remotes (uses the JGit API).
-	 * 
-	 * @param git
-	 * @param monitor
-	 * @throws CoreException
-	 */
-	private void createLocalBranches(Git git, IProgressMonitor monitor) throws CoreException {
-		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
-				IProgressMonitor.UNKNOWN);
-
-		GitUtils.createLocalBranches(git, monitor);
 	}
 }

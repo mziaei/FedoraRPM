@@ -31,7 +31,6 @@ import org.eclipse.jgit.api.errors.NoMessageException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.fedoraproject.eclipse.packager.LocalProjectType;
 import org.fedoraproject.eclipse.packager.api.LocalFedoraPackagerProjectCreator;
-import org.fedoraproject.eclipse.packager.tests.local.WizardSRPMProjectTest;
 import org.osgi.framework.FrameworkUtil;
 
 public class LocalTestProject {
@@ -55,7 +54,7 @@ public class LocalTestProject {
 
 		// Find the test SRPM and install it
 		URL url = FileLocator.find(FrameworkUtil
-				.getBundle(WizardSRPMProjectTest.class), new Path(
+				.getBundle(LocalTestProject.class), new Path(
 				"resources" + IPath.SEPARATOR + PROJECT + IPath.SEPARATOR + //$NON-NLS-1$
 						SPEC), null);
 		if (url == null) {
