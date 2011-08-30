@@ -171,12 +171,4 @@ public interface IFpProjectBits {
 	 * @return Git
 	 */
 	public Git getGit();
-
-	/**
-	 * Adds the remote repository to the local one,
-	 * also creates a copy of remote branches locally,
-	 * merges the local master with remote one
-	 * 
-	 */
-	public void addRemoteRepository();
 }

@@ -12,7 +12,7 @@ package org.fedoraproject.eclipse.packager.tests.commands;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
-import org.fedoraproject.eclipse.packager.api.ConvertLocalToRemoteCommand;
+import org.fedoraproject.eclipse.packager.git.api.ConvertLocalToRemoteCommand;
 import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
@@ -74,5 +74,18 @@ public class ConvertLocalToRemoteCommandTest {
 				.getCommandInstance(ConvertLocalToRemoteCommand.ID);
 		convertCmd.call(new NullProgressMonitor());
 	}
+	
+//	@Test
+//	public void failAlreadyExistingRemoteRepositories()
+//			throws FedoraPackagerCommandInitializationException,
+//			FedoraPackagerCommandNotFoundException,
+//			CommandMisconfiguredException, CommandListenerException {
+//
+//		ConvertLocalToRemoteCommand convertCmd = (ConvertLocalToRemoteCommand) packager
+//				.getCommandInstance(ConvertLocalToRemoteCommand.ID);
+//		convertCmd.call(new NullProgressMonitor());
+//
+//		convertCmd.call(new NullProgressMonitor());
+//	}
 
 }

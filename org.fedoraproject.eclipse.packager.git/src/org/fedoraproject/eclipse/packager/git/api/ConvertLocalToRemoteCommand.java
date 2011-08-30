@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jgit.api.Git;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
@@ -21,6 +22,7 @@ import org.fedoraproject.eclipse.packager.api.FedoraPackagerCommand;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
+import org.fedoraproject.eclipse.packager.git.GitUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
 /**
@@ -84,7 +86,16 @@ public class ConvertLocalToRemoteCommand extends
 		IFpProjectBits projectBits = FedoraPackagerUtils
 				.getVcsHandler(localFedoraProjectRoot);
 
-		projectBits.addRemoteRepository();
+		Git git = projectBits.getGit();
+		String uri = projectBits.getScmUrl();
+
+		GitUtils.addRemoteRepository(git, uri, monitor);
+		try {
+			GitUtils.createLocalBranches(git, monitor);
+		} catch (CoreException e1) {
+			e1.printStackTrace();
+		}
+		GitUtils.mergeLocalRemoteBranches(git, monitor);
 
 		// set the project property to main fedora packager's
 		// property

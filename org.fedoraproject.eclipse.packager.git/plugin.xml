@@ -65,4 +65,11 @@
              name="%FedoraGitWizardCommandName">
        </command>
     </extension>
+    <!-- Core plug-in contributes convert local to remote command  -->
+    <extension
+          point="org.fedoraproject.eclipse.packager.packagerCommandContribution">
+       <command id="ConvertLocalToRemoteCommand"
+                class="org.fedoraproject.eclipse.packager.git.api.ConvertLocalToRemoteCommand">
+       </command>
+    </extension>
 </plugin>

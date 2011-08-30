@@ -599,13 +599,4 @@ public class FpCVSProjectBits implements IFpProjectBits {
 		// just for .git vcs
 		return null;
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.fedoraproject.eclipse.packager.IFpProjectBits#addRemoteRepository()
-	 */
-	@Override
-	public void addRemoteRepository() {
-		// just for .git vcs
-	}
 }

@@ -13,7 +13,6 @@ package org.fedoraproject.eclipse.packager.git;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -21,17 +20,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.egit.core.RepositoryCache;
 import org.eclipse.egit.core.RepositoryUtil;
 import org.eclipse.egit.core.op.CloneOperation;
-import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ListBranchCommand;
-import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
-import org.eclipse.jgit.api.ListBranchCommand.ListMode;
-import org.eclipse.jgit.api.errors.InvalidRefNameException;
-import org.eclipse.jgit.api.errors.JGitInternalException;
-import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
-import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.osgi.util.NLS;
 
@@ -114,6 +104,7 @@ public class FedoraPackagerGitCloneOperation {
 		.getDefault().getRepositoryCache();
 		Git git = new Git(repoCache.lookupRepository(clone.getGitDir()));
 		
+		
 		createLocalBranches(git, monitor);
 		
 		// Add cloned repository to the list of Git repositories so that it
@@ -129,6 +120,7 @@ public class FedoraPackagerGitCloneOperation {
 	/**
 	 * Create local branches based on existing remotes (uses the JGit API).
 	 * 
+	 * @param git
 	 * @param monitor
 	 * @throws CoreException
 	 */
@@ -136,42 +128,6 @@ public class FedoraPackagerGitCloneOperation {
 		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
 				IProgressMonitor.UNKNOWN);
 
-		try {
-			// get a list of remote branches
-			ListBranchCommand branchList = git.branchList();
-			branchList.setListMode(ListMode.REMOTE); // want all remote branches
-			List<Ref> remoteRefs = branchList.call();
-			for (Ref remoteRef: remoteRefs) {
-				String name = remoteRef.getName();
-				int index = (Constants.R_REMOTES + "origin/").length(); //$NON-NLS-1$
-				// Remove "refs/remotes/origin/" part in branch name
-				name = name.substring(index);
-				// Use "f14"-like branch naming
-				if (name.endsWith("/" + Constants.MASTER)) { //$NON-NLS-1$
-					index = name.indexOf("/" + Constants.MASTER); //$NON-NLS-1$
-					name = name.substring(0, index);
-				}
-				// Create all remote branches, except "master"
-				if (!name.equals(Constants.MASTER)) {
-					CreateBranchCommand branchCreateCmd = git.branchCreate();
-					branchCreateCmd.setName(name);
-					// Need to set starting point this way in order for tracking
-					// to work properly. See: https://bugs.eclipse.org/bugs/show_bug.cgi?id=333899
-					branchCreateCmd.setStartPoint(remoteRef.getName());
-					// Add remote tracking config in order to not confuse
-					// fedpkg
-					branchCreateCmd.setUpstreamMode(SetupUpstreamMode.TRACK);
-					branchCreateCmd.call();
-				}
-			}
-		} catch (JGitInternalException e) {
-			e.printStackTrace();
-		} catch (RefAlreadyExistsException e) {
-			e.printStackTrace();
-		} catch (RefNotFoundException e) {
-			e.printStackTrace();
-		} catch (InvalidRefNameException e) {
-			e.printStackTrace();
-		}
+		GitUtils.createLocalBranches(git, monitor);
 	}
 }
