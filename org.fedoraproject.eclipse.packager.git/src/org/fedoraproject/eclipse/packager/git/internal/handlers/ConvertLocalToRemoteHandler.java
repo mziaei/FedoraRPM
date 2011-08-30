@@ -57,22 +57,6 @@ public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 
 		final FedoraPackager packager = new FedoraPackager(
 				localfedoraProjectRoot);
-		final ConvertLocalToRemoteCommand convertCmd;
-		try {
-			// Get ConvertLocalToRemoteCommand from Fedora packager registry
-			convertCmd = (ConvertLocalToRemoteCommand) packager
-					.getCommandInstance(ConvertLocalToRemoteCommand.ID);
-		} catch (FedoraPackagerCommandNotFoundException e) {
-			logger.logError(e.getMessage(), e);
-			FedoraHandlerUtils.showErrorDialog(shell, localfedoraProjectRoot
-					.getProductStrings().getProductName(), e.getMessage());
-			return null;
-		} catch (FedoraPackagerCommandInitializationException e) {
-			logger.logError(e.getMessage(), e);
-			FedoraHandlerUtils.showErrorDialog(shell, localfedoraProjectRoot
-					.getProductStrings().getProductName(), e.getMessage());
-			return null;
-		}
 		final IFpProjectBits projectBits = FedoraPackagerUtils
 				.getVcsHandler(localfedoraProjectRoot);
 		// Do the converting
@@ -84,16 +68,21 @@ public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 				monitor.beginTask(
 						FedoraPackagerGitText.ConvertLocalToRemoteHandler_taskName,
 						IProgressMonitor.UNKNOWN);
-				ConvertLocalToRemoteCommand convertCmd = null;
+				final ConvertLocalToRemoteCommand convertCmd;
 				try {
+					// Get ConvertLocalToRemoteCommand from Fedora packager registry
 					convertCmd = (ConvertLocalToRemoteCommand) packager
 							.getCommandInstance(ConvertLocalToRemoteCommand.ID);
-				} catch (FedoraPackagerCommandInitializationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} catch (FedoraPackagerCommandNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.logError(e.getMessage(), e);
+					FedoraHandlerUtils.showErrorDialog(shell, localfedoraProjectRoot
+							.getProductStrings().getProductName(), e.getMessage());
+					return null;
+				} catch (FedoraPackagerCommandInitializationException e) {
+					logger.logError(e.getMessage(), e);
+					FedoraHandlerUtils.showErrorDialog(shell, localfedoraProjectRoot
+							.getProductStrings().getProductName(), e.getMessage());
+					return null;
 				}
 				try {
 					convertCmd.call(new NullProgressMonitor());
