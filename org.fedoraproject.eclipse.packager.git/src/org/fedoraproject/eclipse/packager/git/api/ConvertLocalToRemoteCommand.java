@@ -16,13 +16,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.egit.core.RepositoryCache;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.osgi.util.NLS;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerCommand;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
-import org.fedoraproject.eclipse.packager.git.FedoraPackagerGitText;
 import org.fedoraproject.eclipse.packager.git.GitUtils;
 import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionFailedException;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
@@ -82,7 +80,7 @@ public class ConvertLocalToRemoteCommand extends
 			git = new Git(repoCache.lookupRepository(projectRoot.getProject()
 					.getFile(".git").getLocation().toFile())); //$NON-NLS-1$
 		} catch (IOException e) {
-			throw new LocalProjectConversionFailedException(e.getMessage(), e);
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		}
 
 		String uri = projectBits.getScmUrl();
@@ -92,7 +90,7 @@ public class ConvertLocalToRemoteCommand extends
 		try {
 			GitUtils.createLocalBranches(git, monitor);
 		} catch (CoreException e) {
-			throw new LocalProjectConversionFailedException(e.getMessage(), e);
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		}
 
 		GitUtils.mergeLocalRemoteBranches(git, monitor);
@@ -104,7 +102,7 @@ public class ConvertLocalToRemoteCommand extends
 			projectRoot.getProject().setPersistentProperty(
 					PackagerPlugin.PROJECT_LOCAL_PROP, null);
 		} catch (CoreException e) {
-			throw new LocalProjectConversionFailedException(e.getMessage(), e);
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		}
 
 		ConvertLocalResult result = new ConvertLocalResult(git);

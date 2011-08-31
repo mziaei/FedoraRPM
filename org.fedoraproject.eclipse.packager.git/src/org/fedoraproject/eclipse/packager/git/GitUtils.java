@@ -39,7 +39,6 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
-import org.eclipse.osgi.util.NLS;
 import org.fedoraproject.eclipse.packager.FedoraSSL;
 import org.fedoraproject.eclipse.packager.FedoraSSLFactory;
 import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionFailedException;
@@ -180,13 +179,13 @@ public class GitUtils {
 			fetch.call();
 
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		} catch (JGitInternalException e) {
-			throw new LocalProjectConversionFailedException(e.getMessage(), e);
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		} catch (InvalidRemoteException e) {
-			throw new LocalProjectConversionFailedException(e.getMessage(), e);
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		}
 	}
 
@@ -206,26 +205,23 @@ public class GitUtils {
 			merge.include(git.getRepository().getRef(
 					Constants.R_REMOTES + "origin/" + Constants.MASTER)); //$NON-NLS-1$
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		}
 
 		try {
 			merge.call();
 		} catch (NoHeadException e) {
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		} catch (ConcurrentRefUpdateException e) {
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		} catch (CheckoutConflictException e) {
-			throw new LocalProjectConversionFailedException(
-					NLS.bind(
-							FedoraPackagerGitText.ConvertLocalToRemoteHandler_failToConvert,
-							git.getRepository().getWorkTree().toString(), e.getMessage()), e);
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		} catch (InvalidMergeHeadsException e) {
-			throw new LocalProjectConversionFailedException(e.getMessage(), e);
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		} catch (WrongRepositoryStateException e) {
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		} catch (NoMessageException e) {
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		}
 
 	}

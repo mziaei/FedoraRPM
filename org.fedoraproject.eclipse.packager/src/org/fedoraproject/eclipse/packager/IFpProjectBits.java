@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager;
 
-import java.io.File;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
