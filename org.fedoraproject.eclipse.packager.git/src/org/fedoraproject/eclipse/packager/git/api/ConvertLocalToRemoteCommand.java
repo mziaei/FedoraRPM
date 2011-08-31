@@ -24,8 +24,7 @@ import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
 import org.fedoraproject.eclipse.packager.git.FedoraPackagerGitText;
 import org.fedoraproject.eclipse.packager.git.GitUtils;
-import org.fedoraproject.eclipse.packager.git.errors.ConvertChangePropertiesFailedException;
-import org.fedoraproject.eclipse.packager.git.errors.NoLocalGitAvailableException;
+import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionFailedException;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
 /**
@@ -56,13 +55,12 @@ public class ConvertLocalToRemoteCommand extends
 	 * @throws CommandListenerException
 	 *             If some listener detected a problem.
 	 * @return The result of this command.
-	 * @throws ConvertChangePropertiesFailedException 
-	 * @throws NoLocalGitAvailableException 
+	 * @throws LocalProjectConversionFailedException 
 	 */
 	@Override
 	public ConvertLocalResult call(IProgressMonitor monitor)
-			throws CommandMisconfiguredException, CommandListenerException, 
-			ConvertChangePropertiesFailedException, NoLocalGitAvailableException {
+			throws CommandMisconfiguredException, CommandListenerException,
+			LocalProjectConversionFailedException {
 		try {
 			callPreExecListeners();
 		} catch (CommandListenerException e) {
@@ -81,23 +79,23 @@ public class ConvertLocalToRemoteCommand extends
 				.getDefault().getRepositoryCache();
 
 		try {
-			git = new Git(
-					repoCache.lookupRepository(projectBits.getDirectory()));
+			git = new Git(repoCache.lookupRepository(projectRoot.getProject()
+					.getFile(".git").getLocation().toFile())); //$NON-NLS-1$
 		} catch (IOException e) {
-			throw new NoLocalGitAvailableException(
-					NLS.bind(
-							FedoraPackagerGitText.ConvertLocalToRemoteHandler_PropertiesChangingFailure,
-							projectRoot.getPackageName()), e);
+			throw new LocalProjectConversionFailedException(e.getMessage(), e);
 		}
+
 		String uri = projectBits.getScmUrl();
+		GitUtils.addRemoteRepository(git, uri, monitor);
+
+
 		try {
-			GitUtils.addRemoteRepository(git, uri, monitor);
 			GitUtils.createLocalBranches(git, monitor);
-			GitUtils.mergeLocalRemoteBranches(git, monitor);
 		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getMessage(), e);
 		}
+
+		GitUtils.mergeLocalRemoteBranches(git, monitor);
 
 		// set the project property to main fedora packager's property
 		try {
@@ -106,10 +104,7 @@ public class ConvertLocalToRemoteCommand extends
 			projectRoot.getProject().setPersistentProperty(
 					PackagerPlugin.PROJECT_LOCAL_PROP, null);
 		} catch (CoreException e) {
-			throw new ConvertChangePropertiesFailedException(
-					NLS.bind(
-							FedoraPackagerGitText.ConvertLocalToRemoteHandler_PropertiesChangingFailure,
-							projectRoot.getPackageName()), e);
+			throw new LocalProjectConversionFailedException(e.getMessage(), e);
 		}
 
 		ConvertLocalResult result = new ConvertLocalResult(git);

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.git;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -523,16 +522,5 @@ public class FpGitProjectBits implements IFpProjectBits {
 		} catch (NoFilepatternException e) {
 			// ignore, allow adds with no files
 		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.fedoraproject.eclipse.packager.IFpProjectBits#getDirectory()
-	 */
-	@Override
-	public File getDirectory() {
-		return this.git.getRepository().getDirectory();
 	}
 }

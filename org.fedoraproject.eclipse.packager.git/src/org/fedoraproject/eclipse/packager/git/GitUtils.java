@@ -39,8 +39,10 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
+import org.eclipse.osgi.util.NLS;
 import org.fedoraproject.eclipse.packager.FedoraSSL;
 import org.fedoraproject.eclipse.packager.FedoraSSLFactory;
+import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionFailedException;
 
 /**
  * Utility class for Fedora Git related things.
@@ -149,10 +151,10 @@ public class GitUtils {
 	 * @param git
 	 * @param uri
 	 * @param monitor
+	 * @throws LocalProjectConversionFailedException 
 	 */
 	public static void addRemoteRepository(Git git, String uri,
-			IProgressMonitor monitor) {
-		// TODO change the message to a proper one for add remote
+			IProgressMonitor monitor) throws LocalProjectConversionFailedException {
 		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
 				IProgressMonitor.UNKNOWN);
 		RemoteConfig config;
@@ -180,10 +182,9 @@ public class GitUtils {
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		} catch (JGitInternalException e) {
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getMessage(), e);
 		} catch (InvalidRemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getMessage(), e);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -194,18 +195,18 @@ public class GitUtils {
 	 * 
 	 * @param git
 	 * @param monitor
+	 * @throws LocalProjectConversionFailedException 
 	 */
 	public static void mergeLocalRemoteBranches(Git git,
-			IProgressMonitor monitor) {
-		// TODO change the message to a proper one for merge 
+			IProgressMonitor monitor) throws LocalProjectConversionFailedException {
 		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
 				IProgressMonitor.UNKNOWN);
 		MergeCommand merge = git.merge();
 		try {
 			merge.include(git.getRepository().getRef(
 					Constants.R_REMOTES + "origin/" + Constants.MASTER)); //$NON-NLS-1$
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 		try {
@@ -215,9 +216,12 @@ public class GitUtils {
 		} catch (ConcurrentRefUpdateException e) {
 			e.printStackTrace();
 		} catch (CheckoutConflictException e) {
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(
+					NLS.bind(
+							FedoraPackagerGitText.ConvertLocalToRemoteHandler_failToConvert,
+							git.getRepository().getWorkTree().toString(), e.getMessage()), e);
 		} catch (InvalidMergeHeadsException e) {
-			e.printStackTrace();
+			throw new LocalProjectConversionFailedException(e.getMessage(), e);
 		} catch (WrongRepositoryStateException e) {
 			e.printStackTrace();
 		} catch (NoMessageException e) {

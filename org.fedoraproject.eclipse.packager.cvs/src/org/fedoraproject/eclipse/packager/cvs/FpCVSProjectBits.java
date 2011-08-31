@@ -588,14 +588,4 @@ public class FpCVSProjectBits implements IFpProjectBits {
 	public void stageChanges(String[] files){
 		//TODO implement
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.fedoraproject.eclipse.packager.IFpProjectBits#getGit()
-	 */
-	@Override
-	public File getDirectory() {
-		// just for .git vcs
-		return null;
-	}
 }

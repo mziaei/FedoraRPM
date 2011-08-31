@@ -13,7 +13,7 @@ package org.fedoraproject.eclipse.packager.tests.commands;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.git.api.ConvertLocalToRemoteCommand;
-import org.fedoraproject.eclipse.packager.git.errors.ConvertChangePropertiesFailedException;
+import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionFailedException;
 import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
@@ -63,14 +63,15 @@ public class ConvertLocalToRemoteCommandTest {
 	 * @throws FedoraPackagerCommandInitializationException
 	 * @throws CommandListenerException
 	 * @throws CommandMisconfiguredException
+	 * @throws LocalProjectConversionFailedException 
 	 * @throws ConvertChangePropertiesFailedException
 	 */
 	@Test
 	public void failNonExistingRemoteRepositories()
 			throws FedoraPackagerCommandInitializationException,
 			FedoraPackagerCommandNotFoundException,
-			CommandMisconfiguredException, CommandListenerException,
-			ConvertChangePropertiesFailedException {
+			CommandMisconfiguredException, CommandListenerException, 
+			LocalProjectConversionFailedException {
 
 		ConvertLocalToRemoteCommand convertCmd;
 		convertCmd = (ConvertLocalToRemoteCommand) packager

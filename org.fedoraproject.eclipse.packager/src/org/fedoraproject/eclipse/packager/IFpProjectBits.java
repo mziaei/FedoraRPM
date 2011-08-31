@@ -165,11 +165,4 @@ public interface IFpProjectBits {
 	 *            The files to add the changes to the repository.
 	 */
 	public void stageChanges(String[] files);
-
-	/**
-	 * Returns the Git directory of this project
-	 * 
-	 * @return File
-	 */
-	public File getDirectory();
 }

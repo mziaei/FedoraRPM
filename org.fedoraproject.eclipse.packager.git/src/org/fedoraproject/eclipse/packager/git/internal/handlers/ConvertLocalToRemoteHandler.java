@@ -24,8 +24,7 @@ import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandNotFou
 import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
 import org.fedoraproject.eclipse.packager.git.FedoraPackagerGitText;
 import org.fedoraproject.eclipse.packager.git.api.ConvertLocalToRemoteCommand;
-import org.fedoraproject.eclipse.packager.git.errors.ConvertChangePropertiesFailedException;
-import org.fedoraproject.eclipse.packager.git.errors.NoLocalGitAvailableException;
+import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionFailedException;
 import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
@@ -74,59 +73,50 @@ public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 						IProgressMonitor.UNKNOWN);
 				final ConvertLocalToRemoteCommand convertCmd;
 				try {
-					// Get ConvertLocalToRemoteCommand from Fedora packager registry
-					convertCmd = (ConvertLocalToRemoteCommand) packager
-							.getCommandInstance(ConvertLocalToRemoteCommand.ID);
-				} catch (FedoraPackagerCommandNotFoundException e) {
-					logger.logError(e.getMessage(), e);
-					FedoraHandlerUtils.showErrorDialog(shell,
-							localfedoraProjectRoot.getProductStrings()
-									.getProductName(), e.getMessage());
-					return null;
-				} catch (FedoraPackagerCommandInitializationException e) {
-					logger.logError(e.getMessage(), e);
-					FedoraHandlerUtils.showErrorDialog(shell,
-							localfedoraProjectRoot.getProductStrings()
-									.getProductName(), e.getMessage());
-					return null;
-				}
-				try {
-					convertCmd.call(new NullProgressMonitor());
-				} catch (CommandMisconfiguredException e) {
-					e.printStackTrace();
-				} catch (CommandListenerException e) {
-					e.printStackTrace();
-				} catch (ConvertChangePropertiesFailedException e) {
+					try {
+						// Get ConvertLocalToRemoteCommand from Fedora packager
+						// registry
+						convertCmd = (ConvertLocalToRemoteCommand) packager
+								.getCommandInstance(ConvertLocalToRemoteCommand.ID);
+					} catch (FedoraPackagerCommandNotFoundException e) {
+						logger.logError(e.getMessage(), e);
+						FedoraHandlerUtils.showErrorDialog(shell,
+								localfedoraProjectRoot.getProductStrings()
+										.getProductName(), e.getMessage());
+						return null;
+					} catch (FedoraPackagerCommandInitializationException e) {
+						logger.logError(e.getMessage(), e);
+						FedoraHandlerUtils.showErrorDialog(shell,
+								localfedoraProjectRoot.getProductStrings()
+										.getProductName(), e.getMessage());
+						return null;
+					}
+					try {
+						convertCmd.call(new NullProgressMonitor());
+					} catch (CommandMisconfiguredException e) {
+						e.printStackTrace();
+					} catch (CommandListenerException e) {
+						e.printStackTrace();
+					}
+					FedoraHandlerUtils
+							.showInformationDialog(
+									shell,
+									FedoraPackagerGitText.ConvertLocalToRemoteHandler_NotificationTitle,
+									NLS.bind(
+											FedoraPackagerGitText.ConvertLocalToRemoteHandler_Information,
+											localfedoraProjectRoot
+													.getPackageName()));
+				} catch (LocalProjectConversionFailedException e) {
 					logger.logError(e.getMessage(), e);
 					FedoraHandlerUtils
 							.showErrorDialog(
 									shell,
 									FedoraPackagerGitText.ConvertLocalToRemoteHandler_Error,
 									NLS.bind(
-											FedoraPackagerGitText.ConvertLocalToRemoteHandler_PropertiesChangingFailure,
-											localfedoraProjectRoot
-													.getProductStrings()
-													.getProductName(), e.getMessage()));
-				} catch (NoLocalGitAvailableException e) {
-					logger.logError(e.getMessage(), e);
-					FedoraHandlerUtils
-							.showErrorDialog(
-									shell,
-									FedoraPackagerGitText.ConvertLocalToRemoteHandler_LocalGitAvailFailure,
-									NLS.bind(
-											FedoraPackagerGitText.ConvertLocalToRemoteHandler_LocalGitAvailFailure,
-											localfedoraProjectRoot
-													.getProductStrings()
+											FedoraPackagerGitText.ConvertLocalToRemoteHandler_failToConvert,
+											localfedoraProjectRoot.getProductStrings()
 													.getProductName(), e.getMessage()));
 				}
-				FedoraHandlerUtils
-						.showInformationDialog(
-								shell,
-								FedoraPackagerGitText.ConvertLocalToRemoteHandler_NotificationTitle,
-								NLS.bind(
-										FedoraPackagerGitText.ConvertLocalToRemoteHandler_Information,
-										localfedoraProjectRoot.getPackageName()));
-
 				IStatus res = Status.OK_STATUS;
 				// Do VCS update
 				res = projectBits.updateVCS(localfedoraProjectRoot, monitor);
