@@ -53,6 +53,12 @@ public class FedoraPackagerGitText extends NLS {
 	/****/ public static String FedoraPackagerGitPreferencePage_invalidBaseURLMsg;
 	// ConvertLocalToRemoteHandler
 	/****/ public static String ConvertLocalToRemoteHandler_taskName;
+	/****/ public static String ConvertLocalToRemoteHandler_Error;
+	/****/ public static String ConvertLocalToRemoteHandler_PropertiesChangingFailure;
+	/****/ public static String ConvertLocalToRemoteHandler_LocalGitAvailFailure;
+	/****/ public static String ConvertLocalToRemoteHandler_Information;
+	/****/ public static String ConvertLocalToRemoteHandler_NotificationTitle;
+	
 	
 	
 	static {

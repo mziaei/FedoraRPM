@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
@@ -23,6 +24,8 @@ import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandNotFou
 import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
 import org.fedoraproject.eclipse.packager.git.FedoraPackagerGitText;
 import org.fedoraproject.eclipse.packager.git.api.ConvertLocalToRemoteCommand;
+import org.fedoraproject.eclipse.packager.git.errors.ConvertChangePropertiesFailedException;
+import org.fedoraproject.eclipse.packager.git.errors.NoLocalGitAvailableException;
 import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
@@ -60,7 +63,8 @@ public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 		final IFpProjectBits projectBits = FedoraPackagerUtils
 				.getVcsHandler(localfedoraProjectRoot);
 		// Do the converting
-		Job job = new Job(FedoraPackagerGitText.ConvertLocalToRemoteHandler_taskName) {
+		Job job = new Job(
+				FedoraPackagerGitText.ConvertLocalToRemoteHandler_taskName) {
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -75,24 +79,53 @@ public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 							.getCommandInstance(ConvertLocalToRemoteCommand.ID);
 				} catch (FedoraPackagerCommandNotFoundException e) {
 					logger.logError(e.getMessage(), e);
-					FedoraHandlerUtils.showErrorDialog(shell, localfedoraProjectRoot
-							.getProductStrings().getProductName(), e.getMessage());
+					FedoraHandlerUtils.showErrorDialog(shell,
+							localfedoraProjectRoot.getProductStrings()
+									.getProductName(), e.getMessage());
 					return null;
 				} catch (FedoraPackagerCommandInitializationException e) {
 					logger.logError(e.getMessage(), e);
-					FedoraHandlerUtils.showErrorDialog(shell, localfedoraProjectRoot
-							.getProductStrings().getProductName(), e.getMessage());
+					FedoraHandlerUtils.showErrorDialog(shell,
+							localfedoraProjectRoot.getProductStrings()
+									.getProductName(), e.getMessage());
 					return null;
 				}
 				try {
 					convertCmd.call(new NullProgressMonitor());
 				} catch (CommandMisconfiguredException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (CommandListenerException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
+				} catch (ConvertChangePropertiesFailedException e) {
+					logger.logError(e.getMessage(), e);
+					FedoraHandlerUtils
+							.showErrorDialog(
+									shell,
+									FedoraPackagerGitText.ConvertLocalToRemoteHandler_Error,
+									NLS.bind(
+											FedoraPackagerGitText.ConvertLocalToRemoteHandler_PropertiesChangingFailure,
+											localfedoraProjectRoot
+													.getProductStrings()
+													.getProductName(), e.getMessage()));
+				} catch (NoLocalGitAvailableException e) {
+					logger.logError(e.getMessage(), e);
+					FedoraHandlerUtils
+							.showErrorDialog(
+									shell,
+									FedoraPackagerGitText.ConvertLocalToRemoteHandler_LocalGitAvailFailure,
+									NLS.bind(
+											FedoraPackagerGitText.ConvertLocalToRemoteHandler_LocalGitAvailFailure,
+											localfedoraProjectRoot
+													.getProductStrings()
+													.getProductName(), e.getMessage()));
 				}
+				FedoraHandlerUtils
+						.showInformationDialog(
+								shell,
+								FedoraPackagerGitText.ConvertLocalToRemoteHandler_NotificationTitle,
+								NLS.bind(
+										FedoraPackagerGitText.ConvertLocalToRemoteHandler_Information,
+										localfedoraProjectRoot.getPackageName()));
 
 				IStatus res = Status.OK_STATUS;
 				// Do VCS update
@@ -110,5 +143,4 @@ public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 		job.schedule();
 		return null;
 	}
-
 }
