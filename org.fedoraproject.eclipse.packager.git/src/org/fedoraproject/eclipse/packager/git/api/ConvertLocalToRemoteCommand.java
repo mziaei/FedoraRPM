@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.egit.core.RepositoryCache;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.transport.RemoteConfig;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerCommand;
@@ -37,6 +38,7 @@ public class ConvertLocalToRemoteCommand extends
 		FedoraPackagerCommand<ConvertLocalResult> {
 
 	private Git git;
+	private RemoteConfig config;
 
 	/**
 	 * The unique ID of this command.
@@ -85,6 +87,7 @@ public class ConvertLocalToRemoteCommand extends
 
 		String uri = projectBits.getScmUrl();
 		GitUtils.addRemoteRepository(git, uri, monitor);
+		this.config = GitUtils.config;
 
 
 		try {
@@ -114,6 +117,13 @@ public class ConvertLocalToRemoteCommand extends
 		return result;
 	}
 
+	/**
+	 * @return config
+	 */
+	public RemoteConfig getConfig() {
+		return this.config;
+	}
+	
 	@Override
 	protected void checkConfiguration() throws CommandMisconfiguredException {
 		// We are good to go with the defaults. No-Op.

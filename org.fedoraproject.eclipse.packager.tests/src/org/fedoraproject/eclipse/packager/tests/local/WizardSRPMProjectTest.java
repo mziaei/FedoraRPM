@@ -75,7 +75,7 @@ public class WizardSRPMProjectTest {
 		// add the contents and do the initial commit
 		testMainProject.createProjectStructure();
 
-		// Make sure the original SRPM got copied into the workspace
+		// Make sure a .git directory was created in the project location
 		IResource resource = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT);
 		ProjectType projectType = FedoraPackagerUtils.getProjectType(resource);
 		assertTrue(projectType.equals(ProjectType.GIT));

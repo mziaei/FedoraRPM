@@ -10,15 +10,25 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.tests.commands;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.Map;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.egit.core.RepositoryCache;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand.ListMode;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.transport.RemoteConfig;
+import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
+import org.fedoraproject.eclipse.packager.PackagerPlugin;
+import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.git.api.ConvertLocalToRemoteCommand;
 import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionFailedException;
-import org.fedoraproject.eclipse.packager.api.FedoraPackager;
-import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
-import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
-import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
-import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandNotFoundException;
 import org.fedoraproject.eclipse.packager.tests.utils.LocalTestProject;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 import org.junit.After;
@@ -53,44 +63,79 @@ public class ConvertLocalToRemoteCommandTest {
 
 	@After
 	public void tearDown() throws Exception {
-		this.testProject.dispose();
+		// this.testProject.dispose();
 	}
 
 	/**
-	 * Fails if there is not any existing remote repositories for this project
+	 * Checks if there is not any existing remote repositories for this project
 	 * 
-	 * @throws FedoraPackagerCommandNotFoundException
-	 * @throws FedoraPackagerCommandInitializationException
-	 * @throws CommandListenerException
-	 * @throws CommandMisconfiguredException
-	 * @throws LocalProjectConversionFailedException 
+	 * @throws Exception
+	 * 
 	 * @throws ConvertChangePropertiesFailedException
 	 */
 	@Test
-	public void failNonExistingRemoteRepositories()
-			throws FedoraPackagerCommandInitializationException,
-			FedoraPackagerCommandNotFoundException,
-			CommandMisconfiguredException, CommandListenerException, 
-			LocalProjectConversionFailedException {
+	public void NonExistingRemoteRepositories() throws Exception {
+
+		boolean localRefsOk = false;
 
 		ConvertLocalToRemoteCommand convertCmd;
 		convertCmd = (ConvertLocalToRemoteCommand) packager
 				.getCommandInstance(ConvertLocalToRemoteCommand.ID);
 		convertCmd.call(new NullProgressMonitor());
+
+		// Make sure the property of the project changed 
+		// from local to main fedorapackager
+		assertTrue(lfpRoot.getProject()
+				.getPersistentProperty(PackagerPlugin.PROJECT_PROP)
+				.equals("true")); //$NON-NLS-1$
+		assertTrue(lfpRoot.getProject().getPersistentProperty(
+				PackagerPlugin.PROJECT_LOCAL_PROP) == null);
+
+		// Make sure the url for remote repository is correct
+		IFpProjectBits projectBits = FedoraPackagerUtils.getVcsHandler(lfpRoot);
+		assertTrue(projectBits.getScmUrl().contains(
+				"pkgs.fedoraproject.org/alchemist.git")); //$NON-NLS-1$
+
+		// Make sure the remote repository's name is origin and
+		// also the fetched refs is not null
+		RemoteConfig config = convertCmd.getConfig();
+		assertTrue(config.getName().equals("origin")); //$NON-NLS-1$
+		assertNotNull(config.getFetchRefSpecs().size());
+
+		RepositoryCache repoCache = org.eclipse.egit.core.Activator
+				.getDefault().getRepositoryCache();
+		try {
+			// Find the local repository in the project location
+			Git git = new Git(repoCache.lookupRepository(lfpRoot.getProject()
+					.getFile(".git").getLocation().toFile())); //$NON-NLS-1$
+
+			// Make sure the current checked out branch is master
+			assertTrue(git.getRepository().getBranch().equals("master")); //$NON-NLS-1$
+
+			// Check a random branch (f10),
+			// and make sure both remote and local version of it exists
+			Ref remoteRefs = git.branchList().setListMode(ListMode.REMOTE)
+					.call().get(0);
+			assertTrue(remoteRefs
+					.toString()
+					.contains(
+							"refs/remotes/origin/f10=2f12e50b9860dc05cf3ac09c1cd82b45fae28637")); //$NON-NLS-1$
+
+			Map<String, Ref> localRefs = git.getRepository().getRefDatabase()
+					.getRefs(Constants.R_REFS);
+			for (Ref refValue : localRefs.values()) {
+				if (refValue
+						.toString()
+						.contains(
+								"refs/heads/f10=2f12e50b9860dc05cf3ac09c1cd82b45fae28637")) { //$NON-NLS-1$
+					localRefsOk = true;
+				}
+			}
+			assertTrue(localRefsOk);
+
+		} catch (IOException e) {
+			throw new LocalProjectConversionFailedException(e.getCause()
+					.getMessage(), e);
+		}
 	}
-
-	// @Test
-	// public void failAlreadyExistingRemoteRepositories()
-	// throws FedoraPackagerCommandInitializationException,
-	// FedoraPackagerCommandNotFoundException,
-	// CommandMisconfiguredException, CommandListenerException {
-	//
-	// ConvertLocalToRemoteCommand convertCmd = (ConvertLocalToRemoteCommand)
-	// packager
-	// .getCommandInstance(ConvertLocalToRemoteCommand.ID);
-	// convertCmd.call(new NullProgressMonitor());
-	//
-	// convertCmd.call(new NullProgressMonitor());
-	// }
-
 }

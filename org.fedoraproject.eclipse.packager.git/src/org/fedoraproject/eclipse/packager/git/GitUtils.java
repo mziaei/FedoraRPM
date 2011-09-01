@@ -49,6 +49,11 @@ import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionF
 public class GitUtils {
 
 	/**
+	 * 
+	 */
+	public static RemoteConfig config;
+	
+	/**
 	 * @param gitBaseUrl
 	 * @param packageName
 	 * @return The full clone URL for the given package.
@@ -156,7 +161,7 @@ public class GitUtils {
 			IProgressMonitor monitor) throws LocalProjectConversionFailedException {
 		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
 				IProgressMonitor.UNKNOWN);
-		RemoteConfig config;
+
 		try {
 			config = new RemoteConfig(git.getRepository().getConfig(), "origin"); //$NON-NLS-1$
 			config.addURI(new URIish(uri));
