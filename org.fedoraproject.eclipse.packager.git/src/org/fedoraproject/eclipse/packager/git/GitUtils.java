@@ -210,6 +210,8 @@ public class GitUtils {
 
 		try {
 			merge.call();
+		} catch (JGitInternalException e) {
+			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		} catch (NoHeadException e) {
 			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		} catch (ConcurrentRefUpdateException e) {
