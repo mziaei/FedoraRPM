@@ -10,13 +10,9 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.git.api;
 
-import java.io.IOException;
-
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.egit.core.RepositoryCache;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.transport.RemoteConfig;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerCommand;
@@ -38,7 +34,6 @@ public class ConvertLocalToRemoteCommand extends
 		FedoraPackagerCommand<ConvertLocalResult> {
 
 	private Git git;
-	private RemoteConfig config;
 
 	/**
 	 * The unique ID of this command.
@@ -55,7 +50,7 @@ public class ConvertLocalToRemoteCommand extends
 	 * @throws CommandListenerException
 	 *             If some listener detected a problem.
 	 * @return The result of this command.
-	 * @throws LocalProjectConversionFailedException 
+	 * @throws LocalProjectConversionFailedException
 	 */
 	@Override
 	public ConvertLocalResult call(IProgressMonitor monitor)
@@ -81,31 +76,20 @@ public class ConvertLocalToRemoteCommand extends
 		try {
 			git = new Git(repoCache.lookupRepository(projectRoot.getProject()
 					.getFile(".git").getLocation().toFile())); //$NON-NLS-1$
-		} catch (IOException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		}
 
-		String uri = projectBits.getScmUrl();
-		GitUtils.addRemoteRepository(git, uri, monitor);
-		this.config = GitUtils.config;
-
-
-		try {
+			String uri = projectBits.getScmUrl();
+			GitUtils.addRemoteRepository(git, uri, monitor);
 			GitUtils.createLocalBranches(git, monitor);
-		} catch (CoreException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		}
+			GitUtils.mergeLocalRemoteBranches(git, monitor);
 
-		GitUtils.mergeLocalRemoteBranches(git, monitor);
-
-		// set the project property to main fedora packager's property
-		try {
+			// set the project property to main fedora packager's property
 			projectRoot.getProject().setPersistentProperty(
 					PackagerPlugin.PROJECT_PROP, "true"); //$NON-NLS-1$
 			projectRoot.getProject().setPersistentProperty(
 					PackagerPlugin.PROJECT_LOCAL_PROP, null);
-		} catch (CoreException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
+			
+		} catch (Exception e) {
+			throw new LocalProjectConversionFailedException(e.getMessage(), e);
 		}
 
 		ConvertLocalResult result = new ConvertLocalResult(git);
@@ -117,13 +101,6 @@ public class ConvertLocalToRemoteCommand extends
 		return result;
 	}
 
-	/**
-	 * @return config
-	 */
-	public RemoteConfig getConfig() {
-		return this.config;
-	}
-	
 	@Override
 	protected void checkConfiguration() throws CommandMisconfiguredException {
 		// We are good to go with the defaults. No-Op.

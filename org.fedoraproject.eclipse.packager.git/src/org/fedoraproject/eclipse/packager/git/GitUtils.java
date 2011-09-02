@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.git;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -23,17 +21,10 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
-import org.eclipse.jgit.api.errors.CheckoutConflictException;
-import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
-import org.eclipse.jgit.api.errors.InvalidMergeHeadsException;
 import org.eclipse.jgit.api.errors.InvalidRefNameException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
-import org.eclipse.jgit.api.errors.NoHeadException;
-import org.eclipse.jgit.api.errors.NoMessageException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
-import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.RefSpec;
@@ -47,11 +38,6 @@ import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionF
  * Utility class for Fedora Git related things.
  */
 public class GitUtils {
-
-	/**
-	 * 
-	 */
-	public static RemoteConfig config;
 	
 	/**
 	 * @param gitBaseUrl
@@ -159,11 +145,9 @@ public class GitUtils {
 	 */
 	public static void addRemoteRepository(Git git, String uri,
 			IProgressMonitor monitor) throws LocalProjectConversionFailedException {
-		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
-				IProgressMonitor.UNKNOWN);
 
 		try {
-			config = new RemoteConfig(git.getRepository().getConfig(), "origin"); //$NON-NLS-1$
+			RemoteConfig config = new RemoteConfig(git.getRepository().getConfig(), "origin"); //$NON-NLS-1$
 			config.addURI(new URIish(uri));
 			String dst = Constants.R_REMOTES + config.getName();
 			RefSpec refSpec = new RefSpec();
@@ -183,13 +167,7 @@ public class GitUtils {
 			fetch.setRefSpecs(refSpec);
 			fetch.call();
 
-		} catch (URISyntaxException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		} catch (JGitInternalException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		} catch (InvalidRemoteException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		}
 	}
@@ -203,31 +181,13 @@ public class GitUtils {
 	 */
 	public static void mergeLocalRemoteBranches(Git git,
 			IProgressMonitor monitor) throws LocalProjectConversionFailedException {
-		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
-				IProgressMonitor.UNKNOWN);
+		
 		MergeCommand merge = git.merge();
 		try {
 			merge.include(git.getRepository().getRef(
 					Constants.R_REMOTES + "origin/" + Constants.MASTER)); //$NON-NLS-1$
-		} catch (IOException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		}
-
-		try {
-			merge.call();
-		} catch (JGitInternalException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		} catch (NoHeadException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		} catch (ConcurrentRefUpdateException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		} catch (CheckoutConflictException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		} catch (InvalidMergeHeadsException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		} catch (WrongRepositoryStateException e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		} catch (NoMessageException e) {
+			merge.call();			
+		} catch (Exception e) {
 			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
 		}
 

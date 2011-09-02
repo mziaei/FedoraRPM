@@ -5,7 +5,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.osgi.util.NLS;
@@ -90,7 +89,7 @@ public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 						return null;
 					}
 					try {
-						convertCmd.call(new NullProgressMonitor());
+						convertCmd.call(monitor);
 					} catch (CommandMisconfiguredException e) {
 						logger.logError(e.getMessage(), e);
 						return FedoraHandlerUtils.errorStatus(
@@ -117,7 +116,7 @@ public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 									NLS.bind(
 											FedoraPackagerGitText.ConvertLocalToRemoteHandler_failToConvert,
 											localfedoraProjectRoot.getPackageName(), 
-											e.getMessage()));
+											e.getCause().getMessage()));
 				}
 				return Status.OK_STATUS;
 			}
