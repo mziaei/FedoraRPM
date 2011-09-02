@@ -15,10 +15,8 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jgit.api.CreateBranchCommand;
-import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
-import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.errors.InvalidRefNameException;
@@ -27,12 +25,9 @@ import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.transport.RemoteConfig;
-import org.eclipse.jgit.transport.URIish;
 import org.fedoraproject.eclipse.packager.FedoraSSL;
 import org.fedoraproject.eclipse.packager.FedoraSSLFactory;
-import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionFailedException;
+import org.fedoraproject.eclipse.packager.git.api.errors.RemoteAlreadyExistsException;
 
 /**
  * Utility class for Fedora Git related things.
@@ -89,9 +84,10 @@ public class GitUtils {
 	 * @param git
 	 * @param monitor
 	 * @throws CoreException
+	 * @throws RemoteAlreadyExistsException 
 	 */
 	public static void createLocalBranches(Git git, IProgressMonitor monitor)
-			throws CoreException {
+			throws CoreException, RemoteAlreadyExistsException {
 		monitor.beginTask(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_createLocalBranchesJob,
 				IProgressMonitor.UNKNOWN);
 		try {
@@ -126,70 +122,11 @@ public class GitUtils {
 		} catch (JGitInternalException e) {
 			e.printStackTrace();
 		} catch (RefAlreadyExistsException e) {
-			e.printStackTrace();
+			throw new RemoteAlreadyExistsException(e.getMessage(), e);
 		} catch (RefNotFoundException e) {
 			e.printStackTrace();
 		} catch (InvalidRefNameException e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Adds the corresponding remote repository as the default name 'origin' to
-	 * the existing local repository (uses the JGit API)
-	 * 
-	 * @param git
-	 * @param uri
-	 * @param monitor
-	 * @throws LocalProjectConversionFailedException 
-	 */
-	public static void addRemoteRepository(Git git, String uri,
-			IProgressMonitor monitor) throws LocalProjectConversionFailedException {
-
-		try {
-			RemoteConfig config = new RemoteConfig(git.getRepository().getConfig(), "origin"); //$NON-NLS-1$
-			config.addURI(new URIish(uri));
-			String dst = Constants.R_REMOTES + config.getName();
-			RefSpec refSpec = new RefSpec();
-			refSpec = refSpec.setForceUpdate(true);
-			refSpec = refSpec.setSourceDestination(
-					Constants.R_HEADS + "*", dst + "/*"); //$NON-NLS-1$ //$NON-NLS-2$
-
-			config.addFetchRefSpec(refSpec);
-			config.update(git.getRepository().getConfig());
-			git.getRepository().getConfig().save();
-
-			// fetch all the remote branches,
-			// create corresponding branches locally and merge them
-			FetchCommand fetch = git.fetch();
-			fetch.setRemote("origin"); //$NON-NLS-1$
-			fetch.setTimeout(0);
-			fetch.setRefSpecs(refSpec);
-			fetch.call();
-
-		} catch (Exception e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		}
-	}
-
-	/**
-	 * Merges remote HEAD with local HEAD (uses the JGit API)
-	 * 
-	 * @param git
-	 * @param monitor
-	 * @throws LocalProjectConversionFailedException 
-	 */
-	public static void mergeLocalRemoteBranches(Git git,
-			IProgressMonitor monitor) throws LocalProjectConversionFailedException {
-		
-		MergeCommand merge = git.merge();
-		try {
-			merge.include(git.getRepository().getRef(
-					Constants.R_REMOTES + "origin/" + Constants.MASTER)); //$NON-NLS-1$
-			merge.call();			
-		} catch (Exception e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
-		}
-
 	}
 }

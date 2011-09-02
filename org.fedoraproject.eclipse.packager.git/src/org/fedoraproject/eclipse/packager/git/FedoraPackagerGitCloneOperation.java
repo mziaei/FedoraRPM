@@ -24,6 +24,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.osgi.util.NLS;
+import org.fedoraproject.eclipse.packager.git.api.errors.RemoteAlreadyExistsException;
 
 /**
  * Convenience class for Fedora Git clones. All relevant Fedora specific things
@@ -79,10 +80,11 @@ public class FedoraPackagerGitCloneOperation {
 	 * @throws CoreException
 	 * @throws IOException
 	 * @return A Git API instance.
+	 * @throws RemoteAlreadyExistsException 
 	 */
 	public Git run(IProgressMonitor monitor) throws IllegalStateException,
 			InvocationTargetException, InterruptedException, CoreException,
-			IOException {
+			IOException, RemoteAlreadyExistsException {
 		if (!runnable || hasRun) {
 			throw new IllegalStateException(
 					NLS.bind(

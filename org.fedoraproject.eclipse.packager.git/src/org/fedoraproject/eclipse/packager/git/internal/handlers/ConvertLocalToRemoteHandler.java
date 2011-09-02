@@ -23,6 +23,7 @@ import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException
 import org.fedoraproject.eclipse.packager.git.FedoraPackagerGitText;
 import org.fedoraproject.eclipse.packager.git.api.ConvertLocalToRemoteCommand;
 import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionFailedException;
+import org.fedoraproject.eclipse.packager.git.api.errors.RemoteAlreadyExistsException;
 import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
@@ -102,23 +103,32 @@ public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 					FedoraHandlerUtils
 					.showInformationDialog(
 							shell,
-							FedoraPackagerGitText.ConvertLocalToRemoteHandler_NotificationTitle,
+							FedoraPackagerGitText.ConvertLocalToRemoteHandler_notificationTitle,
 							NLS.bind(
-									FedoraPackagerGitText.ConvertLocalToRemoteHandler_Information,
+									FedoraPackagerGitText.ConvertLocalToRemoteHandler_information,
 									localfedoraProjectRoot
 											.getPackageName()));
-				} catch (LocalProjectConversionFailedException e) {
+					return Status.OK_STATUS;
+				} catch (RemoteAlreadyExistsException e) {
 					logger.logError(e.getCause().getMessage(), e);
-					FedoraHandlerUtils
-							.showErrorDialog(
-									shell,
-									FedoraPackagerGitText.ConvertLocalToRemoteHandler_Error,
+					return FedoraHandlerUtils
+							.errorStatus(
+									PackagerPlugin.PLUGIN_ID,
 									NLS.bind(
 											FedoraPackagerGitText.ConvertLocalToRemoteHandler_failToConvert,
-											localfedoraProjectRoot.getPackageName(), 
-											e.getCause().getMessage()));
+											localfedoraProjectRoot
+													.getPackageName(), e.getCause().getMessage()));
+				} catch (LocalProjectConversionFailedException e) {
+					logger.logError(e.getCause().getMessage(), e);
+					return FedoraHandlerUtils
+							.errorStatus(
+									PackagerPlugin.PLUGIN_ID,
+									NLS.bind(
+											FedoraPackagerGitText.ConvertLocalToRemoteHandler_failToConvert,
+											localfedoraProjectRoot
+													.getPackageName(), e.getCause().getMessage()));
 				}
-				return Status.OK_STATUS;
+
 			}
 
 		};
