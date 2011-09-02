@@ -30,11 +30,4 @@ public class LocalProjectConversionFailedException extends
 			Throwable cause) {
 		super(message, cause);
 	}
-
-	/**
-	 * @param message
-	 */
-	public LocalProjectConversionFailedException(String message) {
-		super(message);
-	}
 }

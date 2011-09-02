@@ -13,6 +13,7 @@ package org.fedoraproject.eclipse.packager.tests.commands;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -105,8 +106,7 @@ public class ConvertLocalToRemoteCommandTest {
 
 			// Check a random branch (f10),
 			// and make sure both remote and local version of it exists
-			Ref remoteRefs = git.branchList().setListMode(ListMode.REMOTE)
-					.call().get(0);
+			List<Ref> remoteRefs = git.branchList().setListMode(ListMode.REMOTE).call();
 			assertTrue(remoteRefs
 					.toString()
 					.contains(
