@@ -57,7 +57,7 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
 /**
  * Class responsible for uploading source files.
- * 
+ *
  * @see UploadSourceCommand
  * @see VCSIgnoreFileUpdater
  * @see SourcesFileUpdater
@@ -68,7 +68,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 	 *  Performs upload of sources (independent of VCS used), updates "sources"
 	 *  file and performs necessary CVS operations to bring branch in sync.
 	 *  Checks if sources have changed.
-	 *  
+	 *
 	 */
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
@@ -87,7 +87,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 		FedoraPackager packager = new FedoraPackager(fedoraProjectRoot);
 		final UploadSourceCommand uploadCmd;
 		try {
-			// Get DownloadSourceCommand from Fedora packager registry
+			// Get UploadSourceCommand from Fedora packager registry
 			uploadCmd = (UploadSourceCommand) packager
 					.getCommandInstance(UploadSourceCommand.ID);
 		} catch (FedoraPackagerCommandNotFoundException e) {
@@ -134,7 +134,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 				// Note that ignore file may not exist, yet
 				IFile gitIgnore = fedoraProjectRoot.getIgnoreFile();
 				VCSIgnoreFileUpdater vcsIgnoreFileUpdater = new VCSIgnoreFileUpdater(newUploadFile, gitIgnore);
-				
+
 				UploadSourceResult result = null;
 				try {
 					String uploadUrl = PackagerPlugin
@@ -164,7 +164,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 								fedoraProjectRoot.getProductStrings().getProductName(),
 								e.getMessage());
 						return Status.OK_STATUS;
-					} 
+					}
 				} catch (CommandListenerException e) {
 					// sources file updating or vcs ignore file updating may
 					// have caused an exception.
@@ -185,7 +185,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 					return FedoraHandlerUtils.errorStatus(
 							PackagerPlugin.PLUGIN_ID, e.getMessage(), e);
 				} catch (UploadFailedException e) {
-					// Check if cert has expired, give some more 
+					// Check if cert has expired, give some more
 					// meaningful error in that case
 					if (e.isCertificateExpired()) {
 						String msg = NLS
@@ -196,7 +196,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 						return FedoraHandlerUtils.errorStatus(
 								PackagerPlugin.PLUGIN_ID, msg, e);
 					}
-					// Check if cert has been revoked, give some more 
+					// Check if cert has been revoked, give some more
 					// meaningful error in that case
 					if (e.isCertificateRevoked()) {
 						String msg = NLS
@@ -232,7 +232,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 				if (monitor.isCanceled()) {
 					throw new OperationCanceledException();
 				}
-				
+
 				// result may be null if upload file was already in lookaside
 				// cache.
 				if (result != null && !result.wasSuccessful()) {
@@ -251,7 +251,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 						throw new OperationCanceledException();
 					}
 				}
-				
+
 				// Refresh project
 				IProject project = fedoraProjectRoot.getProject();
 				if (project != null) {
@@ -261,7 +261,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 						e.printStackTrace();
 					}
 				}
-				
+
 				return res;
 			}
 
@@ -273,7 +273,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 
 	/**
 	 * Determines if {@code sources} file should be replaced or not.
-	 * 
+	 *
 	 * @return {@code true} if and only if {@code sources} file should be
 	 *         replaced with new content.
 	 * @see NewSourcesHandler
