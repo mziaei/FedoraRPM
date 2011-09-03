@@ -43,9 +43,9 @@ import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.LocalProjectType;
 
 /**
- * Utility class to create to enable existing and 
- *   new maintainers work with fedora packages locally
- * 
+ * Utility class to create to enable existing and new maintainers work with
+ * fedora packages locally
+ *
  */
 public class LocalFedoraPackagerProjectCreator {
 
@@ -55,33 +55,35 @@ public class LocalFedoraPackagerProjectCreator {
 	private Git git;
 
 	/**
-	 * Construct the local fedora packager project 
-	 *   based on the created project in main wizard
-	 * @param project 
+	 * Construct the local fedora packager project based on the created project
+	 * in main wizard
+	 *
+	 * @param project
 	 *            the base of the project
 	 * @param monitor
 	 *            Progress monitor to report back status
 	 *
 	 */
-	public LocalFedoraPackagerProjectCreator(IProject project, IProgressMonitor monitor) {
+	public LocalFedoraPackagerProjectCreator(IProject project,
+			IProgressMonitor monitor) {
 		this.project = project;
 		this.monitor = monitor;
 	}
-	
+
 	/**
 	 * Starts a plain project using the specfile template
 	 *
 	 * @param content
-	 * 		contents of the spec template         
-	 * @throws CoreException 
+	 *            contents of the spec template
+	 * @throws CoreException
 	 *
 	 */
-	public void create(String content) throws CoreException{
+	public void create(String content) throws CoreException {
 		final String projectName = project.getName();
 		final String fileName = projectName + ".spec"; //$NON-NLS-1$
-		
-		final InputStream contentInputStream = 
-				new ByteArrayInputStream(content.getBytes());
+
+		final InputStream contentInputStream = new ByteArrayInputStream(
+				content.getBytes());
 		final IFile specfile = project.getFile(new Path(fileName));
 		try {
 			InputStream stream = contentInputStream;
@@ -93,50 +95,52 @@ public class LocalFedoraPackagerProjectCreator {
 			stream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}		
+		}
 	}
-	
+
 	/**
 	 * Populate the project based on the imported SRPM or .spec file
 	 *
 	 * @param externalFile
-	 *            the xml file uploaded from file system     
-	 * @param projectType 
+	 *            the xml file uploaded from file system
+	 * @param projectType
 	 * @throws CoreException
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
-	public void create(File externalFile, LocalProjectType projectType) 
+	public void create(File externalFile, LocalProjectType projectType)
 			throws CoreException, FileNotFoundException {
-		switch(projectType) {
+		switch (projectType) {
 		case PLAIN:
 			IFile specFile = project.getFile(externalFile.getName());
-			specFile.create(new FileInputStream(externalFile), false, monitor);
+			specFile.create(new FileInputStream(externalFile), true, monitor);
 			break;
 		case SRPM:
-			RPMProject rpmProject = new RPMProject(project, RPMProjectLayout.FLAT);
+			RPMProject rpmProject = new RPMProject(project,
+					RPMProjectLayout.FLAT);
 			rpmProject.importSourceRPM(externalFile);
 			break;
 		}
 	}
 
 	/**
-	 * Populate the project using rpmstubby based on the 
-	 *  eclipse-feature or maven-pom choice of user
+	 * Populate the project using rpmstubby based on the eclipse-feature or
+	 * maven-pom choice of user
+	 *
 	 * @param inputType
-	 *		type of the stubby project
+	 *            type of the stubby project
 	 * @param stubby
-	 * 		the external xml file uploaded from file system
-	 * @throws CoreException 
-	 * @throws FileNotFoundException 
-	 * 
+	 *            the external xml file uploaded from file system
+	 * @throws CoreException
+	 * @throws FileNotFoundException
+	 *
 	 */
-	public void create(InputType inputType, File stubby) 
+	public void create(InputType inputType, File stubby)
 			throws FileNotFoundException, CoreException {
-			IFile stubbyFile = project.getFile(stubby.getName());
-			stubbyFile.create(new FileInputStream(stubby), false, monitor);
+		IFile stubbyFile = project.getFile(stubby.getName());
+		stubbyFile.create(new FileInputStream(stubby), false, monitor);
 
-			Generator specfilegGenerator = new Generator(inputType);
-			specfilegGenerator.generate(stubbyFile);
+		Generator specfilegGenerator = new Generator(inputType);
+		specfilegGenerator.generate(stubbyFile);
 	}
 
 	/**
@@ -162,15 +166,15 @@ public class LocalFedoraPackagerProjectCreator {
 
 		// Set persistent property so that we know when to show the context
 		// menu item.
-		project.setPersistentProperty(PackagerPlugin.PROJECT_LOCAL_PROP,
-				"true" /* unused value */); //$NON-NLS-1$
+		project.setPersistentProperty(PackagerPlugin.PROJECT_LOCAL_PROP, "true" /* unused value */); //$NON-NLS-1$
 
 		ConnectProviderOperation connect = new ConnectProviderOperation(project);
 		connect.execute(null);
-		
+
 		// Add created repository to the list of Git repositories so that it
 		// shows up in the Git repositories view.
-		final RepositoryUtil config = org.eclipse.egit.core.Activator.getDefault().getRepositoryUtil();
+		final RepositoryUtil config = org.eclipse.egit.core.Activator
+				.getDefault().getRepositoryUtil();
 		config.addConfiguredRepository(repository.getDirectory());
 	}
 
@@ -195,8 +199,7 @@ public class LocalFedoraPackagerProjectCreator {
 	}
 
 	/**
-	 * Add the contents to the Git repository and 
-	 * does the first commit
+	 * Add the contents to the Git repository and does the first commit
 	 *
 	 * @param File
 	 *            directory of the git repository
@@ -220,14 +223,12 @@ public class LocalFedoraPackagerProjectCreator {
 			if (name.contains(".spec")) { //$NON-NLS-1$
 				git.add().addFilepattern(name).call();
 			}
-
-			if (name.equals(".gitignore")) { //$NON-NLS-1$
-				git.add().addFilepattern(name).call();
-			}
 		}
 
 		// do the first commit
-		git.commit().setMessage(FedoraPackagerText.LocalFedoraPackagerProjectCreator_FirstCommit)
+		git.commit()
+				.setMessage(
+						FedoraPackagerText.LocalFedoraPackagerProjectCreator_FirstCommit)
 				.call();
 	}
 
