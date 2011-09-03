@@ -51,6 +51,7 @@ import org.fedoraproject.eclipse.packager.git.FedoraPackagerGitCloneOperation;
 import org.fedoraproject.eclipse.packager.git.FedoraPackagerGitText;
 import org.fedoraproject.eclipse.packager.git.GitPreferencesConstants;
 import org.fedoraproject.eclipse.packager.git.GitUtils;
+import org.fedoraproject.eclipse.packager.git.api.errors.RemoteAlreadyExistsException;
 
 
 /**
@@ -83,7 +84,7 @@ public class FedoraPackagerGitCloneWizard extends Wizard implements IImportWizar
 		addPage(page);
 		page.init(selection);
 	}
-	
+
 	@Override
 	public void dispose() {
 		super.dispose();
@@ -93,7 +94,7 @@ public class FedoraPackagerGitCloneWizard extends Wizard implements IImportWizar
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
 	}
-	
+
 	@Override
 	public boolean performFinish() {
 		try {
@@ -149,6 +150,8 @@ public class FedoraPackagerGitCloneWizard extends Wizard implements IImportWizar
 							throw new InvocationTargetException(e);
 						} catch (CoreException e) {
 							throw new InvocationTargetException(e);
+						} catch (RemoteAlreadyExistsException e) {
+							e.printStackTrace();
 						}
 						if (monitor.isCanceled())
 							throw new InterruptedException();
@@ -156,7 +159,7 @@ public class FedoraPackagerGitCloneWizard extends Wizard implements IImportWizar
 				});
 			} catch (InvocationTargetException e) {
 				// if repo wasn't found make this apparent
-				if (e.getTargetException().getCause() instanceof NoRemoteRepositoryException || 
+				if (e.getTargetException().getCause() instanceof NoRemoteRepositoryException ||
 						e.getTargetException().getCause() instanceof InvalidRemoteException) {
 					// Refuse to clone, give user a chance to correct
 					final String errorMessage = NLS
@@ -164,12 +167,12 @@ public class FedoraPackagerGitCloneWizard extends Wizard implements IImportWizar
 									page.getPackageName());
 					cloneFailChecked(errorMessage);
 					return false; // let user correct
-				} else if (e.getTargetException().getCause().getCause() != null && 
+				} else if (e.getTargetException().getCause().getCause() != null &&
 							e.getTargetException().getCause().getCause().getMessage() == "Auth fail"){ //$NON-NLS-1$
 					cloneFailChecked(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_authFail);
 					return false;
 				// Caused by: org.eclipse.jgit.errors.NotSupportedException: URI not supported: ssh:///jeraal@alkldal.test.comeclipse-callgraph.git
-				} else if (e.getTargetException().getCause() instanceof NotSupportedException || 
+				} else if (e.getTargetException().getCause() instanceof NotSupportedException ||
 							e.getTargetException().getCause() instanceof TransportException) {
 					final String errorMessage = NLS
 					.bind(FedoraPackagerGitText.FedoraPackagerGitCloneWizard_badURIError,
@@ -210,7 +213,7 @@ public class FedoraPackagerGitCloneWizard extends Wizard implements IImportWizar
 			}
 			return true;
 		} catch (InterruptedException e) {
-			MessageDialog.openInformation(getShell(), FedoraPackagerGitText.FedoraPackagerGitCloneWizard_cloneFail, 
+			MessageDialog.openInformation(getShell(), FedoraPackagerGitText.FedoraPackagerGitCloneWizard_cloneFail,
 					FedoraPackagerGitText.FedoraPackagerGitCloneWizard_cloneCancel);
 			return false;
 		} catch (Exception e) {
@@ -219,11 +222,10 @@ public class FedoraPackagerGitCloneWizard extends Wizard implements IImportWizar
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Prompt for confirmation if a resource exists, either the project already exists,
 	 * or a folder exists in the workspace and would conflict with the newly created project.
-	 * 
 	 * @param errorMessage
 	 * @return {@code true} if the user confirmed, {@code false} otherwise.
 	 */
@@ -237,7 +239,6 @@ public class FedoraPackagerGitCloneWizard extends Wizard implements IImportWizar
 
 	/**
 	 * Opens error dialog with provided reason in error message.
-	 * 
 	 * @param errorMsg The error message to use.
 	 */
 	private void cloneFailChecked(String errorMsg) {
@@ -261,7 +262,6 @@ public class FedoraPackagerGitCloneWizard extends Wizard implements IImportWizar
 	 * <li>If all else fails, or anonymous checkout is specified,
 	 * construct an anonymous clone URL</li>
 	 * </ol>
-	 * 
 	 * @return The full clone URL based on the package name.
 	 */
 	private String getGitCloneURL() {
@@ -279,7 +279,7 @@ public class FedoraPackagerGitCloneWizard extends Wizard implements IImportWizar
 					page.getPackageName());
 		}
 	}
-	
+
 	/**
 	 * Ask if Fedora Packager perspective should be opened.
 	 */
