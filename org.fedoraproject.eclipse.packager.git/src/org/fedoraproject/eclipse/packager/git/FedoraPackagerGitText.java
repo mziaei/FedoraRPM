@@ -57,6 +57,9 @@ public class FedoraPackagerGitText extends NLS {
 	/****/ public static String ConvertLocalToRemoteHandler_information;
 	/****/ public static String ConvertLocalToRemoteHandler_notificationTitle;
 	/****/ public static String ConvertLocalToRemoteHandler_failToConvert;
+	// ConvertLocalToRemoteCommand
+	/****/ public static String ConvertLocalToRemoteCommand_notificationTitle;
+	/****/ public static String ConvertLocalToRemoteCommand_existingRemoteNotficiation;
 
 	static {
 		// initialize resource bundle

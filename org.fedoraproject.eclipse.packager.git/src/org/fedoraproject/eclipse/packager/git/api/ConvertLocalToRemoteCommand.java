@@ -10,20 +10,26 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.git.api;
 
+import java.util.Map;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.egit.core.RepositoryCache;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
+import org.eclipse.osgi.util.NLS;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerCommand;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
+import org.fedoraproject.eclipse.packager.git.FedoraPackagerGitText;
 import org.fedoraproject.eclipse.packager.git.GitUtils;
 import org.fedoraproject.eclipse.packager.git.api.errors.LocalProjectConversionFailedException;
 import org.fedoraproject.eclipse.packager.git.api.errors.RemoteAlreadyExistsException;
@@ -35,12 +41,13 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
  * {@link #call(IProgressMonitor)} method to finally execute the command. Each
  * instance of this class should only be used for one invocation of the command
  * (means: one call to {@link #call(IProgressMonitor)})
- * 
+ *
  */
 public class ConvertLocalToRemoteCommand extends
 		FedoraPackagerCommand<ConvertLocalResult> {
 
 	private Git git;
+	private String existingRemote;
 
 	/**
 	 * The unique ID of this command.
@@ -49,7 +56,7 @@ public class ConvertLocalToRemoteCommand extends
 
 	/**
 	 * Implementation of the {@code ConvertLocalToRemoteCommand}.
-	 * 
+	 *
 	 * @param monitor
 	 * @throws CommandMisconfiguredException
 	 *             If the command was not properly configured when it was
@@ -58,13 +65,13 @@ public class ConvertLocalToRemoteCommand extends
 	 *             If some listener detected a problem.
 	 * @return The result of this command.
 	 * @throws LocalProjectConversionFailedException
-	 * @throws RemoteAlreadyExistsException 
+	 * @throws RemoteAlreadyExistsException
 	 */
 	@Override
 	public ConvertLocalResult call(IProgressMonitor monitor)
 			throws CommandMisconfiguredException, CommandListenerException,
 			LocalProjectConversionFailedException, RemoteAlreadyExistsException {
-		
+
 		try {
 			callPreExecListeners();
 		} catch (CommandListenerException e) {
@@ -83,12 +90,34 @@ public class ConvertLocalToRemoteCommand extends
 				.getDefault().getRepositoryCache();
 
 		try {
+			boolean addRemote = false;
+			boolean addBranch = false;
 			git = new Git(repoCache.lookupRepository(projectRoot.getProject()
 					.getFile(".git").getLocation().toFile())); //$NON-NLS-1$
 
 			String uri = projectBits.getScmUrl();
-			addRemoteRepository(uri, monitor);
-			GitUtils.createLocalBranches(git, monitor);
+
+			Map<String, Ref> ref = git.getRepository().getAllRefs();
+			if (!ref.toString().contains(Constants.R_REMOTES + "origin")) { //$NON-NLS-1$
+				addRemote = true;
+				addBranch = true;
+			} else {
+				if (!checkExistingRemoteRepository(uri)) {
+					throw new RemoteAlreadyExistsException(
+							NLS.bind(
+									FedoraPackagerGitText.ConvertLocalToRemoteCommand_existingRemoteNotficiation,
+									existingRemote));
+				} else {
+					addRemote = true;
+					addBranch = false;
+				}
+			}
+			if (addRemote) {
+				addRemoteRepository(uri, monitor);
+			}
+			if (addBranch) {
+				GitUtils.createLocalBranches(git, monitor);
+			}
 			mergeLocalRemoteBranches(monitor);
 
 			// set the project property to main fedora packager's property
@@ -96,7 +125,7 @@ public class ConvertLocalToRemoteCommand extends
 					PackagerPlugin.PROJECT_PROP, "true"); //$NON-NLS-1$
 			projectRoot.getProject().setPersistentProperty(
 					PackagerPlugin.PROJECT_LOCAL_PROP, null);
-			
+
 		} catch (RemoteAlreadyExistsException e) {
 			throw new RemoteAlreadyExistsException(e.getMessage(), e);
 		} catch (Exception e) {
@@ -112,19 +141,30 @@ public class ConvertLocalToRemoteCommand extends
 		return result;
 	}
 
+	private boolean checkExistingRemoteRepository(String uri) {
+		existingRemote = git
+				.getRepository()
+				.getConfig()
+				.getString(ConfigConstants.CONFIG_REMOTE_SECTION,
+						"origin", "url"); //$NON-NLS-1$//$NON-NLS-2$
+		String[] existingRemoteSplit = existingRemote.split("://"); //$NON-NLS-1$
+		return uri.contains(existingRemoteSplit[1]);
+	}
+
 	/**
 	 * Adds the corresponding remote repository as the default name 'origin' to
 	 * the existing local repository (uses the JGit API)
-	 * 
+	 *
 	 * @param uri
 	 * @param monitor
-	 * @throws LocalProjectConversionFailedException 
+	 * @throws LocalProjectConversionFailedException
 	 */
-	private void addRemoteRepository(String uri, IProgressMonitor monitor) 
+	private void addRemoteRepository(String uri, IProgressMonitor monitor)
 			throws LocalProjectConversionFailedException {
 
 		try {
-			RemoteConfig config = new RemoteConfig(git.getRepository().getConfig(), "origin"); //$NON-NLS-1$
+			RemoteConfig config = new RemoteConfig(git.getRepository()
+					.getConfig(), "origin"); //$NON-NLS-1$
 			config.addURI(new URIish(uri));
 			String dst = Constants.R_REMOTES + config.getName();
 			RefSpec refSpec = new RefSpec();
@@ -145,30 +185,31 @@ public class ConvertLocalToRemoteCommand extends
 			fetch.call();
 
 		} catch (Exception e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
+			throw new LocalProjectConversionFailedException(e.getCause()
+					.getMessage(), e);
 		}
 	}
 
 	/**
 	 * Merges remote HEAD with local HEAD (uses the JGit API)
-	 * 
+	 *
 	 * @param monitor
-	 * @throws LocalProjectConversionFailedException 
+	 * @throws LocalProjectConversionFailedException
 	 */
-	private void mergeLocalRemoteBranches(IProgressMonitor monitor) 
+	private void mergeLocalRemoteBranches(IProgressMonitor monitor)
 			throws LocalProjectConversionFailedException {
-		
+
 		MergeCommand merge = git.merge();
 		try {
 			merge.include(git.getRepository().getRef(
 					Constants.R_REMOTES + "origin/" + Constants.MASTER)); //$NON-NLS-1$
-			merge.call();			
+			merge.call();
 		} catch (Exception e) {
-			throw new LocalProjectConversionFailedException(e.getCause().getMessage(), e);
+			throw new LocalProjectConversionFailedException(e.getCause()
+					.getMessage(), e);
 		}
-
 	}
-	
+
 	@Override
 	protected void checkConfiguration() throws CommandMisconfiguredException {
 		// We are good to go with the defaults. No-Op.
