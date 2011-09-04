@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.egit.core.op.ConnectProviderOperation;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
@@ -45,7 +46,7 @@ import org.fedoraproject.eclipse.packager.api.LocalFedoraPackagerProjectCreator;
 
 /**
  * wizard to ease the process of creating fedora packages
- * 
+ *
  */
 public class LocalFedoraPackagerProjectWizard extends Wizard implements
 		INewWizard {
@@ -73,7 +74,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.jface.wizard.Wizard#addPages()
 	 */
 	@Override
@@ -89,7 +90,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.jface.wizard.Wizard#performFinish()
 	 */
 	@Override
@@ -103,6 +104,30 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements
 								: new NullProgressMonitor());
 						createMainProject(monitor != null ? monitor
 								: new NullProgressMonitor());
+
+						// Set persistent property so that we know when to show the context
+						// menu item.
+						project.setPersistentProperty(PackagerPlugin.PROJECT_LOCAL_PROP, "true" /* unused value */); //$NON-NLS-1$
+
+						ConnectProviderOperation connect = new ConnectProviderOperation(project);
+						connect.execute(null);
+
+						// Finally ask if the Fedora Packaging perspective should be opened
+						// if not already open.
+						// Uses main Fedora Packager perspective
+						IWorkbench workbench = PlatformUI.getWorkbench();
+						IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+						IPerspectiveDescriptor perspective = window.getActivePage()
+								.getPerspective();
+						if (!perspective.getId().equals(
+								PackagerPlugin.FEDORA_PACKAGING_PERSPECTIVE_ID)) {
+							if (shouldOpenPerspective()) {
+								// open the perspective
+								workbench.showPerspective(
+										PackagerPlugin.FEDORA_PACKAGING_PERSPECTIVE_ID, window);
+							}
+						}
+
 					} catch (NoHeadException e) {
 						e.printStackTrace();
 					} catch (NoMessageException e) {
@@ -133,7 +158,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.jface.wizard.wizard#canFinish()
 	 */
 	@Override
@@ -161,7 +186,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements
 
 	/**
 	 * Creates the base of the project.
-	 * 
+	 *
 	 * @param IProgressMonitor
 	 *            Progress monitor to report back status
 	 */
@@ -183,7 +208,7 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements
 
 	/**
 	 * Creates a new instance of the FedoraRPM project.
-	 * 
+	 *
 	 * @param IProgressMonitor
 	 *            Progress monitor to report back status
 	 * @throws WrongRepositoryStateException
@@ -222,28 +247,11 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements
 					pageThree.getExternalFile());
 			break;
 		}
-		fedoraRPMProjectCreator.createProjectStructure();
-
-		// Finally ask if the Fedora Packaging perspective should be opened
-		// if not already open.
-		// Uses main Fedora Packager perspective
-		IWorkbench workbench = PlatformUI.getWorkbench();
-		IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-		IPerspectiveDescriptor perspective = window.getActivePage()
-				.getPerspective();
-		if (!perspective.getId().equals(
-				PackagerPlugin.FEDORA_PACKAGING_PERSPECTIVE_ID)) {
-			if (shouldOpenPerspective()) {
-				// open the perspective
-				workbench.showPerspective(
-						PackagerPlugin.FEDORA_PACKAGING_PERSPECTIVE_ID, window);
-			}
-		}
 	}
 
 	/**
 	 * Ask if Fedora Packager perspective should be opened.
-	 * 
+	 *
 	 * @see org.fedoraproject.eclipse.packager.git.internal.ui.FedoraPackagerGitCloneWizard
 	 *      #shouldOpenPerspective()
 	 */
