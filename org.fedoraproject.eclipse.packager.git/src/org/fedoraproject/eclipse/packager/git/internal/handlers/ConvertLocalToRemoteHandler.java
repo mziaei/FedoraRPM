@@ -29,7 +29,7 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
 /**
  * Class responsible for converting local project to the main fedora packager
- * 
+ *
  */
 public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 
@@ -38,7 +38,7 @@ public class ConvertLocalToRemoteHandler extends FedoraPackagerAbstractHandler {
 	 * remote repository to the local git, creates the corresponding branches
 	 * locally, merges the remote master with the local one, sets the properties
 	 * of the local to main fedora packager
-	 * 
+	 *
 	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
