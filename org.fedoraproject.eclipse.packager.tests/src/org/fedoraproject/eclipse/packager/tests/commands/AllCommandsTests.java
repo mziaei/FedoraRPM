@@ -24,7 +24,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	RpmEvalCommandTest.class,
 	SCMMockBuildCommandGitTest.class,
 	MockBuildCommandTest.class,
-	ConvertLocalToRemoteCommandTest.class
+	ConvertLocalToRemoteCommandTest.class,
+	ScpCommandTest.class
 })
 
 public class AllCommandsTests {

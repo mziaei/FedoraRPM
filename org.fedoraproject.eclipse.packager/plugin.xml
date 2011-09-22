@@ -6,7 +6,7 @@
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
         Red Hat Inc. - initial API and implementation
  -->
@@ -15,7 +15,7 @@
    <extension-point id="vcsContribution" name="VCS interaction" schema="schema/vcsContribution.exsd"/>
    <extension-point id="packagerCommandContribution" name="Eclipse Fedora Packager Command Contribution" schema="schema/packagerCommandContribution.exsd"/>
    <extension-point id="projectRootProvider" name="Project Root Provider" schema="schema/projectRootProvider.exsd"/>
-   
+
    <extension point="org.eclipse.core.expressions.definitions">
       <definition
             id="org.fedoraproject.eclipse.packager.project">
@@ -96,12 +96,12 @@
                   name="org.fedoraproject.eclipse.packager.bodhisep"
                   visible="true">
             </separator>
-            
+
             <separator
                   name="org.fedoraproject.eclipse.packager.cvssep"
                   visible="true">
             </separator>
-            
+
          </menu>
       </menuContribution>
       <menuContribution
@@ -143,7 +143,7 @@
                   commandId="org.fedoraproject.eclipse.packager.DownloadCommand"
                   label="%LabelDownloadSources"
                   mnemonic="%MnemonicDownloadSources"
-                  
+
                   style="push">
                <visibleWhen
                      checkEnabled="false">
@@ -163,9 +163,32 @@
                   </or>
                </visibleWhen>
          </command>
+         <command
+               commandId="org.fedoraproject.eclipse.packager.ScpCommand"
+               label="%LabelScpToFasAccount"
+               mnemonic="%MnemonicScpToFasAccount"
+               style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <or>
+                     <with
+                           variable="activeMenuSelection">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.localproject">
+                        </reference>
+                     </with>
+                     <with
+                           variable="activeMenuEditorInput">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.localproject">
+                        </reference>
+                     </with>
+                  </or>
+               </visibleWhen>
+         </command>
        </menuContribution>
     </extension>
-    
+
     <extension
          point="org.eclipse.ui.commands">
       <command
@@ -183,8 +206,13 @@
             id="org.fedoraproject.eclipse.packager.NewSourcesCommand"
             name="Replace">
       </command>
+      <command
+            defaultHandler="org.fedoraproject.eclipse.packager.internal.handlers.ScpHandler"
+            id="org.fedoraproject.eclipse.packager.ScpCommand"
+            name="Scp">
+      </command>
     </extension>
-    
+
     <extension
          point="org.eclipse.ui.preferencePages">
       <page
@@ -206,6 +234,9 @@
        </command>
        <command id="DownloadSourceCommand"
                 class="org.fedoraproject.eclipse.packager.api.DownloadSourceCommand">
+       </command>
+       <command id="ScpCommand"
+                class="org.fedoraproject.eclipse.packager.api.ScpCommand">
        </command>
     </extension>
     <!-- Keyboard shortcut definitions -->
@@ -230,7 +261,7 @@
 	          class="org.fedoraproject.eclipse.packager.LocalFedoraPackagerProjectRoot">
 	    </projectRoot>
 	</extension>
-	
+
     <extension
           point="org.eclipse.ui.perspectives">
        <perspective
@@ -240,11 +271,11 @@
              name="%PerspectiveName">
        </perspective>
     </extension>
-    
+
     <extension
          point="org.eclipse.ui.newWizards">
-		<category 
-			id="org.fedoraproject.eclipse.packager.category.localwizards" 
+		<category
+			id="org.fedoraproject.eclipse.packager.category.localwizards"
 			name="%LocalFedoraPackagerWizardName">
 		</category>
 		<wizard
