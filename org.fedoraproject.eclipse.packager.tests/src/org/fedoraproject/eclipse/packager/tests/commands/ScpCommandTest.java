@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.tests.commands;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jgit.api.Git;
-import org.fedoraproject.eclipse.packager.IFpProjectBits;
+import org.eclipse.core.runtime.Path;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
-import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.api.ScpCommand;
+import org.fedoraproject.eclipse.packager.api.ScpResult;
 import org.fedoraproject.eclipse.packager.tests.utils.LocalSrpmTestProject;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 import org.junit.After;
@@ -31,7 +31,6 @@ public class ScpCommandTest {
 	private static final String PROJECT = "helloworld"; //$NON-NLS-1$
 	private static final String SRPM = "helloworld-2-2.src.rpm";
 	private static final String SPEC = "helloworld.spec";
-	private static final String URI = "git://pkgs.fedoraproject.org/eclipse-fedorapackager.git"; //$NON-NLS-1$
 	private static final String FAS = "mziaei1"; //$//$NON-NLS-1$
 
 	// project under test
@@ -40,8 +39,6 @@ public class ScpCommandTest {
 	private FedoraPackager packager;
 	// Fedora packager root
 	private IProjectRoot lfpRoot;
-	private IFpProjectBits projectBits;
-	private Git git;
 
 	/**
 	 * Set up a Fedora project and run the command.
@@ -55,7 +52,6 @@ public class ScpCommandTest {
 		lfpRoot = FedoraPackagerUtils.getProjectRoot(this.scpTestProject
 				.getProject());
 		packager = new FedoraPackager(lfpRoot);
-		projectBits = FedoraPackagerUtils.getVcsHandler(lfpRoot);
 	}
 
 	@After
@@ -72,10 +68,22 @@ public class ScpCommandTest {
 	@Test
 	public void testConvertCommand() throws Exception {
 
+		// Make sure the .src.rpm and .spec files exist in the workspace
+		IFile srpm = scpTestProject.getProject().getFile(new Path(SRPM));
+		assertTrue(srpm.exists());
+		IFile specFile = scpTestProject.getProject().getFile(new Path(SPEC));
+		assertTrue(specFile.exists());
+
 		ScpCommand scpCmd;
 		scpCmd = (ScpCommand) packager
 				.getCommandInstance(ScpCommand.ID);
-		scpCmd.call(new NullProgressMonitor());
+
+		ScpResult result = null;
+		result = scpCmd.setFasAccount(FAS).setSpecFileToScp(SPEC)
+				.setSrpmFileToScp(SRPM).call(new NullProgressMonitor());
+
+		assertNotNull(result);
+		assertTrue(result.wasSuccessful());
 
 	}
 

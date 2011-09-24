@@ -136,6 +136,8 @@ public class FedoraPackagerText extends NLS {
 	/****/ public static String UiUtils_switchPerspectiveQuestionMsg;
 	// LocalHandlerDispatcher
 	/****/ public static String LocalHandlerDispatcher_dispatchToHandlerMsg;
+	// ScpCommand
+	/****/ public static String SpecCommand_FilesToScpUnspecified;
 
 	static {
 		initializeMessages(BUNDLE_NAME,	FedoraPackagerText.class);
