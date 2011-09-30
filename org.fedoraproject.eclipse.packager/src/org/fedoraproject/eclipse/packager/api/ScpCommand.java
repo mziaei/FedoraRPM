@@ -26,10 +26,14 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jgit.util.FS;
+import org.eclipse.jsch.core.IJSchService;
+import org.eclipse.jsch.ui.UserInfoPrompter;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
 
+import org.eclipse.jsch.ui.UserInfoPrompter;
 import com.jcraft.jsch.*;
 
 /**
@@ -48,6 +52,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	private String fasAccount;
 	private String specFile;
 	private String srpmFile;
+
 
 	/*
 	 * Implementation of the {@code ScpCommand}.
@@ -80,34 +85,23 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		Session session;
 		try {
 			session = jsch
-					.getSession(fasAccount, "fedorapeople.org", 22); //$NON-NLS-1$ //$NON-NLS-2$
+					.getSession(fasAccount, "fedorapeople.org", 22); //$NON-NLS-1$
 
 			// username and password will be given via UserInfo interface.
 			UserInfo ui = new MyUserInfo();
+			ui.promptPassword(fasAccount);
 			session.setUserInfo(ui);
-			session.connect();
 
-			boolean ptimestamp = true;
+			session.connect(); ////*** This is where I'm getting error for authentication
 
-			// exec 'scp -t rfile' remotely
-			String command =
-					"scp " + (ptimestamp ? "-p" : "") + " -t " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-					+ specFile;
-			Channel channel = session.openChannel("exec"); //$NON-NLS-1$
-			((ChannelExec) channel).setCommand(command);
-
-			// get I/O streams for remote scp
-			OutputStream out = channel.getOutputStream();
-			InputStream in = channel.getInputStream();
-
-			channel.connect();
+//			UserInfo userInfo = session.getUserInfo();
+//			if (userInfo == null || userInfo.getPassword() == null) {
+//				UserInfoPrompter userInfoPrompt = new UserInfoPrompter(session);
+//				boolean passphrase = userInfoPrompt.promptPassphrase(fasAccount);
+//			}
 
 		} catch (JSchException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
+//			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -158,10 +152,6 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		return this;
 	}
 
-	/**
-	 * @author minoo
-	 *
-	 */
 	public static class MyUserInfo implements UserInfo, UIKeyboardInteractive {
 		@Override
 		public String getPassword() {

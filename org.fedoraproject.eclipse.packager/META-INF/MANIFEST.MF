@@ -7,7 +7,8 @@ Bundle-Activator: org.fedoraproject.eclipse.packager.PackagerPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui.browser
+ org.eclipse.ui.browser,
+ com.jcraft.jsch;bundle-version="[0.1.37,0.2.0)"
 Import-Package: org.apache.commons.codec.binary,
  org.apache.commons.codec.digest,
  org.apache.commons.ssl,
@@ -43,7 +44,10 @@ Import-Package: org.apache.commons.codec.binary,
  org.eclipse.jgit.api;version="1.0.0",
  org.eclipse.jgit.api.errors;version="1.0.0",
  org.eclipse.jgit.lib;version="1.0.0",
+ org.eclipse.jgit.transport;version="1.0.0",
  org.eclipse.jgit.util;version="1.0.0",
+ org.eclipse.jsch.core,
+ org.eclipse.jsch.ui,
  org.eclipse.linuxtools.rpm.core,
  org.eclipse.linuxtools.rpm.core.utils,
  org.eclipse.linuxtools.rpm.ui.editor.parser,
