@@ -26,6 +26,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jgit.transport.CredentialsProviderUserInfo;
+import org.eclipse.jgit.transport.OpenSshConfig;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jsch.core.IJSchService;
 import org.eclipse.jsch.ui.UserInfoPrompter;
@@ -52,18 +54,20 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	private String fasAccount;
 	private String specFile;
 	private String srpmFile;
-
+	private OpenSshConfig config;
+	private String host = "fedorapeople.org";
+	private int port = 22;
 
 	/*
 	 * Implementation of the {@code ScpCommand}.
-	 *
+	 * 
 	 * @param monitor
-	 *
+	 * 
 	 * @throws CommandMisconfiguredException If the command was not properly
 	 * configured when it was called.
-	 *
+	 * 
 	 * @throws CommandListenerException If some listener detected a problem.
-	 *
+	 * 
 	 * @return The result of this command.
 	 */
 	@Override
@@ -83,25 +87,41 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 		JSch jsch = new JSch();
 		Session session;
+
 		try {
-			session = jsch
-					.getSession(fasAccount, "fedorapeople.org", 22); //$NON-NLS-1$
+
+			session = jsch.getSession(fasAccount, host, port); //$NON-NLS-1$
 
 			// username and password will be given via UserInfo interface.
 			UserInfo ui = new MyUserInfo();
-			ui.promptPassword(fasAccount);
+			// ui.promptPassword(fasAccount);
 			session.setUserInfo(ui);
 
-			session.connect(); ////*** This is where I'm getting error for authentication
+			session.connect(); // //*** This is where I'm getting error for
+								// authentication
 
-//			UserInfo userInfo = session.getUserInfo();
-//			if (userInfo == null || userInfo.getPassword() == null) {
-//				UserInfoPrompter userInfoPrompt = new UserInfoPrompter(session);
-//				boolean passphrase = userInfoPrompt.promptPassphrase(fasAccount);
-//			}
+			Channel channel = session.openChannel("shell");
+
+			channel.setInputStream(System.in);
+			channel.setOutputStream(System.out);
+
+			channel.connect();
+			// // exec 'scp -t rfile' remotely
+			// String command = "scp -p -t " + srpmFile;
+			// Channel channel = session.openChannel("exec");
+			// ((ChannelExec) channel).setCommand(command);
+			//
+			// // get I/O streams for remote scp
+			// OutputStream out = channel.getOutputStream();
+			// InputStream in = channel.getInputStream();
+			//
+			// channel.connect();
+			//
+			// if (checkAck(in) != 0) {
+			// System.exit(0);
+			// }
 
 		} catch (JSchException e) {
-//			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -152,10 +172,38 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		return this;
 	}
 
+	static int checkAck(InputStream in) throws IOException {
+		int b = in.read();
+		// b may be 0 for success,
+		// 1 for error,
+		// 2 for fatal error,
+		// -1
+		if (b == 0)
+			return b;
+		if (b == -1)
+			return b;
+
+		if (b == 1 || b == 2) {
+			StringBuffer sb = new StringBuffer();
+			int c;
+			do {
+				c = in.read();
+				sb.append((char) c);
+			} while (c != '\n');
+			if (b == 1) { // error
+				System.out.print(sb.toString());
+			}
+			if (b == 2) { // fatal error
+				System.out.print(sb.toString());
+			}
+		}
+		return b;
+	}
+
 	public static class MyUserInfo implements UserInfo, UIKeyboardInteractive {
 		@Override
 		public String getPassword() {
-			return passwd;
+			return null;
 		}
 
 		@Override
@@ -167,30 +215,30 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			return foo == 0;
 		}
 
-		String passwd;
-		JTextField passwordField = (JTextField) new JPasswordField(20);
+		String passphrase;
+		JTextField passphraseField = (JTextField) new JPasswordField(20);
 
 		@Override
 		public String getPassphrase() {
-			return null;
+			return passphrase;
 		}
 
 		@Override
 		public boolean promptPassphrase(String message) {
-			return true;
-		}
-
-		@Override
-		public boolean promptPassword(String message) {
-			Object[] ob = { passwordField };
+			Object[] ob = { passphraseField };
 			int result = JOptionPane.showConfirmDialog(null, ob, message,
 					JOptionPane.OK_CANCEL_OPTION);
 			if (result == JOptionPane.OK_OPTION) {
-				passwd = passwordField.getText();
+				passphrase = passphraseField.getText();
 				return true;
 			} else {
 				return false;
 			}
+		}
+
+		@Override
+		public boolean promptPassword(String message) {
+			return true;
 		}
 
 		@Override
@@ -236,7 +284,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 				gbc.gridy++;
 			}
 
-			if (JOptionPane.showConfirmDialog(null, panel, destination + ": " //$NON-NLS-1$
+			if (JOptionPane.showConfirmDialog(null, panel, destination + ": "
 					+ name, JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.QUESTION_MESSAGE) == JOptionPane.OK_OPTION) {
 				String[] response = new String[prompt.length];
@@ -250,3 +298,41 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		}
 	}
 }
+
+// if (config == null)
+// config = OpenSshConfig.get(FS.DETECTED);
+//
+// final OpenSshConfig.Host hc = config.lookup(host);
+// host = hc.getHostName();
+// UserInfo ui = new MyUserInfo();
+//
+//
+// if (port <= 0)
+// port = hc.getPort();
+// if (user == null)
+// user = hc.getUser();
+
+// if (pass != null)
+// session.setPassword(pass);
+// final String strictHostKeyCheckingPolicy = hc
+// .getStrictHostKeyChecking();
+// if (strictHostKeyCheckingPolicy != null)
+// session.setConfig("StrictHostKeyChecking",
+// strictHostKeyCheckingPolicy);
+// final String pauth = hc.getPreferredAuthentications();
+// if (pauth != null)
+// session.setConfig("PreferredAuthentications", pauth);
+//
+// UserInfo userInfo = session.getUserInfo();
+// if (!hc.isBatchMode()
+// && (userInfo == null || userInfo.getPassword() == null))
+
+// new UserInfoPrompter(session);
+// if (!session.isConnected())
+// session.connect();
+
+// UserInfo userInfo = session.getUserInfo();
+// if (userInfo == null || userInfo.getPassword() == null) {
+// UserInfoPrompter userInfoPrompt = new UserInfoPrompter(session);
+// boolean passphrase = userInfoPrompt.promptPassphrase(fasAccount);
+// }
