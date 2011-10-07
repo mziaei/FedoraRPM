@@ -14,11 +14,13 @@ import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -60,14 +62,14 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 	/*
 	 * Implementation of the {@code ScpCommand}.
-	 * 
+	 *
 	 * @param monitor
-	 * 
+	 *
 	 * @throws CommandMisconfiguredException If the command was not properly
 	 * configured when it was called.
-	 * 
+	 *
 	 * @throws CommandListenerException If some listener detected a problem.
-	 * 
+	 *
 	 * @return The result of this command.
 	 */
 	@Override
@@ -86,10 +88,32 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		FileInputStream fis = null;
 
 		JSch jsch = new JSch();
-		Session session;
+		JFileChooser chooser = new JFileChooser();
+		chooser.setDialogTitle("Choose your privatekey(ex. ~/.ssh/id_dsa)");
+		chooser.setFileHidingEnabled(false);
+		int returnVal = chooser.showOpenDialog(null);
+
+		// String host = null;
+		// if (arg.length > 0) {
+		// host = arg[0];
+		// }
+		// else{
+		// host=JOptionPane.showInputDialog("Enter username@hostname",
+		// System.getProperty("user.name")+
+		// "@localhost");
+		// }
+		// String user=host.substring(0, host.indexOf('@'));
+		// host=host.substring(host.indexOf('@')+1);
 
 		try {
-
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				System.out.println("You chose "
+						+ chooser.getSelectedFile().getAbsolutePath() + ".");
+				jsch.addIdentity(chooser.getSelectedFile().getAbsolutePath()
+				// , "passphrase"
+				);
+			}
+			Session session;
 			session = jsch.getSession(fasAccount, host, port); //$NON-NLS-1$
 
 			// username and password will be given via UserInfo interface.
@@ -99,29 +123,74 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 			session.connect(); // //*** This is where I'm getting error for
 								// authentication
-
-			Channel channel = session.openChannel("shell");
-
-			channel.setInputStream(System.in);
-			channel.setOutputStream(System.out);
-
-			channel.connect();
-			// // exec 'scp -t rfile' remotely
-			// String command = "scp -p -t " + srpmFile;
-			// Channel channel = session.openChannel("exec");
-			// ((ChannelExec) channel).setCommand(command);
+								//
+			// Channel channel = session.openChannel("shell");
 			//
-			// // get I/O streams for remote scp
-			// OutputStream out = channel.getOutputStream();
-			// InputStream in = channel.getInputStream();
+			// channel.setInputStream(System.in);
+			// channel.setOutputStream(System.out);
 			//
 			// channel.connect();
-			//
-			// if (checkAck(in) != 0) {
-			// System.exit(0);
-			// }
+			// exec 'scp -t rfile' remotely
+			String command = "scp -p -t " + srpmFile;
+			Channel channel = session.openChannel("exec");
+			((ChannelExec) channel).setCommand(command);
+
+			// get I/O streams for remote scp
+			OutputStream out = channel.getOutputStream();
+			InputStream in = channel.getInputStream();
+
+			channel.connect();
+
+			if (checkAck(in) != 0) {
+				System.exit(0);
+			}
+
+			String lfile = srpmFile;
+
+			// send "C0644 filesize filename", where filename should not include
+			// '/'
+			long filesize = (new File(lfile)).length();
+			command = "C0644 " + filesize + " ";
+			if (lfile.lastIndexOf('/') > 0) {
+				command += lfile.substring(lfile.lastIndexOf('/') + 1);
+			} else {
+				command += lfile;
+			}
+			command += "\n";
+			out.write(command.getBytes());
+			out.flush();
+			if (checkAck(in) != 0) {
+				System.exit(0);
+			}
+
+			// send a content of lfile
+			fis = new FileInputStream(lfile);
+			byte[] buf = new byte[1024];
+			while (true) {
+				int len = fis.read(buf, 0, buf.length);
+				if (len <= 0)
+					break;
+				out.write(buf, 0, len); // out.flush();
+			}
+			fis.close();
+			fis = null;
+			// send '\0'
+			buf[0] = 0;
+			out.write(buf, 0, 1);
+			out.flush();
+			if (checkAck(in) != 0) {
+				System.exit(0);
+			}
+			out.close();
+
+			channel.disconnect();
+			session.disconnect();
+
+			System.exit(0);
 
 		} catch (JSchException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
