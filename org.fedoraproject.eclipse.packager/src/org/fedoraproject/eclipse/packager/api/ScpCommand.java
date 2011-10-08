@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jgit.transport.CredentialsProviderUserInfo;
 import org.eclipse.jgit.transport.OpenSshConfig;
@@ -121,6 +122,8 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			// ui.promptPassword(fasAccount);
 			session.setUserInfo(ui);
 
+			session.setConfig("StrictHostKeyChecking", "no");
+
 			session.connect(); // //*** This is where I'm getting error for
 								// authentication
 								//
@@ -131,7 +134,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			//
 			// channel.connect();
 			// exec 'scp -t rfile' remotely
-			String command = "scp -p -t " + srpmFile;
+			String command = "scp -p -t " + ResourcesPlugin.getWorkspace().getRoot().getProject("helloworld").getName() + "/" + srpmFile;
 			Channel channel = session.openChannel("exec");
 			((ChannelExec) channel).setCommand(command);
 
@@ -145,7 +148,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 				System.exit(0);
 			}
 
-			String lfile = srpmFile;
+			String lfile = "public_html/" + srpmFile;
 
 			// send "C0644 filesize filename", where filename should not include
 			// '/'
