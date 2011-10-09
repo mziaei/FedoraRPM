@@ -29,17 +29,22 @@ import javax.swing.JTextField;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jgit.transport.CredentialsProviderUserInfo;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jgit.transport.OpenSshConfig;
-import org.eclipse.jgit.util.FS;
-import org.eclipse.jsch.core.IJSchService;
-import org.eclipse.jsch.ui.UserInfoPrompter;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
 
-import org.eclipse.jsch.ui.UserInfoPrompter;
-import com.jcraft.jsch.*;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.UIKeyboardInteractive;
+import com.jcraft.jsch.UserInfo;
 
 /**
  * A class used to execute a {@code Scp} command. It has setters for all
@@ -58,8 +63,6 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	private String specFile;
 	private String srpmFile;
 	private OpenSshConfig config;
-	private String host = "fedorapeople.org";
-	private int port = 22;
 
 	/*
 	 * Implementation of the {@code ScpCommand}.
@@ -89,6 +92,15 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		FileInputStream fis = null;
 
 		JSch jsch = new JSch();
+
+		Shell shell = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getShell();
+		WizardDialog wizardDialog = new WizardDialog(shell, null);
+		wizardDialog.setTitle("Choose");
+		wizardDialog.open();
+
+
+
 		JFileChooser chooser = new JFileChooser();
 		chooser.setDialogTitle("Choose your privatekey(ex. ~/.ssh/id_dsa)");
 		chooser.setFileHidingEnabled(false);
@@ -115,7 +127,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 				);
 			}
 			Session session;
-			session = jsch.getSession(fasAccount, host, port); //$NON-NLS-1$
+			session = jsch.getSession(fasAccount, "fedorapeople.org", 22); //$NON-NLS-1$
 
 			// username and password will be given via UserInfo interface.
 			UserInfo ui = new MyUserInfo();
