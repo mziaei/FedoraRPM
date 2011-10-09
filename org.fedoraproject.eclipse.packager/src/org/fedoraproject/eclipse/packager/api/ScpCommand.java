@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -29,11 +28,9 @@ import javax.swing.JTextField;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.jgit.transport.OpenSshConfig;
+import org.eclipse.jsch.ui.UserInfoPrompter;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
@@ -62,7 +59,6 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	private String fasAccount;
 	private String specFile;
 	private String srpmFile;
-	private OpenSshConfig config;
 
 	/*
 	 * Implementation of the {@code ScpCommand}.
@@ -93,61 +89,34 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 		JSch jsch = new JSch();
 
-		Shell shell = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getShell();
-		WizardDialog wizardDialog = new WizardDialog(shell, null);
-		wizardDialog.setTitle("Choose");
-		wizardDialog.open();
-
-
-
-		JFileChooser chooser = new JFileChooser();
-		chooser.setDialogTitle("Choose your privatekey(ex. ~/.ssh/id_dsa)");
-		chooser.setFileHidingEnabled(false);
-		int returnVal = chooser.showOpenDialog(null);
-
-		// String host = null;
-		// if (arg.length > 0) {
-		// host = arg[0];
-		// }
-		// else{
-		// host=JOptionPane.showInputDialog("Enter username@hostname",
-		// System.getProperty("user.name")+
-		// "@localhost");
-		// }
-		// String user=host.substring(0, host.indexOf('@'));
-		// host=host.substring(host.indexOf('@')+1);
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+				.getShell();
+		FileDialogRunable fileDialog = new FileDialogRunable(null,
+				"Choose your private key (e.g. ~/.ssh/id_rsa)");
+		shell.getDisplay().syncExec(fileDialog);
+		String filePath = fileDialog.getFile();
 
 		try {
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				System.out.println("You chose "
-						+ chooser.getSelectedFile().getAbsolutePath() + ".");
-				jsch.addIdentity(chooser.getSelectedFile().getAbsolutePath()
-				// , "passphrase"
-				);
+			if (filePath != null) {
+				jsch.addIdentity(filePath);
 			}
+
 			Session session;
 			session = jsch.getSession(fasAccount, "fedorapeople.org", 22); //$NON-NLS-1$
 
-			// username and password will be given via UserInfo interface.
-			UserInfo ui = new MyUserInfo();
-			// ui.promptPassword(fasAccount);
-			session.setUserInfo(ui);
+			UserInfo userInfo = session.getUserInfo();
+			if (userInfo == null || userInfo.getPassword() == null) {
+				UserInfoPrompter userInfoPrompt = new UserInfoPrompter(session);
+				boolean passphrase = userInfoPrompt
+						.promptPassphrase(fasAccount);
+			}
 
-			session.setConfig("StrictHostKeyChecking", "no");
+			session.setConfig("StrictHostKeyChecking", "no"); //$NON-NLS-1$ //$NON-NLS-2$
+			session.connect();
 
-			session.connect(); // //*** This is where I'm getting error for
-								// authentication
-								//
-			// Channel channel = session.openChannel("shell");
-			//
-			// channel.setInputStream(System.in);
-			// channel.setOutputStream(System.out);
-			//
-			// channel.connect();
 			// exec 'scp -t rfile' remotely
-			String command = "scp -p -t " + ResourcesPlugin.getWorkspace().getRoot().getProject("helloworld").getName() + "/" + srpmFile;
-			Channel channel = session.openChannel("exec");
+			String command = "scp -p -t " + ResourcesPlugin.getWorkspace().getRoot().getProject("helloworld").getLocation().toString() + "/" + srpmFile; //$NON-NLS-1$ //$NON-NLS-2$
+			Channel channel = session.openChannel("exec"); //$NON-NLS-1$
 			((ChannelExec) channel).setCommand(command);
 
 			// get I/O streams for remote scp
@@ -165,7 +134,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			// send "C0644 filesize filename", where filename should not include
 			// '/'
 			long filesize = (new File(lfile)).length();
-			command = "C0644 " + filesize + " ";
+			command = "C0644 " + filesize + " "; //$NON-NLS-1$ //$NON-NLS-2$
 			if (lfile.lastIndexOf('/') > 0) {
 				command += lfile.substring(lfile.lastIndexOf('/') + 1);
 			} else {
@@ -284,103 +253,6 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		return b;
 	}
 
-	public static class MyUserInfo implements UserInfo, UIKeyboardInteractive {
-		@Override
-		public String getPassword() {
-			return null;
-		}
-
-		@Override
-		public boolean promptYesNo(String str) {
-			Object[] options = { "yes", "no" };
-			int foo = JOptionPane.showOptionDialog(null, str, "Warning",
-					JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
-					null, options, options[0]);
-			return foo == 0;
-		}
-
-		String passphrase;
-		JTextField passphraseField = (JTextField) new JPasswordField(20);
-
-		@Override
-		public String getPassphrase() {
-			return passphrase;
-		}
-
-		@Override
-		public boolean promptPassphrase(String message) {
-			Object[] ob = { passphraseField };
-			int result = JOptionPane.showConfirmDialog(null, ob, message,
-					JOptionPane.OK_CANCEL_OPTION);
-			if (result == JOptionPane.OK_OPTION) {
-				passphrase = passphraseField.getText();
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		public boolean promptPassword(String message) {
-			return true;
-		}
-
-		@Override
-		public void showMessage(String message) {
-			JOptionPane.showMessageDialog(null, message);
-		}
-
-		final GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1, 1,
-				GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
-				new Insets(0, 0, 0, 0), 0, 0);
-		private Container panel;
-
-		@Override
-		public String[] promptKeyboardInteractive(String destination,
-				String name, String instruction, String[] prompt, boolean[] echo) {
-			panel = new JPanel();
-			panel.setLayout(new GridBagLayout());
-
-			gbc.weightx = 1.0;
-			gbc.gridwidth = GridBagConstraints.REMAINDER;
-			gbc.gridx = 0;
-			panel.add(new JLabel(instruction), gbc);
-			gbc.gridy++;
-
-			gbc.gridwidth = GridBagConstraints.RELATIVE;
-
-			JTextField[] texts = new JTextField[prompt.length];
-			for (int i = 0; i < prompt.length; i++) {
-				gbc.fill = GridBagConstraints.NONE;
-				gbc.gridx = 0;
-				gbc.weightx = 1;
-				panel.add(new JLabel(prompt[i]), gbc);
-
-				gbc.gridx = 1;
-				gbc.fill = GridBagConstraints.HORIZONTAL;
-				gbc.weighty = 1;
-				if (echo[i]) {
-					texts[i] = new JTextField(20);
-				} else {
-					texts[i] = new JPasswordField(20);
-				}
-				panel.add(texts[i], gbc);
-				gbc.gridy++;
-			}
-
-			if (JOptionPane.showConfirmDialog(null, panel, destination + ": "
-					+ name, JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.QUESTION_MESSAGE) == JOptionPane.OK_OPTION) {
-				String[] response = new String[prompt.length];
-				for (int i = 0; i < prompt.length; i++) {
-					response[i] = texts[i].getText();
-				}
-				return response;
-			} else {
-				return null; // cancel
-			}
-		}
-	}
 }
 
 // if (config == null)
