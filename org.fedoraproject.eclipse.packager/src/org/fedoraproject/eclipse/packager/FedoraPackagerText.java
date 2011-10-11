@@ -137,7 +137,8 @@ public class FedoraPackagerText extends NLS {
 	// LocalHandlerDispatcher
 	/****/ public static String LocalHandlerDispatcher_dispatchToHandlerMsg;
 	// ScpCommand
-	/****/ public static String SpecCommand_FilesToScpUnspecified;
+	/****/ public static String ScpCommand_FilesToScpUnspecified;
+	/****/ public static String ScpCommand_ChoosePrivateKey;
 
 	static {
 		initializeMessages(BUNDLE_NAME,	FedoraPackagerText.class);

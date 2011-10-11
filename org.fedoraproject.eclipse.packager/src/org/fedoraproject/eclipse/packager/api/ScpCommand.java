@@ -10,23 +10,13 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.api;
 
-import java.awt.Container;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jsch.ui.UserInfoPrompter;
 import org.eclipse.swt.widgets.Shell;
@@ -40,7 +30,6 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import com.jcraft.jsch.UIKeyboardInteractive;
 import com.jcraft.jsch.UserInfo;
 
 /**
@@ -56,6 +45,8 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	 * The unique ID of this command.
 	 */
 	public static final String ID = "ScpCommand"; //$NON-NLS-1$
+	private static final String FEDORAHOST = "fedorapeople.org"; //$NON-NLS-1$
+
 	private String fasAccount;
 	private String specFile;
 	private String srpmFile;
@@ -85,14 +76,12 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			throw e;
 		}
 
-		FileInputStream fis = null;
-
 		JSch jsch = new JSch();
 
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 				.getShell();
 		FileDialogRunable fileDialog = new FileDialogRunable(null,
-				"Choose your private key (e.g. ~/.ssh/id_rsa)");
+				FedoraPackagerText.ScpCommand_ChoosePrivateKey);
 		shell.getDisplay().syncExec(fileDialog);
 		String filePath = fileDialog.getFile();
 
@@ -102,79 +91,24 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			}
 
 			Session session;
-			session = jsch.getSession(fasAccount, "fedorapeople.org", 22); //$NON-NLS-1$
+			session = jsch.getSession(fasAccount, FEDORAHOST, 22);
 
 			UserInfo userInfo = session.getUserInfo();
 			if (userInfo == null || userInfo.getPassword() == null) {
 				UserInfoPrompter userInfoPrompt = new UserInfoPrompter(session);
-				boolean passphrase = userInfoPrompt
-						.promptPassphrase(fasAccount);
 			}
 
 			session.setConfig("StrictHostKeyChecking", "no"); //$NON-NLS-1$ //$NON-NLS-2$
 			session.connect();
 
-			// exec 'scp -t rfile' remotely
-			String command = "scp -p -t " + ResourcesPlugin.getWorkspace().getRoot().getProject("helloworld").getLocation().toString() + "/" + srpmFile; //$NON-NLS-1$ //$NON-NLS-2$
-			Channel channel = session.openChannel("exec"); //$NON-NLS-1$
-			((ChannelExec) channel).setCommand(command);
+			copyFileToRemote(srpmFile, session);
+			copyFileToRemote(specFile, session);
 
-			// get I/O streams for remote scp
-			OutputStream out = channel.getOutputStream();
-			InputStream in = channel.getInputStream();
-
-			channel.connect();
-
-			if (checkAck(in) != 0) {
-				System.exit(0);
-			}
-
-			String lfile = "public_html/" + srpmFile;
-
-			// send "C0644 filesize filename", where filename should not include
-			// '/'
-			long filesize = (new File(lfile)).length();
-			command = "C0644 " + filesize + " "; //$NON-NLS-1$ //$NON-NLS-2$
-			if (lfile.lastIndexOf('/') > 0) {
-				command += lfile.substring(lfile.lastIndexOf('/') + 1);
-			} else {
-				command += lfile;
-			}
-			command += "\n";
-			out.write(command.getBytes());
-			out.flush();
-			if (checkAck(in) != 0) {
-				System.exit(0);
-			}
-
-			// send a content of lfile
-			fis = new FileInputStream(lfile);
-			byte[] buf = new byte[1024];
-			while (true) {
-				int len = fis.read(buf, 0, buf.length);
-				if (len <= 0)
-					break;
-				out.write(buf, 0, len); // out.flush();
-			}
-			fis.close();
-			fis = null;
-			// send '\0'
-			buf[0] = 0;
-			out.write(buf, 0, 1);
-			out.flush();
-			if (checkAck(in) != 0) {
-				System.exit(0);
-			}
-			out.close();
-
-			channel.disconnect();
 			session.disconnect();
 
 			System.exit(0);
 
 		} catch (JSchException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
@@ -187,11 +121,89 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		return result;
 	}
 
+	/**
+	 * Copies the localFile to remote location at remoteFile
+	 *
+	 * @param fileName to be copied remotely
+	 * @param session of the current operation
+	 *
+	 */
+	private void copyFileToRemote(String fileName, Session session) {
+		FileInputStream fis = null;
+
+		// exec 'scp -t remoteFile' remotely
+		String remoteFile = "public_html" + IPath.SEPARATOR + srpmFile; //$NON-NLS-1$
+		String command = "scp -p -t " + remoteFile; //$NON-NLS-1$
+
+		Channel channel;
+		try {
+			channel = session.openChannel("exec"); //$NON-NLS-1$
+			((ChannelExec) channel).setCommand(command);
+
+			// get I/O streams for remote scp
+			OutputStream out = channel.getOutputStream();
+			InputStream in = channel.getInputStream();
+
+			channel.connect();
+
+			if (checkAck(in) != 0) {
+				System.exit(0);
+			}
+
+			// send "C0644 filesize filename", where filename should not include
+			// '/'
+			String localFile = projectRoot.getProject().getLocation().toString()
+					+ IPath.SEPARATOR + srpmFile;
+			long filesize = (new File(localFile)).length();
+			command = "C0644 " + filesize + " "; //$NON-NLS-1$ //$NON-NLS-2$
+			if (localFile.lastIndexOf('/') > 0) {
+				command += localFile.substring(localFile.lastIndexOf('/') + 1);
+			} else {
+				command += localFile;
+			}
+			command += "\n"; //$NON-NLS-1$
+			out.write(command.getBytes());
+			out.flush();
+			if (checkAck(in) != 0) {
+				System.exit(0);
+			}
+
+			// send a content of localFile
+			fis = new FileInputStream(localFile);
+			byte[] buf = new byte[1024];
+			while (true) {
+				int len = fis.read(buf, 0, buf.length);
+				if (len <= 0)
+					break;
+				out.write(buf, 0, len); // out.flush();
+			}
+			fis.close();
+			fis = null;
+
+			buf[0] = 0;
+			out.write(buf, 0, 1);
+			out.flush();
+			if (checkAck(in) != 0) {
+				System.exit(0);
+			}
+			out.close();
+
+			channel.disconnect();
+		} catch (JSchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	@Override
 	protected void checkConfiguration() throws CommandMisconfiguredException {
 		if (this.specFile == null || this.srpmFile == null) {
 			throw new IllegalStateException(
-					FedoraPackagerText.SpecCommand_FilesToScpUnspecified);
+					FedoraPackagerText.ScpCommand_FilesToScpUnspecified);
 		}
 	}
 
@@ -227,10 +239,8 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 	static int checkAck(InputStream in) throws IOException {
 		int b = in.read();
-		// b may be 0 for success,
-		// 1 for error,
-		// 2 for fatal error,
-		// -1
+		// b may be 0 for success, 1 for error,
+		// 2 for fatal error, -1
 		if (b == 0)
 			return b;
 		if (b == -1)
@@ -252,43 +262,4 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		}
 		return b;
 	}
-
 }
-
-// if (config == null)
-// config = OpenSshConfig.get(FS.DETECTED);
-//
-// final OpenSshConfig.Host hc = config.lookup(host);
-// host = hc.getHostName();
-// UserInfo ui = new MyUserInfo();
-//
-//
-// if (port <= 0)
-// port = hc.getPort();
-// if (user == null)
-// user = hc.getUser();
-
-// if (pass != null)
-// session.setPassword(pass);
-// final String strictHostKeyCheckingPolicy = hc
-// .getStrictHostKeyChecking();
-// if (strictHostKeyCheckingPolicy != null)
-// session.setConfig("StrictHostKeyChecking",
-// strictHostKeyCheckingPolicy);
-// final String pauth = hc.getPreferredAuthentications();
-// if (pauth != null)
-// session.setConfig("PreferredAuthentications", pauth);
-//
-// UserInfo userInfo = session.getUserInfo();
-// if (!hc.isBatchMode()
-// && (userInfo == null || userInfo.getPassword() == null))
-
-// new UserInfoPrompter(session);
-// if (!session.isConnected())
-// session.connect();
-
-// UserInfo userInfo = session.getUserInfo();
-// if (userInfo == null || userInfo.getPassword() == null) {
-// UserInfoPrompter userInfoPrompt = new UserInfoPrompter(session);
-// boolean passphrase = userInfoPrompt.promptPassphrase(fasAccount);
-// }
