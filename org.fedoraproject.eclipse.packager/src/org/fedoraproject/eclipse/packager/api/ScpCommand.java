@@ -162,6 +162,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 				command += localFile;
 			}
 			command += "\n"; //$NON-NLS-1$
+
 			out.write(command.getBytes());
 			out.flush();
 			if (checkAck(in) != 0) {

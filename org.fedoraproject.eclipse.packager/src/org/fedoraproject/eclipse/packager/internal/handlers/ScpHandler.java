@@ -10,19 +10,155 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.internal.handlers;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.dialogs.ListSelectionDialog;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
+import org.fedoraproject.eclipse.packager.FedoraPackagerText;
+import org.fedoraproject.eclipse.packager.IProjectRoot;
+import org.fedoraproject.eclipse.packager.PackagerPlugin;
+import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
+import org.fedoraproject.eclipse.packager.api.ScpCommand;
+import org.fedoraproject.eclipse.packager.api.ScpResult;
+import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
+import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
+import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
+import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandNotFoundException;
+import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
+import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
+import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
 
 /**
- *
- *
+ * Class responsible for copying selected .spec and .src.rpm files
+ * from local to remote (fedorapeople.org)
+ * It will provide a list of files to be sent and let the user
+ * choose the latest version needed to be reviewed
  */
 public class ScpHandler extends FedoraPackagerAbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// TODO Auto-generated method stub
+		final Shell shell = getShell(event);
+		final FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
+		final IProjectRoot localfedoraProjectRoot;
+		try {
+			IResource eventResource = FedoraHandlerUtils.getResource(event);
+			localfedoraProjectRoot = FedoraPackagerUtils
+					.getProjectRoot(eventResource);
+		} catch (InvalidProjectRootException e) {
+			logger.logError(FedoraPackagerText.invalidFedoraProjectRootError, e);
+			FedoraHandlerUtils.showErrorDialog(shell, "Error", //$NON-NLS-1$
+					FedoraPackagerText.invalidFedoraProjectRootError);
+			return null;
+		}
+
+		final FedoraPackager packager = new FedoraPackager(
+				localfedoraProjectRoot);
+		final ListSelectionDialog lsd;
+		String message = FedoraPackagerText.ScpHandler_ListHeader;
+		File directory = new File(localfedoraProjectRoot.getProject()
+				.getLocation().toString());
+		List<File> fileSet = new ArrayList<File>();
+		for (File file : directory.listFiles()) {
+			String name = file.getName();
+			if (name.contains(".spec") || name.contains(".src.rpm")) { //$NON-NLS-1$ //$NON-NLS-2$
+				fileSet.add(file);
+			}
+		}
+		File[] directoryArray = fileSet.toArray(new File[] {});
+
+		lsd = new ListSelectionDialog(
+				shell, directoryArray, new ArrayContentProvider(),
+				new WorkbenchLabelProvider(),
+				"Select the proper .spec and .src.rpm files to be sent to fedorapeople.org:");
+		int buttonCode = lsd.open();
+
+		// Do the converting
+		Job job = new Job(
+				FedoraPackagerText.ScpHandler_taskName) {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+
+
+				monitor.beginTask(
+						FedoraPackagerText.ScpHandler_taskName,
+						IProgressMonitor.UNKNOWN);
+				final ScpCommand scpCmd;
+				ScpResult result;
+
+				try {
+					// Get ConvertLocalToRemoteCommand from Fedora packager
+					// registry
+					scpCmd = (ScpCommand) packager
+							.getCommandInstance(ScpCommand.ID);
+				} catch (FedoraPackagerCommandNotFoundException e) {
+					logger.logError(e.getMessage(), e);
+					FedoraHandlerUtils.showErrorDialog(shell,
+							localfedoraProjectRoot.getProductStrings()
+									.getProductName(), e.getMessage());
+					return null;
+				} catch (FedoraPackagerCommandInitializationException e) {
+					logger.logError(e.getMessage(), e);
+					FedoraHandlerUtils.showErrorDialog(shell,
+							localfedoraProjectRoot.getProductStrings()
+									.getProductName(), e.getMessage());
+					return null;
+				}
+				try {
+					result = scpCmd.call(monitor);
+//					String message = null;
+//					message = NLS
+//							.bind(FedoraPackagerGitText.ConvertLocalToRemoteHandler_information,
+//									localfedoraProjectRoot.getPackageName());
+//					String finalMessage = result.getHumanReadableMessage(message);
+//					FedoraHandlerUtils
+//							.showInformationDialog(
+//									shell,
+//									FedoraPackagerGitText.ConvertLocalToRemoteHandler_notificationTitle,
+//									finalMessage);
+					return Status.OK_STATUS;
+
+				} catch (CommandMisconfiguredException e) {
+					logger.logError(e.getMessage(), e);
+					return FedoraHandlerUtils.errorStatus(
+							PackagerPlugin.PLUGIN_ID, e.getMessage(), e);
+				} catch (CommandListenerException e) {
+					logger.logError(e.getMessage(), e);
+					return FedoraHandlerUtils.errorStatus(
+							PackagerPlugin.PLUGIN_ID, e.getMessage(), e);
+//				} catch (LocalProjectConversionFailedException e) {
+//					logger.logError(e.getCause().getMessage(), e);
+//					return FedoraHandlerUtils
+//							.errorStatus(
+//									PackagerPlugin.PLUGIN_ID,
+//									NLS.bind(
+//											FedoraPackagerGitText.ConvertLocalToRemoteHandler_failToConvert,
+//											localfedoraProjectRoot
+//													.getPackageName(), e
+//													.getCause().getMessage()));
+				}
+
+			}
+		};
+		job.setUser(true);
+		job.schedule();
 		return null;
 	}
 
