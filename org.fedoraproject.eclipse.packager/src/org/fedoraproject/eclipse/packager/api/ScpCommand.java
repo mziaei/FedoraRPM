@@ -15,6 +15,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -48,8 +51,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	private static final String FEDORAHOST = "fedorapeople.org"; //$NON-NLS-1$
 
 	private String fasAccount;
-	private String specFile;
-	private String srpmFile;
+	private List<String> filesToScp = new ArrayList<String>();
 
 	/*
 	 * Implementation of the {@code ScpCommand}.
@@ -101,8 +103,10 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			session.setConfig("StrictHostKeyChecking", "no"); //$NON-NLS-1$ //$NON-NLS-2$
 			session.connect();
 
-			copyFileToRemote(srpmFile, session);
-			copyFileToRemote(specFile, session);
+			Iterator<String> iterator = filesToScp.iterator();
+			while (iterator.hasNext()) {
+				copyFileToRemote(iterator.next(), session);
+			}
 
 			session.disconnect();
 
@@ -124,15 +128,15 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	/**
 	 * Copies the localFile to remote location at remoteFile
 	 *
-	 * @param fileName to be copied remotely
+	 * @param fileToScp to be copied remotely
 	 * @param session of the current operation
 	 *
 	 */
-	private void copyFileToRemote(String fileName, Session session) {
+	private void copyFileToRemote(String fileToScp, Session session) {
 		FileInputStream fis = null;
 
 		// exec 'scp -t remoteFile' remotely
-		String remoteFile = "public_html" + IPath.SEPARATOR + srpmFile; //$NON-NLS-1$
+		String remoteFile = "public_html" + IPath.SEPARATOR + fileToScp; //$NON-NLS-1$
 		String command = "scp -p -t " + remoteFile; //$NON-NLS-1$
 
 		Channel channel;
@@ -153,7 +157,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			// send "C0644 filesize filename", where filename should not include
 			// '/'
 			String localFile = projectRoot.getProject().getLocation().toString()
-					+ IPath.SEPARATOR + srpmFile;
+					+ IPath.SEPARATOR + fileToScp;
 			long filesize = (new File(localFile)).length();
 			command = "C0644 " + filesize + " "; //$NON-NLS-1$ //$NON-NLS-2$
 			if (localFile.lastIndexOf('/') > 0) {
@@ -202,10 +206,12 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 	@Override
 	protected void checkConfiguration() throws CommandMisconfiguredException {
-		if (this.specFile == null || this.srpmFile == null) {
-			throw new IllegalStateException(
-					FedoraPackagerText.ScpCommand_FilesToScpUnspecified);
-		}
+		// We are good to go with the defaults. No-Op.
+
+//		if (this.specFile == null || this.srpmFile == null) {
+//			throw new IllegalStateException(
+//					FedoraPackagerText.ScpCommand_FilesToScpUnspecified);
+//		}
 	}
 
 	/**
@@ -219,22 +225,12 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	}
 
 	/**
-	 * @param specFile
-	 *            sets the .spec file to scp
+	 * @param file sets the .spec and .src.rpm files to scp
+	 *
 	 * @return this instance
 	 */
-	public ScpCommand setSpecFileToScp(String specFile) {
-		this.specFile = specFile;
-		return this;
-	}
-
-	/**
-	 * @param srpmFile
-	 *            sets the .src.rpm file to scp
-	 * @return this instance
-	 */
-	public ScpCommand setSrpmFileToScp(String srpmFile) {
-		this.srpmFile = srpmFile;
+	public ScpCommand setFilesToSCP(String file) {
+		filesToScp.add(file);
 		return this;
 	}
 
