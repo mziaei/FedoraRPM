@@ -27,11 +27,21 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.window.Window;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -99,36 +109,99 @@ public class ScpHandler extends FedoraPackagerAbstractHandler {
 
 		String message = FedoraPackagerText.ScpHandler_ListHeader;
 
-		final ListSelectionDialog lsd;
-		List<IFile> projectFiles = new ArrayList<IFile>();
-		IResource[] members = null;
-		try {
-			members = localfedoraProjectRoot.getProject().members();
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		for (int i = 0; i < members.length; i++) {
-			if (members[i] instanceof IFile
-					&& (members[i].getName().endsWith(".spec") || //$NON-NLS-1$
-							members[i].getName().endsWith(".src.rpm"))) { //$NON-NLS-1$
-				projectFiles.add((IFile) members[i]);
-			}
-		}
 
-		IFile[] fileSet =  projectFiles.toArray(new IFile[] {});
+//		Button open = new Button (shell, SWT.PUSH);
+//		open.setText ("Prompt for a String");
+//		open.addSelectionListener (new SelectionAdapter () {
+//			public void widgetSelected (SelectionEvent e) {
+				final Shell dialog = new Shell (shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+				dialog.setText("Dialog Shell");
+				FormLayout formLayout = new FormLayout ();
+				formLayout.marginWidth = 10;
+				formLayout.marginHeight = 10;
+				formLayout.spacing = 10;
+				dialog.setLayout (formLayout);
 
-		lsd = new ListSelectionDialog(
-				shell, fileSet, new ArrayContentProvider(),
-				new WorkbenchLabelProvider(),
-				"Select the proper .spec and .src.rpm files to be sent to fedorapeople.org:");
-		int buttonCode = lsd.open();
-		if (buttonCode == Window.OK){
-			for (Object selected: lsd.getResult()){
-				String selectedFile = ((IFile) selected).getName();
-				scpCmd.setFilesToSCP(selectedFile);
-			}
-		}
+				Label label = new Label (dialog, SWT.NONE);
+				label.setText ("Type a String:");
+				FormData data = new FormData ();
+				label.setLayoutData (data);
+
+				Button cancel = new Button (dialog, SWT.PUSH);
+				cancel.setText ("Cancel");
+				data = new FormData ();
+				data.width = 60;
+				data.right = new FormAttachment (100, 0);
+				data.bottom = new FormAttachment (100, 0);
+				cancel.setLayoutData (data);
+				cancel.addSelectionListener (new SelectionAdapter () {
+					public void widgetSelected (SelectionEvent e) {
+						System.out.println("User cancelled dialog");
+						dialog.close ();
+					}
+				});
+
+				final Text text = new Text (dialog, SWT.BORDER);
+				data = new FormData ();
+				data.width = 200;
+				data.left = new FormAttachment (label, 0, SWT.DEFAULT);
+				data.right = new FormAttachment (100, 0);
+				data.top = new FormAttachment (label, 0, SWT.CENTER);
+				data.bottom = new FormAttachment (cancel, 0, SWT.DEFAULT);
+				text.setLayoutData (data);
+
+				Button ok = new Button (dialog, SWT.PUSH);
+				ok.setText ("OK");
+				data = new FormData ();
+				data.width = 60;
+				data.right = new FormAttachment (cancel, 0, SWT.DEFAULT);
+				data.bottom = new FormAttachment (100, 0);
+				ok.setLayoutData (data);
+				ok.addSelectionListener (new SelectionAdapter () {
+					public void widgetSelected (SelectionEvent e) {
+						System.out.println ("User typed: " + text.getText ());
+						dialog.close ();
+					}
+				});
+
+				dialog.setDefaultButton (ok);
+				dialog.pack ();
+				dialog.open ();
+//			}
+//		});
+
+
+//		final ListSelectionDialog lsd;
+//		List<IFile> projectFiles = new ArrayList<IFile>();
+//		IResource[] members = null;
+//		try {
+//			members = localfedoraProjectRoot.getProject().members();
+//		} catch (CoreException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		for (int i = 0; i < members.length; i++) {
+//			if (members[i] instanceof IFile
+//					&& (members[i].getName().endsWith(".spec") || //$NON-NLS-1$
+//							members[i].getName().endsWith(".src.rpm"))) { //$NON-NLS-1$
+//				projectFiles.add((IFile) members[i]);
+//			}
+//		}
+//
+//		IFile[] fileSet =  projectFiles.toArray(new IFile[] {});
+//
+//		lsd = new ListSelectionDialog(
+//				shell, fileSet, new ArrayContentProvider(),
+//				new WorkbenchLabelProvider(),
+//				"Select the proper .spec and .src.rpm files to be sent to fedorapeople.org:");
+//		int buttonCode = lsd.open();
+//		if (buttonCode == Window.OK){
+//			for (Object selected: lsd.getResult()){
+//				String selectedFile = ((IFile) selected).getName();
+//				scpCmd.setFilesToSCP(selectedFile);
+//			}
+//		}
+//		scpCmd.setFasAccount(localfedoraProjectRoot.getProject().)
 
 		// Do the converting
 		Job job = new Job(FedoraPackagerText.ScpHandler_taskName) {
