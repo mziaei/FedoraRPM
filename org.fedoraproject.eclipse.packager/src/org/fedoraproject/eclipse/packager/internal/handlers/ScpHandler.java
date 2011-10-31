@@ -109,66 +109,27 @@ public class ScpHandler extends FedoraPackagerAbstractHandler {
 
 		String message = FedoraPackagerText.ScpHandler_ListHeader;
 
+		List<IFile> projectFiles = new ArrayList<IFile>();
+		IResource[] members = null;
+		try {
+			members = localfedoraProjectRoot.getProject().members();
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (int i = 0; i < members.length; i++) {
+			if (members[i] instanceof IFile
+					&& (members[i].getName().endsWith(".spec") || //$NON-NLS-1$
+							members[i].getName().endsWith(".src.rpm"))) { //$NON-NLS-1$
+				projectFiles.add((IFile) members[i]);
+			}
+		}
 
-//		Button open = new Button (shell, SWT.PUSH);
-//		open.setText ("Prompt for a String");
-//		open.addSelectionListener (new SelectionAdapter () {
-//			public void widgetSelected (SelectionEvent e) {
-				final Shell dialog = new Shell (shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-				dialog.setText("Dialog Shell");
-				FormLayout formLayout = new FormLayout ();
-				formLayout.marginWidth = 10;
-				formLayout.marginHeight = 10;
-				formLayout.spacing = 10;
-				dialog.setLayout (formLayout);
+//		IFile[] fileSet =  projectFiles.toArray(new IFile[] {});
 
-				Label label = new Label (dialog, SWT.NONE);
-				label.setText ("Type a String:");
-				FormData data = new FormData ();
-				label.setLayoutData (data);
+		new ScpHandlerUI(shell, projectFiles, logger).scp();
 
-				Button cancel = new Button (dialog, SWT.PUSH);
-				cancel.setText ("Cancel");
-				data = new FormData ();
-				data.width = 60;
-				data.right = new FormAttachment (100, 0);
-				data.bottom = new FormAttachment (100, 0);
-				cancel.setLayoutData (data);
-				cancel.addSelectionListener (new SelectionAdapter () {
-					public void widgetSelected (SelectionEvent e) {
-						System.out.println("User cancelled dialog");
-						dialog.close ();
-					}
-				});
 
-				final Text text = new Text (dialog, SWT.BORDER);
-				data = new FormData ();
-				data.width = 200;
-				data.left = new FormAttachment (label, 0, SWT.DEFAULT);
-				data.right = new FormAttachment (100, 0);
-				data.top = new FormAttachment (label, 0, SWT.CENTER);
-				data.bottom = new FormAttachment (cancel, 0, SWT.DEFAULT);
-				text.setLayoutData (data);
-
-				Button ok = new Button (dialog, SWT.PUSH);
-				ok.setText ("OK");
-				data = new FormData ();
-				data.width = 60;
-				data.right = new FormAttachment (cancel, 0, SWT.DEFAULT);
-				data.bottom = new FormAttachment (100, 0);
-				ok.setLayoutData (data);
-				ok.addSelectionListener (new SelectionAdapter () {
-					public void widgetSelected (SelectionEvent e) {
-						System.out.println ("User typed: " + text.getText ());
-						dialog.close ();
-					}
-				});
-
-				dialog.setDefaultButton (ok);
-				dialog.pack ();
-				dialog.open ();
-//			}
-//		});
 
 
 //		final ListSelectionDialog lsd;
@@ -204,59 +165,60 @@ public class ScpHandler extends FedoraPackagerAbstractHandler {
 //		scpCmd.setFasAccount(localfedoraProjectRoot.getProject().)
 
 		// Do the converting
-		Job job = new Job(FedoraPackagerText.ScpHandler_taskName) {
-
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				monitor.beginTask(FedoraPackagerText.ScpHandler_taskName,
-						IProgressMonitor.UNKNOWN);
-
-//				final ScpCommand scpCmd;
-				ScpResult result;
-
-
-				try {
-					result = scpCmd.call(monitor);
-					// String message = null;
-					// message = NLS
-					// .bind(FedoraPackagerGitText.ConvertLocalToRemoteHandler_information,
-					// localfedoraProjectRoot.getPackageName());
-					// String finalMessage =
-					// result.getHumanReadableMessage(message);
-					// FedoraHandlerUtils
-					// .showInformationDialog(
-					// shell,
-					// FedoraPackagerGitText.ConvertLocalToRemoteHandler_notificationTitle,
-					// finalMessage);
-					return Status.OK_STATUS;
-
-				} catch (CommandMisconfiguredException e) {
-					logger.logError(e.getMessage(), e);
-					return FedoraHandlerUtils.errorStatus(
-							PackagerPlugin.PLUGIN_ID, e.getMessage(), e);
-				} catch (CommandListenerException e) {
-					logger.logError(e.getMessage(), e);
-					return FedoraHandlerUtils.errorStatus(
-							PackagerPlugin.PLUGIN_ID, e.getMessage(), e);
-					// } catch (LocalProjectConversionFailedException e) {
-					// logger.logError(e.getCause().getMessage(), e);
-					// return FedoraHandlerUtils
-					// .errorStatus(
-					// PackagerPlugin.PLUGIN_ID,
-					// NLS.bind(
-					// FedoraPackagerGitText.ConvertLocalToRemoteHandler_failToConvert,
-					// localfedoraProjectRoot
-					// .getPackageName(), e
-					// .getCause().getMessage()));
-				}
-
-			}
-
-		};
-
-		job.setUser(true);
-		job.schedule();
+//		Job job = new Job(FedoraPackagerText.ScpHandler_taskName) {
+//
+//			@Override
+//			protected IStatus run(IProgressMonitor monitor) {
+//				monitor.beginTask(FedoraPackagerText.ScpHandler_taskName,
+//						IProgressMonitor.UNKNOWN);
+//
+//				final ScpCommand scpCmd = null;
+//				ScpResult result;
+//
+//
+//				try {
+//					result = scpCmd.call(monitor);
+//					// String message = null;
+//					// message = NLS
+//					// .bind(FedoraPackagerGitText.ConvertLocalToRemoteHandler_information,
+//					// localfedoraProjectRoot.getPackageName());
+//					// String finalMessage =
+//					// result.getHumanReadableMessage(message);
+//					// FedoraHandlerUtils
+//					// .showInformationDialog(
+//					// shell,
+//					// FedoraPackagerGitText.ConvertLocalToRemoteHandler_notificationTitle,
+//					// finalMessage);
+//					return Status.OK_STATUS;
+//
+//				} catch (CommandMisconfiguredException e) {
+//					logger.logError(e.getMessage(), e);
+//					return FedoraHandlerUtils.errorStatus(
+//							PackagerPlugin.PLUGIN_ID, e.getMessage(), e);
+//				} catch (CommandListenerException e) {
+//					logger.logError(e.getMessage(), e);
+//					return FedoraHandlerUtils.errorStatus(
+//							PackagerPlugin.PLUGIN_ID, e.getMessage(), e);
+//					// } catch (LocalProjectConversionFailedException e) {
+//					// logger.logError(e.getCause().getMessage(), e);
+//					// return FedoraHandlerUtils
+//					// .errorStatus(
+//					// PackagerPlugin.PLUGIN_ID,
+//					// NLS.bind(
+//					// FedoraPackagerGitText.ConvertLocalToRemoteHandler_failToConvert,
+//					// localfedoraProjectRoot
+//					// .getPackageName(), e
+//					// .getCause().getMessage()));
+//				}
+//
+//			}
+//
+//		};
+//
+//		job.setUser(true);
+//		job.schedule();
 		return null;
 	}
+
 
 }
