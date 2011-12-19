@@ -17,9 +17,12 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
+import org.fedoraproject.eclipse.packager.BranchConfigInstance;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.rpm.RpmText;
+import org.fedoraproject.eclipse.packager.rpm.api.errors.MockNotInstalledException;
+import org.fedoraproject.eclipse.packager.rpm.api.errors.UserNotInMockGroupException;
 import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
 
 /**
@@ -32,16 +35,19 @@ public abstract class AbstractMockJob extends Job {
 	protected MockBuildResult result;
 	protected Shell shell;
 	protected IProjectRoot fpr;
+	protected BranchConfigInstance bci;
 	
 	/**
 	 * @param name
 	 * @param shell 
 	 * @param fedoraProjectRoot 
+	 * @param bci 
 	 */
-	public AbstractMockJob(String name, Shell shell, IProjectRoot fedoraProjectRoot) {
+	public AbstractMockJob(String name, Shell shell, IProjectRoot fedoraProjectRoot, BranchConfigInstance bci) {
 		super(name);
 		this.shell = shell;
 		this.fpr = fedoraProjectRoot;
+		this.bci = bci;
 	}
 	
 	/**
@@ -63,6 +69,15 @@ public abstract class AbstractMockJob extends Job {
 					FedoraHandlerUtils.showInformationDialog(shell, fpr
 							.getProductStrings().getProductName(),
 							RpmText.AbstractMockJob_mockCancelledMsg);
+					return;
+				}
+				// Handle NPE case of the result when user is not in mock group
+				// of when mock is not installed. Just return in that case, since
+				// The job will show appropriate messages to the user.
+				if (jobStatus.getSeverity() == IStatus.INFO
+						&& jobStatus.getException() != null
+						&& (jobStatus.getException() instanceof UserNotInMockGroupException || jobStatus
+								.getException() instanceof MockNotInstalledException)) {
 					return;
 				}
 				if (result.wasSuccessful()) {
