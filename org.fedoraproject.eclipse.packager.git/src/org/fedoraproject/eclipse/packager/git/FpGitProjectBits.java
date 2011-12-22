@@ -65,6 +65,8 @@ import org.fedoraproject.eclipse.packager.IProjectRoot;
  */
 public class FpGitProjectBits implements IFpProjectBits {
 
+	/** The project root as passed in to {@link FpGitProjectBits#initialize(IProjectRoot)} */
+	protected IProjectRoot projectRoot;
 	private IResource project; // The underlying project
 	private HashMap<String, String> branches; // All branches
 	private Git git; // The Git repository abstraction for this project
@@ -81,6 +83,8 @@ public class FpGitProjectBits implements IFpProjectBits {
 					".*(master).*|.*(el)(\\d).*|" + //$NON-NLS-1$
 					".*(olpc)(\\d).*" //$NON-NLS-1$
 			);
+	
+	
 	/**
 	 * See {@link IFpProjectBits#getBranchName(String)}
 	 */
@@ -209,6 +213,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 	 */
 	@Override
 	public void initialize(IProjectRoot fedoraprojectRoot) {
+		this.projectRoot = fedoraprojectRoot;
 		this.project = fedoraprojectRoot.getProject();
 		// now set Git Repository object
 		this.git = new Git(getGitRepository());
@@ -488,7 +493,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 			BufferedReader br;
 			try {
 				br = new BufferedReader(new InputStreamReader(FileLocator.find(Platform
-						.getBundle("org.fedoraproject.eclipse.packager.git"), //$NON-NLS-1$
+						.getBundle(projectRoot.getPluginID()),
 						new Path("resources/branchinfo.txt"), null).openStream())); //$NON-NLS-1$
 				while (br.ready()) {
 					String line = br.readLine();
@@ -523,6 +528,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 			} catch (InterruptedException e) {
 				return null;
 			} catch (ExecutionException e) {
+				// ExecutionException may be thrown if user clicked "Cancel"
 				e.printStackTrace();
 				return null;
 			}
