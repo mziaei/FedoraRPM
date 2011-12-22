@@ -16,8 +16,9 @@
       point="org.fedoraproject.eclipse.packager.vcsContribution">
    <vcs
          class="org.fedoraproject.eclipse.packager.cvs.FpCVSProjectBits"
-         type="CVS"
-         name="CVS">
+         contribPlugin="org.fedoraproject.eclipse.packager.cvs"
+         name="CVS"
+         type="CVS">
    </vcs>
 </extension>
 </plugin>

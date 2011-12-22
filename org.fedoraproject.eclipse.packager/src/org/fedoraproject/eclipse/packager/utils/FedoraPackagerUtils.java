@@ -48,6 +48,11 @@ public class FedoraPackagerUtils {
 		"projectRootProvider"; //$NON-NLS-1$
 	private static final String PROJECT_ROOT_ELEMENT_NAME = "projectRoot"; //$NON-NLS-1$
 	private static final String PROJECT_ROOT_CLASS_ATTRIBUTE_NAME = "class"; //$NON-NLS-1$
+	private static final String VCS_CONTRIBUTION_EXTENSIONPOINT_NAME = "vcsContribution"; //$NON-NLS-1$
+	private static final String VCS_CONTRIBUTION_ELEMENT_NAME = "vcs"; //$NON-NLS-1$
+	private static final String VCS_CONTRIBUTION_TYPE_ATTRIBUTE_NAME = "type"; //$NON-NLS-1$
+	private static final String VCS_CONTRIBUTION_CONTRIB_PLUGIN_ID_ATTRIBUTE_NAME = "contribPlugin"; //$NON-NLS-1$
+	private static final String VCS_CONTRIBUTION_CLASS_ATTRIBUTE_NAME = "class"; //$NON-NLS-1$
 
 	private static final String GIT_REPOSITORY = "org.eclipse.egit.core.GitProvider"; //$NON-NLS-1$
 	private static final String CVS_REPOSITORY = "org.eclipse.team.cvs.core.cvsnature"; //$NON-NLS-1$
@@ -143,23 +148,32 @@ public class FedoraPackagerUtils {
 	public static IFpProjectBits getVcsHandler(IProjectRoot fedoraprojectRoot) {
 		IResource project = fedoraprojectRoot.getProject();
 		ProjectType type = getProjectType(project);
+		QualifiedName propertyName = fedoraprojectRoot.getSupportedProjectPropertyNames()[0];
 		IExtensionPoint vcsExtensions = Platform.getExtensionRegistry()
-				.getExtensionPoint(fedoraprojectRoot.getPluginID(), "vcsContribution"); //$NON-NLS-1$
+				.getExtensionPoint(PackagerPlugin.PLUGIN_ID, VCS_CONTRIBUTION_EXTENSIONPOINT_NAME);
 		if (vcsExtensions != null) {
 			IConfigurationElement[] elements = vcsExtensions
 					.getConfigurationElements();
 			for (int i = 0; i < elements.length; i++) {
-				if (elements[i].getName().equals("vcs") //$NON-NLS-1$
-						&& (elements[i].getAttribute("type") //$NON-NLS-1$
-								.equals(type.name()))) {
+				if (elements[i].getName().equals(VCS_CONTRIBUTION_ELEMENT_NAME)
+						&& elements[i]
+								.getAttribute(
+										VCS_CONTRIBUTION_CONTRIB_PLUGIN_ID_ATTRIBUTE_NAME)
+								.startsWith(propertyName.getQualifier())
+						&& elements[i].getAttribute(
+								VCS_CONTRIBUTION_TYPE_ATTRIBUTE_NAME).equals(
+								type.name())) {
 					try {
 						IConfigurationElement bob = elements[i];
 						IFpProjectBits vcsContributor = (IFpProjectBits) bob
-								.createExecutableExtension("class");  //$NON-NLS-1$
+								.createExecutableExtension(VCS_CONTRIBUTION_CLASS_ATTRIBUTE_NAME);
 						// Do initialization
 						if (vcsContributor != null) {
 							vcsContributor.initialize(fedoraprojectRoot);
 						}
+						FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
+						logger.logDebug("Using " + vcsContributor.getClass().getName() + //$NON-NLS-1$
+								" as IFpProjectBits"); //$NON-NLS-1$
 						return vcsContributor;
 					} catch (CoreException e) {
 						e.printStackTrace();
