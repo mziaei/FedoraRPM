@@ -11,6 +11,7 @@
 package org.fedoraproject.eclipse.packager.utils;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,16 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -334,5 +345,47 @@ public class FedoraPackagerUtils {
 		} else { 
 			return null;
 		}
+	}
+	
+	/**
+	 * Wrap a basic HttpClient object in an all trusting SSL enabled
+	 * HttpClient object.
+	 * 
+	 * @param base The HttpClient to wrap.
+	 * @return The SSL wrapped HttpClient.
+	 * @throws GeneralSecurityException
+	 */
+	public static HttpClient trustAllSslEnable(HttpClient base)
+			throws GeneralSecurityException {
+		// Get an initialized SSL context
+		// Create a trust manager that does not validate certificate chains
+		TrustManager[] trustAllCerts = new TrustManager[]{
+		    new X509TrustManager() {
+		        @Override
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+		            return null;
+		        }
+		        @Override
+				public void checkClientTrusted(
+		            java.security.cert.X509Certificate[] certs, String authType) {
+		        }
+		        @Override
+				public void checkServerTrusted(
+		            java.security.cert.X509Certificate[] certs, String authType) {
+		        }
+		    }
+		};
+
+		// set up the all-trusting trust manager
+		SSLContext sc = SSLContext.getInstance("SSL"); //$NON-NLS-1$
+		sc.init(null, trustAllCerts, new java.security.SecureRandom());		
+		
+		SSLSocketFactory sf = new SSLSocketFactory(
+				sc,	SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+		ClientConnectionManager ccm = base.getConnectionManager();
+		SchemeRegistry sr = ccm.getSchemeRegistry();
+		Scheme https = new Scheme("https", 443, sf); //$NON-NLS-1$
+		sr.register(https);
+		return new DefaultHttpClient(ccm, base.getParams());
 	}
 }

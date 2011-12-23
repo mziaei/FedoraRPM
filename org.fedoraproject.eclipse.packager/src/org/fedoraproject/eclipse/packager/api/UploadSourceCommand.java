@@ -11,7 +11,6 @@
 package org.fedoraproject.eclipse.packager.api;
 
 import java.io.BufferedReader;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,10 +18,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.security.GeneralSecurityException;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -245,7 +240,7 @@ public class UploadSourceCommand extends
 			} else if (trustAllSSLEnabled) {
 				// use accept all SSL enabled client
 				try {
-					client = trustAllSslEnable(client);
+					client = FedoraPackagerUtils.trustAllSslEnable(client);
 				} catch (GeneralSecurityException e) {
 					throw new UploadFailedException(e.getMessage(), e);
 				}
@@ -333,7 +328,7 @@ public class UploadSourceCommand extends
 				client = fedoraSslEnable(client);
 			} else if (trustAllSSLEnabled) {
 				// use an trust-all SSL enabled client
-				client = trustAllSslEnable(client);
+				client = FedoraPackagerUtils.trustAllSslEnable(client);
 			}
 			
 			HttpPost post = new HttpPost(uploadUrl);
@@ -436,49 +431,6 @@ public class UploadSourceCommand extends
 		SSLSocketFactory sf = new SSLSocketFactory(
 				fedoraSSL.getInitializedSSLContext(), // may throw FileNotFoundE
 				SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-		ClientConnectionManager ccm = base.getConnectionManager();
-		SchemeRegistry sr = ccm.getSchemeRegistry();
-		Scheme https = new Scheme("https", 443, sf); //$NON-NLS-1$
-		sr.register(https);
-		return new DefaultHttpClient(ccm, base.getParams());
-	}
-	
-	/**
-	 * Wrap a basic HttpClient object in an all trusting SSL enabled
-	 * HttpClient object.
-	 * 
-	 * @param base The HttpClient to wrap.
-	 * @return The SSL wrapped HttpClient.
-	 * @throws GeneralSecurityException
-	 * @throws IOException
-	 */
-	private HttpClient trustAllSslEnable(HttpClient base)
-			throws GeneralSecurityException {
-		// Get an initialized SSL context
-		// Create a trust manager that does not validate certificate chains
-		TrustManager[] trustAllCerts = new TrustManager[]{
-		    new X509TrustManager() {
-		        @Override
-				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-		            return null;
-		        }
-		        @Override
-				public void checkClientTrusted(
-		            java.security.cert.X509Certificate[] certs, String authType) {
-		        }
-		        @Override
-				public void checkServerTrusted(
-		            java.security.cert.X509Certificate[] certs, String authType) {
-		        }
-		    }
-		};
-
-		// set up the all-trusting trust manager
-		SSLContext sc = SSLContext.getInstance("SSL"); //$NON-NLS-1$
-		sc.init(null, trustAllCerts, new java.security.SecureRandom());		
-		
-		SSLSocketFactory sf = new SSLSocketFactory(
-				sc,	SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 		ClientConnectionManager ccm = base.getConnectionManager();
 		SchemeRegistry sr = ccm.getSchemeRegistry();
 		Scheme https = new Scheme("https", 443, sf); //$NON-NLS-1$
