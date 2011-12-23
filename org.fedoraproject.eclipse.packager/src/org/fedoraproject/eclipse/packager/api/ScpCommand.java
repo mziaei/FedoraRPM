@@ -15,23 +15,25 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Vector;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jsch.ui.UserInfoPrompter;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
+import org.fedoraproject.eclipse.packager.api.errors.ScpFailedException;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 
@@ -48,10 +50,16 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	 * The unique ID of this command.
 	 */
 	public static final String ID = "ScpCommand"; //$NON-NLS-1$
-	private static final String FEDORAHOST = "fedorapeople.org"; //$NON-NLS-1$
+	private static final String FEDORAHOST  = "fedorapeople.org"; //$NON-NLS-1$
+	private static final String PUBLIC_HTML = "public_html"; //$NON-NLS-1$
+	private static final String REMOTE_DIR  = "fpe-rpm-review"; //$NON-NLS-1$
 
 	private String fasAccount;
-	private List<String> filesToScp = new ArrayList<String>();
+	private String specFile;
+	private String srpmFile;
+
+	private boolean scpconfirmed;
+	private String fileScpConfirm;
 
 	/*
 	 * Implementation of the {@code ScpCommand}.
@@ -63,11 +71,13 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	 *
 	 * @throws CommandListenerException If some listener detected a problem.
 	 *
+	 * @throws ScpFailedException if .src.rpm file does not exist to be copied
+	 *
 	 * @return The result of this command.
 	 */
 	@Override
 	public ScpResult call(IProgressMonitor monitor)
-			throws CommandMisconfiguredException, CommandListenerException {
+			throws CommandMisconfiguredException, CommandListenerException, ScpFailedException {
 		try {
 			callPreExecListeners();
 		} catch (CommandListenerException e) {
@@ -80,16 +90,14 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 		JSch jsch = new JSch();
 
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-				.getShell();
-		FileDialogRunable fileDialog = new FileDialogRunable(null,
-				FedoraPackagerText.ScpCommand_ChoosePrivateKey);
-		shell.getDisplay().syncExec(fileDialog);
-		String filePath = fileDialog.getFile();
+		FileDialogRunable fdr = new FileDialogRunable(null,
+				FedoraPackagerText.ScpCommand_choosePrivateKey);
+		PlatformUI.getWorkbench().getDisplay().syncExec(fdr);
+		String privateKeyFile = fdr.getFile();
 
 		try {
-			if (filePath != null) {
-				jsch.addIdentity(filePath);
+			if (privateKeyFile != null) {
+				jsch.addIdentity(privateKeyFile);
 			}
 
 			Session session;
@@ -97,46 +105,142 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 			UserInfo userInfo = session.getUserInfo();
 			if (userInfo == null || userInfo.getPassword() == null) {
+				@SuppressWarnings("unused")
 				UserInfoPrompter userInfoPrompt = new UserInfoPrompter(session);
 			}
 
 			session.setConfig("StrictHostKeyChecking", "no"); //$NON-NLS-1$ //$NON-NLS-2$
 			session.connect();
 
-			Iterator<String> iterator = filesToScp.iterator();
-			while (iterator.hasNext()) {
-				copyFileToRemote(iterator.next(), session);
+			if (monitor.isCanceled()) {
+				throw new OperationCanceledException();
+			}
+
+			if (srpmFile.isEmpty()) {
+				throw new ScpFailedException(FedoraPackagerText.ScpCommand_filesToScpMissing);
+			}
+
+			// create the 'fpe-rpm-review' directory in public_html if it doesn't exist
+			// return false if srpm file already exists
+			boolean scpOk = checkRemoteDir(session);
+
+			if (scpOk) {
+				copyFileToRemote(specFile, session);
+				copyFileToRemote(srpmFile, session);
+			}
+
+			if (monitor.isCanceled()) {
+				throw new OperationCanceledException();
 			}
 
 			session.disconnect();
+//			System.exit(0);
 
-			System.exit(0);
-
-		} catch (JSchException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			if (e instanceof OperationCanceledException) {
+				throw ((OperationCanceledException) e);
+			} else {
+				throw new ScpFailedException(e.getMessage(), e);
+			}
 		}
 
-		ScpResult result = new ScpResult();
+		ScpResult result = new ScpResult(specFile, srpmFile);
 
 		// Call post-exec listeners
 		callPostExecListeners();
 		result.setSuccessful(true);
 		setCallable(false);
+
 		return result;
+	}
+
+	/**
+	 * check the public_html and create the remote directory if it doesn't exist
+	 * If it exists, make sure the files to copy don't already exist
+	 *
+	 * @param session
+	 *            of the current operation
+	 * @throws ScpFailedException
+	 *
+	 */
+	private boolean checkRemoteDir(Session session) throws ScpFailedException {
+		boolean dirFound = false;
+		boolean fileFound = false;
+		boolean rc = false;
+
+		Channel channel;
+
+		try {
+			channel = session.openChannel("sftp"); //$NON-NLS-1$
+
+			channel.connect();
+			ChannelSftp channelSftp = (ChannelSftp) channel;
+
+			// check if the remote directory exists
+			// if not, create the proper directory in public_html
+			Vector existDir = channelSftp.ls(PUBLIC_HTML);
+			Iterator it = existDir.iterator();
+			while (it.hasNext() && !dirFound) {
+				LsEntry entry = (LsEntry) it.next();
+				String dirName = entry.getFilename();
+				if (dirName.equals(REMOTE_DIR))
+					dirFound = true;
+			}
+			if (!dirFound)
+				channelSftp.mkdir(PUBLIC_HTML + IPath.SEPARATOR + REMOTE_DIR);
+
+			// check if the files to scp already exist in the remote directory
+			// if yes, ask for confirmation
+			Vector existFile = channelSftp.ls(PUBLIC_HTML + IPath.SEPARATOR + REMOTE_DIR );
+			it = existFile.iterator();
+			while (it.hasNext() && !fileFound) {
+				LsEntry entry = (LsEntry) it.next();
+				String fileName = entry.getFilename();
+				if (fileName.equals(srpmFile))
+					fileFound = true;
+			}
+			if (fileFound) {
+				fileScpConfirm = FedoraPackagerText.ScpCommand_filesToScpExist;
+				PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						scpconfirmed = MessageDialog.openConfirm
+								(null, FedoraPackagerText.ScpCommand_notificationTitle,
+										fileScpConfirm.concat("\n *" + srpmFile)); //$NON-NLS-1$
+					}
+				});
+				rc = scpconfirmed;
+			}
+			else {
+				rc = true;
+			}
+
+			channel.disconnect();
+
+		} catch (Exception e) {
+			throw new ScpFailedException(e.getMessage(), e);
+		}
+
+		return rc;
+
 	}
 
 	/**
 	 * Copies the localFile to remote location at remoteFile
 	 *
-	 * @param fileToScp to be copied remotely
-	 * @param session of the current operation
+	 * @param fileToScp
+	 *            to be copied remotely
+	 * @param session
+	 *            of the current operation
+	 * @throws ScpFailedException
 	 *
 	 */
-	private void copyFileToRemote(String fileToScp, Session session) {
+	private void copyFileToRemote(String fileToScp, Session session) throws ScpFailedException {
 		FileInputStream fis = null;
 
 		// exec 'scp -t remoteFile' remotely
-		String remoteFile = "public_html" + IPath.SEPARATOR + fileToScp; //$NON-NLS-1$
+		String remoteFile = PUBLIC_HTML + IPath.SEPARATOR + REMOTE_DIR
+				+ IPath.SEPARATOR + fileToScp;
 		String command = "scp -p -t " + remoteFile; //$NON-NLS-1$
 
 		Channel channel;
@@ -156,7 +260,8 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 			// send "C0644 filesize filename", where filename should not include
 			// '/'
-			String localFile = projectRoot.getProject().getLocation().toString()
+			String localFile = projectRoot.getProject().getLocation()
+					.toString()
 					+ IPath.SEPARATOR + fileToScp;
 			long filesize = (new File(localFile)).length();
 			command = "C0644 " + filesize + " "; //$NON-NLS-1$ //$NON-NLS-2$
@@ -194,13 +299,9 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			out.close();
 
 			channel.disconnect();
-		} catch (JSchException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+		} catch (Exception e) {
+			throw new ScpFailedException(e.getMessage(), e);
 		}
 	}
 
@@ -208,10 +309,6 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	protected void checkConfiguration() throws CommandMisconfiguredException {
 		// We are good to go with the defaults. No-Op.
 
-//		if (this.specFile == null || this.srpmFile == null) {
-//			throw new IllegalStateException(
-//					FedoraPackagerText.ScpCommand_FilesToScpUnspecified);
-//		}
 	}
 
 	/**
@@ -225,13 +322,17 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	}
 
 	/**
-	 * @param file sets the .spec and .src.rpm files to scp
-	 *
-	 * @return this instance
+	 * @param specFile
 	 */
-	public ScpCommand setFilesToSCP(String file) {
-		filesToScp.add(file);
-		return this;
+	public void setSpecFile(String specFile) {
+		this.specFile = specFile;
+	}
+
+	/**
+	 * @param srpmFile
+	 */
+	public void setSrpmFile(String srpmFile) {
+		this.srpmFile = srpmFile;
 	}
 
 	static int checkAck(InputStream in) throws IOException {
@@ -259,4 +360,5 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		}
 		return b;
 	}
+
 }

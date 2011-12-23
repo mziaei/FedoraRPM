@@ -17,12 +17,25 @@ package org.fedoraproject.eclipse.packager.api;
 public class ScpResult implements ICommandResult {
 
 	private boolean successful = false;
+	private String specFile;
+	private String srpmFile;
 
 	/**
-	 * @param successful the successful to set
+	 * @param spec
+	 * @param srpm
+	 */
+	public ScpResult(String spec, String srpm) {
+		super();
+		this.specFile = spec;
+		this.srpmFile = srpm;
+	}
+
+	/**
+	 * @param successful
+	 *            the successful to set
 	 */
 	public void setSuccessful(boolean successful) {
-		this.successful  = successful;
+		this.successful = successful;
 	}
 
 	/**
@@ -31,6 +44,18 @@ public class ScpResult implements ICommandResult {
 	@Override
 	public boolean wasSuccessful() {
 		return successful;
+	}
+
+	/**
+	 * @param message
+	 *            the initial message
+	 * @return String the name of the files to scp to be shown to the user
+	 */
+	public String getHumanReadableMessage(String message) {
+		message = message.
+				concat("\n*" + specFile + "\n *" + srpmFile); //$NON-NLS-1$ //$NON-NLS-2$
+
+		return message;
 	}
 
 }

@@ -138,11 +138,15 @@ public class FedoraPackagerText extends NLS {
 	// LocalHandlerDispatcher
 	/****/ public static String LocalHandlerDispatcher_dispatchToHandlerMsg;
 	// ScpCommand
-	/****/ public static String ScpCommand_FilesToScpUnspecified;
-	/****/ public static String ScpCommand_ChoosePrivateKey;
+	/****/ public static String ScpCommand_choosePrivateKey;
+	/****/ public static String ScpCommand_filesToScpMissing;
+	/****/ public static String ScpCommand_notificationTitle;
+	/****/ public static String ScpCommand_filesToScpExist;
 	// ScpHandler
 	/****/ public static String ScpHandler_taskName;
-	/****/ public static String ScpHandler_ListHeader;
+	/****/ public static String ScpHandler_notificationTitle;
+	/****/ public static String ScpHandler_scpFilesNotifier;
+	/****/ public static String ScpHandler_failToScp;
 
 	static {
 		initializeMessages(BUNDLE_NAME,	FedoraPackagerText.class);
