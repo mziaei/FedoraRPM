@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: %BundleName
+Bundle-Name: Fedora Packager for Eclipse Compatibility Plug-in
 Bundle-SymbolicName: org.fedoraproject.eclipse.packager.compatibility;singleton:=true
 Bundle-Version: 0.3.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -25,5 +25,5 @@ Import-Package: org.eclipse.core.commands.common,
  org.fedoraproject.eclipse.packager,
  org.fedoraproject.eclipse.packager.utils,
  org.osgi.framework
-Bundle-Vendor: %BundleVendor
+Bundle-Vendor: Fedoraproject.org
 Bundle-ActivationPolicy: lazy
