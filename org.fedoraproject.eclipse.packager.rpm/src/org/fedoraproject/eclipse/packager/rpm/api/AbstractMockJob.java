@@ -85,14 +85,14 @@ public abstract class AbstractMockJob extends Job {
 				if (result.wasSuccessful()) {
 					logger.logDebug(NLS.bind(
 							RpmText.AbstractMockJob_mockSucceededMsg,
-							result.getResultDirectoryPath().getFullPath().toFile().getAbsolutePath()));
+							result.getResultDirectoryPath().getLocation().toFile().getAbsolutePath()));
 					showMessageDialog(NLS.bind(
 							RpmText.AbstractMockJob_mockSucceededMsgHTML,
 							result.getResultDirectoryPath().getFullPath().toOSString()));
 				} else {
 					logger.logDebug(NLS.bind(
 							RpmText.AbstractMockJob_mockFailedMsg,
-							result.getResultDirectoryPath().getFullPath().toFile().getAbsolutePath()));
+							result.getResultDirectoryPath().getLocation().toFile().getAbsolutePath()));
 					showMessageDialog(NLS.bind(
 							RpmText.AbstractMockJob_mockFailedMsgHTML,
 							result.getResultDirectoryPath().getFullPath().toOSString()));
