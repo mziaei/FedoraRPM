@@ -17,9 +17,11 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.fedoraproject.eclipse.packager.BranchConfigInstance;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
+import org.fedoraproject.eclipse.packager.api.LinkedMessageDialog;
 import org.fedoraproject.eclipse.packager.rpm.RpmText;
 import org.fedoraproject.eclipse.packager.rpm.api.errors.MockNotInstalledException;
 import org.fedoraproject.eclipse.packager.rpm.api.errors.UserNotInMockGroupException;
@@ -81,23 +83,40 @@ public abstract class AbstractMockJob extends Job {
 					return;
 				}
 				if (result.wasSuccessful()) {
-					// TODO: Make this a link to the directory
-					String msg = NLS.bind(
+					logger.logDebug(NLS.bind(
 							RpmText.AbstractMockJob_mockSucceededMsg,
-							result.getResultDirectoryPath());
-					logger.logDebug(msg);
-					FedoraHandlerUtils.showInformationDialog(shell, fpr
-							.getProductStrings().getProductName(), msg);
+							result.getResultDirectoryPath().getFullPath().toFile().getAbsolutePath()));
+					showMessageDialog(NLS.bind(
+							RpmText.AbstractMockJob_mockSucceededMsgHTML,
+							result.getResultDirectoryPath().getFullPath().toOSString()));
 				} else {
-					String msg = NLS.bind(
+					logger.logDebug(NLS.bind(
 							RpmText.AbstractMockJob_mockFailedMsg,
-							result.getResultDirectoryPath());
-					logger.logDebug(msg);
-					FedoraHandlerUtils.showInformationDialog(shell, fpr
-							.getProductStrings().getProductName(), msg);
+							result.getResultDirectoryPath().getFullPath().toFile().getAbsolutePath()));
+					showMessageDialog(NLS.bind(
+							RpmText.AbstractMockJob_mockFailedMsgHTML,
+							result.getResultDirectoryPath().getFullPath().toOSString()));
 				}
 			}
 		};
 		return listener;
+	}
+	
+	/**
+	 * Helper method for showing the custom message dialog with a link to the
+	 * build result directory.
+	 * 
+	 * @param msg
+	 */
+	private void showMessageDialog(String htmlMsg) {
+		final LinkedMessageDialog messageDialog = new LinkedMessageDialog(shell, fpr
+				.getProductStrings().getProductName(), htmlMsg,
+				result.getResultDirectoryPath());
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				messageDialog.open();
+			}
+		});
 	}
 }

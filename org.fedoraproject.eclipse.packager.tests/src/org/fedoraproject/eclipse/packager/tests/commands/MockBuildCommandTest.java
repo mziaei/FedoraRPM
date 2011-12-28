@@ -88,7 +88,7 @@ public class MockBuildCommandTest {
 		MockBuildResult result = mockBuild.pathToSRPM(srpmPath)
 				.branchConfig(bci).call(new NullProgressMonitor());
 		assertTrue(result.wasSuccessful());
-		String resultDirectoryPath = result.getResultDirectoryPath();
+		String resultDirectoryPath = result.getResultDirectoryPath().getFullPath().toOSString();
 		assertNotNull(resultDirectoryPath);
 		// should have created RPMs in the result directory
 		boolean found = false;
