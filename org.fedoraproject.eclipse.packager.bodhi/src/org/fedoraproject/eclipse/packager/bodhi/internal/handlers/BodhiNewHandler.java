@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.bodhi.internal.handlers;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -59,6 +60,7 @@ import org.fedoraproject.eclipse.packager.bodhi.internal.ui.UserValidationRespon
 import org.fedoraproject.eclipse.packager.bodhi.internal.ui.ValidationJob;
 import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
 import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
+import org.fedoraproject.eclipse.packager.utils.RPMUtils;
 
 /**
  * Handler for pushing Bodhi updates.
@@ -147,7 +149,14 @@ public class BodhiNewHandler extends FedoraPackagerAbstractHandler {
 		final String clog = ""; //$NON-NLS-1$
 		final String bugIDs = findBug(clog);
 		final IFpProjectBits projectBits = FedoraPackagerUtils.getVcsHandler(getProjectRoot());
-		final String[] builds = getProjectRoot().getPackageNVRs(projectBits.getBranchConfig());
+		String nvr = null;
+		try {
+			nvr = RPMUtils.getNVR(getProjectRoot(), projectBits.getBranchConfig());
+		} catch (IOException e1) {
+			FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
+			logger.logError(e1.getMessage(), e1);
+		}
+		final String[] builds = { nvr };
 		
 		
 		// open update dialog
