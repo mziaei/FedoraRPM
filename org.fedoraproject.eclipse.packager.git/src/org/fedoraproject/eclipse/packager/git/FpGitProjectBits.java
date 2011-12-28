@@ -165,7 +165,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 	 * 
 	 * @return The SHA1 as hex in String form.
 	 */
-	private String getCommitHash() {
+	protected String getCommitHash() {
 		String commitHash = null;
 		try {
 			String currentBranchRefString = git.getRepository().getFullBranch();
