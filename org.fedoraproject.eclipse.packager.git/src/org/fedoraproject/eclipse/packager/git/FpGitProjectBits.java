@@ -34,10 +34,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.egit.core.project.RepositoryMapping;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.ConfigConstants;
@@ -47,7 +44,6 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ListDialog;
@@ -413,40 +409,13 @@ public class FpGitProjectBits implements IFpProjectBits {
 					.getConfig()
 					.getString(ConfigConstants.CONFIG_BRANCH_SECTION,
 							branchName, ConfigConstants.CONFIG_KEY_MERGE);
-			// /////////////////////////////////////////////////////////
-			// FIXME: Temp work-around for Eclipse EGit/JGit BZ #317411
-			FetchCommand fetch = git.fetch();
-			fetch.setRemote("origin"); //$NON-NLS-1$
-			fetch.setTimeout(0);
-			// Fetch refs for current branch; account for f14 + f14/master like
-			// branch names. Need to fetch into remotes/origin/f14/master since
-			// this is what is later used for local changes comparison.
-			String fetchBranchSpec = Constants.R_HEADS + branchName + ":" + //$NON-NLS-1$
-					Constants.R_REMOTES + "origin/" + branchName; //$NON-NLS-1$
-			if (trackingRemoteBranch != null) {
-				// have f14/master like branch
-				trackingRemoteBranch = trackingRemoteBranch
-						.substring(Constants.R_HEADS.length());
-				fetchBranchSpec = Constants.R_HEADS + trackingRemoteBranch
-						+ ":" + //$NON-NLS-1$
-						Constants.R_REMOTES + "origin/" + trackingRemoteBranch; //$NON-NLS-1$
-			}
-			RefSpec spec = new RefSpec(fetchBranchSpec);
-			fetch.setRefSpecs(spec);
-			try {
-				fetch.call();
-			} catch (JGitInternalException e) {
-				e.printStackTrace();
-			} catch (InvalidRemoteException e) {
-				e.printStackTrace();
-			}
-			// --- End temp work-around for EGit/JGit bug.
-
 			RevWalk rw = new RevWalk(git.getRepository());
 			ObjectId objHead = git.getRepository().resolve(branchName);
 			if (trackingRemoteBranch == null) {
 				// no config yet, assume plain brach name.
 				trackingRemoteBranch = branchName;
+			} else {
+				trackingRemoteBranch = trackingRemoteBranch.substring(Constants.R_HEADS.length());
 			}
 			RevCommit commitHead = rw.parseCommit(objHead);
 			ObjectId objRemoteTrackingHead = git.getRepository().resolve(
