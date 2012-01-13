@@ -66,21 +66,30 @@ public class BodhiNewUpdateDialog extends AbstractBodhiDialog {
 	private boolean enableKarmaAutomatismData;
 	private int stableKarmaThresholdData;
 	private int unstableKarmaThresholdData;
+	private String[] selectedBuild;
 
 	/**
 	 * Create the dialog and pre-fill it with some data
 	 * 
-	 * @param parent The parent shell
-	 * @param builds The initial list of builds
-	 * @param bugs The comma/space separated list of builds
-	 * @param comment The update comment (i.e. notice)
+	 * @param parent
+	 *            The parent shell
+	 * @param builds
+	 *            The initial list of builds
+	 * @param selectedBuild
+	 *            The item of the builds list which should be selected when the
+	 *            dialog comes up
+	 * @param bugs
+	 *            The comma/space separated list of builds
+	 * @param comment
+	 *            The update comment (i.e. notice)
 	 */
-	public BodhiNewUpdateDialog(Shell parent, String[] builds, String bugs, String comment) {
+	public BodhiNewUpdateDialog(Shell parent, String[] builds, String[] selectedBuild, String bugs, String comment) {
 		super(parent, SWT.MODELESS);
 		setText(BodhiText.BodhiNewUpdateDialog_createNewUpdateTitle);
 		this.buildsData = builds;
 		this.bugsData = bugs;
 		this.commentData = comment;
+		this.selectedBuild = selectedBuild;
 	}
 
 	/**
@@ -413,6 +422,7 @@ public class BodhiNewUpdateDialog extends AbstractBodhiDialog {
 		listBuilds.setToolTipText(BodhiText.BodhiNewUpdateDialog_buildsTooltip);
 		listBuilds.setItems(this.buildsData);
 		listBuilds.setBounds(10, 40, 439, 70);
+		listBuilds.setSelection(selectedBuild);
 		formToolkit.adapt(listBuilds, true, true);
 		
 		Button btnAddBuild = new Button(valuesComposite, SWT.NONE);

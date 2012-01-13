@@ -35,6 +35,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -50,13 +51,12 @@ import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerExtensionPoin
 import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
 
 /**
- * Utility class for Fedora Packager. Put commonly used code in here as long
- * as it's not RPM related. If it's RPM related, RPMUtils is the better choice.
+ * Utility class for Fedora Packager. Put commonly used code in here as long as
+ * it's not RPM related. If it's RPM related, RPMUtils is the better choice.
  */
 public class FedoraPackagerUtils {
-	
-	private static final String PROJECT_ROOT_EXTENSIONPOINT_NAME =
-		"projectRootProvider"; //$NON-NLS-1$
+
+	private static final String PROJECT_ROOT_EXTENSIONPOINT_NAME = "projectRootProvider"; //$NON-NLS-1$
 	private static final String PROJECT_ROOT_ELEMENT_NAME = "projectRoot"; //$NON-NLS-1$
 	private static final String PROJECT_ROOT_CLASS_ATTRIBUTE_NAME = "class"; //$NON-NLS-1$
 	private static final String VCS_CONTRIBUTION_EXTENSIONPOINT_NAME = "vcsContribution"; //$NON-NLS-1$
@@ -69,7 +69,7 @@ public class FedoraPackagerUtils {
 	private static final String CVS_REPOSITORY = "org.eclipse.team.cvs.core.cvsnature"; //$NON-NLS-1$
 
 	/**
-	 * Type of the Fedora project root based on the underlying VCS system. 
+	 * Type of the Fedora project root based on the underlying VCS system.
 	 */
 	public static enum ProjectType {
 		/** Git project */
@@ -112,26 +112,31 @@ public class FedoraPackagerUtils {
 					root.initialize(candidate, type);
 					return root; // All good
 				} else {
-					throw new InvalidProjectRootException(FedoraPackagerText.FedoraPackagerUtils_invalidProjectRootError);
+					throw new InvalidProjectRootException(
+							FedoraPackagerText.FedoraPackagerUtils_invalidProjectRootError);
 				}
 			} catch (FedoraPackagerExtensionPointException e) {
-				FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
+				FedoraPackagerLogger logger = FedoraPackagerLogger
+						.getInstance();
 				logger.logError(e.getMessage(), e);
 				throw new InvalidProjectRootException(e.getMessage());
 			}
 		} else {
-			throw new InvalidProjectRootException(FedoraPackagerText.FedoraPackagerUtils_invalidContainerOrProjectType);
+			throw new InvalidProjectRootException(
+					FedoraPackagerText.FedoraPackagerUtils_invalidContainerOrProjectType);
 		}
 	}
-	
+
 	/**
 	 * Returns the project type determined from the given IResource.
-	 * @param resource The base for determining the project type.
+	 * 
+	 * @param resource
+	 *            The base for determining the project type.
 	 * @return The project type.
 	 */
 	public static ProjectType getProjectType(IResource resource) {
 
-		Map<?,?> persistentProperties = null;
+		Map<?, ?> persistentProperties = null;
 		try {
 			persistentProperties = resource.getProject()
 					.getPersistentProperties();
@@ -153,15 +158,18 @@ public class FedoraPackagerUtils {
 	/**
 	 * Returns the IFpProjectBits used to abstract vcs specific things.
 	 * 
-	 * @param fedoraprojectRoot The project for which to get the VCS specific parts.
+	 * @param fedoraprojectRoot
+	 *            The project for which to get the VCS specific parts.
 	 * @return The needed IFpProjectBits.
 	 */
 	public static IFpProjectBits getVcsHandler(IProjectRoot fedoraprojectRoot) {
 		IResource project = fedoraprojectRoot.getProject();
 		ProjectType type = getProjectType(project);
-		QualifiedName propertyName = fedoraprojectRoot.getSupportedProjectPropertyNames()[0];
+		QualifiedName propertyName = fedoraprojectRoot
+				.getSupportedProjectPropertyNames()[0];
 		IExtensionPoint vcsExtensions = Platform.getExtensionRegistry()
-				.getExtensionPoint(PackagerPlugin.PLUGIN_ID, VCS_CONTRIBUTION_EXTENSIONPOINT_NAME);
+				.getExtensionPoint(PackagerPlugin.PLUGIN_ID,
+						VCS_CONTRIBUTION_EXTENSIONPOINT_NAME);
 		if (vcsExtensions != null) {
 			IConfigurationElement[] elements = vcsExtensions
 					.getConfigurationElements();
@@ -182,7 +190,8 @@ public class FedoraPackagerUtils {
 						if (vcsContributor != null) {
 							vcsContributor.initialize(fedoraprojectRoot);
 						}
-						FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
+						FedoraPackagerLogger logger = FedoraPackagerLogger
+								.getInstance();
 						logger.logDebug("Using " + vcsContributor.getClass().getName() + //$NON-NLS-1$
 								" as IFpProjectBits"); //$NON-NLS-1$
 						return vcsContributor;
@@ -194,21 +203,22 @@ public class FedoraPackagerUtils {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Checks if <code>candidate</code> is a valid file for uploading.
-	 * I.e. is non-empty and has a valid file extension. Valid file extensions
-	 * are: <code>'tar', 'gz', 'bz2', 'lzma', 'xz', 'Z', 'zip', 'tff', 'bin',
-     *            'tbz', 'tbz2', 'tlz', 'txz', 'pdf', 'rpm', 'jar', 'war', 'db',
-     *            'cpio', 'jisp', 'egg', 'gem'</code>
+	 * Checks if <code>candidate</code> is a valid file for uploading. I.e. is
+	 * non-empty and has a valid file extension. Valid file extensions are:
+	 * <code>'tar', 'gz', 'bz2', 'lzma', 'xz', 'Z', 'zip', 'tff', 'bin',
+	 *            'tbz', 'tbz2', 'tlz', 'txz', 'pdf', 'rpm', 'jar', 'war', 'db',
+	 *            'cpio', 'jisp', 'egg', 'gem'</code>
 	 * 
 	 * @param candidate
-	 * @return <code>true</code> if <code>candidate</code> is a valid file for uploading
-	 * 		   <code>false</code> otherwise.
+	 * @return <code>true</code> if <code>candidate</code> is a valid file for
+	 *         uploading <code>false</code> otherwise.
 	 */
 	public static boolean isValidUploadFile(File candidate) {
 		if (candidate.length() != 0) {
-			Pattern extensionPattern = Pattern.compile("^.*\\.(?:tar|gz|bz2|lzma|xz|Z|zip|tff|bin|tbz|tbz2|tlz|txz|pdf|rpm|jar|war|db|cpio|jisp|egg|gem)$"); //$NON-NLS-1$
+			Pattern extensionPattern = Pattern
+					.compile("^.*\\.(?:tar|gz|bz2|lzma|xz|Z|zip|tff|bin|tbz|tbz2|tlz|txz|pdf|rpm|jar|war|db|cpio|jisp|egg|gem)$"); //$NON-NLS-1$
 			Matcher extMatcher = extensionPattern.matcher(candidate.getName());
 			if (extMatcher.matches()) {
 				// file extension seems to be good
@@ -219,15 +229,134 @@ public class FedoraPackagerUtils {
 	}
 
 	/**
+	 * @return A (probably) unique String.
+	 */
+	public static String getUniqueIdentifier() {
+		// ensure number is not in scientific notation and does not use grouping
+		NumberFormat nf = NumberFormat.getInstance();
+		nf.setMaximumIntegerDigits(9);
+		nf.setGroupingUsed(false);
+		// get time stamp for upload folder
+		String timestamp = nf
+				.format(((double) System.currentTimeMillis()) / 1000);
+		// get random String to ensure that uploads that occur in the same
+		// millisecond don't collide
+		// two simultaneous uploads of the same srpm still have a 1 in 200
+		// billion chance of collision
+		String randomDifferentiator = ""; //$NON-NLS-1$
+		for (int i = 0; i < 8; i++) {
+			randomDifferentiator = randomDifferentiator.concat(Character
+					.toString((char) (new Random().nextInt('Z' - 'A') + 'A')));
+		}
+		return timestamp + "." + randomDifferentiator; //$NON-NLS-1$
+	}
+
+	/**
+	 * This function gets the likely target from the SRPM name.
+	 * 
+	 * @param srpmName
+	 * @return The target build platform for the SRPM.
+	 */
+	public static String getTargetFromSRPM(String srpmName) {
+		String[] splitSRPM = srpmName.split("\\."); //$NON-NLS-1$
+		String target = splitSRPM[splitSRPM.length - 3];
+		if (target.startsWith("fc")) { //$NON-NLS-1$
+			if (Integer.parseInt(target.substring(2)) < 16) {
+				return "f" + target.substring(2) + "-candidate"; //$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				return "dist-rawhide"; //$NON-NLS-1$
+			}
+		} else if (target.startsWith("el")) { //$NON-NLS-1$
+			if (Integer.parseInt(target.substring(2)) < 6) {
+				return "dist-" + target.substring(2) + "E-epel-testing-candidate"; //$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				return "dist-rawhide"; //$NON-NLS-1$
+			}
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Wrap a basic HttpClient object in an all trusting SSL enabled HttpClient
+	 * object.
+	 * 
+	 * @param base
+	 *            The HttpClient to wrap.
+	 * @return The SSL wrapped HttpClient.
+	 * @throws GeneralSecurityException
+	 */
+	public static HttpClient trustAllSslEnable(HttpClient base)
+			throws GeneralSecurityException {
+		// Get an initialized SSL context
+		// Create a trust manager that does not validate certificate chains
+		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+			@Override
+			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+				return null;
+			}
+
+			@Override
+			public void checkClientTrusted(
+					java.security.cert.X509Certificate[] certs, String authType) {
+			}
+
+			@Override
+			public void checkServerTrusted(
+					java.security.cert.X509Certificate[] certs, String authType) {
+			}
+		} };
+
+		// set up the all-trusting trust manager
+		SSLContext sc = SSLContext.getInstance("SSL"); //$NON-NLS-1$
+		sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+		SSLSocketFactory sf = new SSLSocketFactory(sc,
+				SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+		ClientConnectionManager ccm = base.getConnectionManager();
+		SchemeRegistry sr = ccm.getSchemeRegistry();
+		Scheme https = new Scheme("https", 443, sf); //$NON-NLS-1$
+		sr.register(https);
+		return new DefaultHttpClient(ccm, base.getParams());
+	}
+
+	/**
+	 * Get a list of all Fedora Git projects. I.e. all projects in the current
+	 * workspace which have the Fedora Packager for Eclipse persistent property.
+	 * 
+	 * @return All projects in the current workspace with the
+	 *         {@link PackagerPlugin#PROJECT_PROP} property.
+	 */
+	public static IProject[] getAllFedoraGitProjects() {
+		IProject[] wsProjects = ResourcesPlugin.getWorkspace().getRoot()
+				.getProjects();
+		List<IProject> projectsSet = new ArrayList<IProject>();
+		for (IProject project : wsProjects) {
+			String property = null;
+			try {
+				property = project
+						.getPersistentProperty(PackagerPlugin.PROJECT_PROP);
+			} catch (CoreException e) {
+				// ignore
+			}
+			if (property != null) {
+				projectsSet.add(project);
+			}
+		}
+		return projectsSet.toArray(new IProject[] {});
+	}
+
+	/**
 	 * Instatiate a project root instance using the projectRoot extension point.
-	 * @param type 
-	 * @param container 
+	 * 
+	 * @param type
+	 * @param container
 	 * 
 	 * @return the newly created instance
-	 * @throws FedoraPackagerExtensionPointException 
+	 * @throws FedoraPackagerExtensionPointException
 	 */
-	private static IProjectRoot instantiateProjectRoot(IContainer container, ProjectType type)
-			throws FedoraPackagerExtensionPointException {
+	private static IProjectRoot instantiateProjectRoot(IContainer container,
+			ProjectType type) throws FedoraPackagerExtensionPointException {
 		IExtensionPoint projectRootExtension = Platform.getExtensionRegistry()
 				.getExtensionPoint(PackagerPlugin.PLUGIN_ID,
 						PROJECT_ROOT_EXTENSIONPOINT_NAME);
@@ -258,7 +387,8 @@ public class FedoraPackagerUtils {
 						PROJECT_ROOT_EXTENSIONPOINT_NAME));
 			}
 			// Get the best matching project root
-			IProjectRoot projectRoot = findBestMatchingProjectRoot(projectRootList, container);
+			IProjectRoot projectRoot = findBestMatchingProjectRoot(
+					projectRootList, container);
 			if (projectRoot == null) {
 				// can't continue
 				throw new FedoraPackagerExtensionPointException(NLS.bind(
@@ -283,7 +413,7 @@ public class FedoraPackagerUtils {
 	 */
 	private static IProjectRoot findBestMatchingProjectRoot(
 			List<IProjectRoot> projectRootList, IContainer container) {
-		for (IProjectRoot root: projectRootList) {
+		for (IProjectRoot root : projectRootList) {
 			for (QualifiedName propName : root
 					.getSupportedProjectPropertyNames()) {
 				try {
@@ -291,7 +421,8 @@ public class FedoraPackagerUtils {
 							.getPersistentProperty(propName);
 					if (property != null) {
 						// match found
-						FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
+						FedoraPackagerLogger logger = FedoraPackagerLogger
+								.getInstance();
 						logger.logDebug(NLS
 								.bind(FedoraPackagerText.FedoraPackagerUtils_projectRootClassNameMsg,
 										root.getClass().getName()));
@@ -303,89 +434,5 @@ public class FedoraPackagerUtils {
 			}
 		}
 		return null;
-	}
-	/**
-	 * @return A (probably) unique String.
-	 */
-	public static String getUniqueIdentifier(){
-		//ensure number is not in scientific notation and does not use grouping
-		NumberFormat nf = NumberFormat.getInstance();
-		nf.setMaximumIntegerDigits(9);
-		nf.setGroupingUsed(false);
-		//get time stamp for upload folder
-		String timestamp = nf.format(((double)System.currentTimeMillis()) / 1000);
-		//get random String to ensure that uploads that occur in the same millisecond don't collide
-		//two simultaneous uploads of the same srpm still have a 1 in 200 billion chance of collision
-		String randomDifferentiator = ""; //$NON-NLS-1$
-		for (int i = 0; i < 8; i++){
-			randomDifferentiator = randomDifferentiator.concat(Character.toString((char) (new Random().nextInt('Z' - 'A') + 'A')));
-		}
-		return timestamp + "." + randomDifferentiator; //$NON-NLS-1$
-	}
-	/**
-	 * This function gets the likely target from the SRPM name. 
-	 * @param srpmName 
-	 * @return The target build platform for the SRPM.
-	 */
-	public static String getTargetFromSRPM(String srpmName){
-		String[] splitSRPM = srpmName.split("\\."); //$NON-NLS-1$
-		String target = splitSRPM[splitSRPM.length - 3];
-		if (target.startsWith("fc")){ //$NON-NLS-1$
-			if (Integer.parseInt(target.substring(2)) < 16){
-				return "f" + target.substring(2) + "-candidate"; //$NON-NLS-1$ //$NON-NLS-2$
-			} else {
-				return "dist-rawhide"; //$NON-NLS-1$
-			}
-		} else if (target.startsWith("el")){ //$NON-NLS-1$
-			if (Integer.parseInt(target.substring(2)) < 6) {
-				return "dist-" + target.substring(2) + "E-epel-testing-candidate"; //$NON-NLS-1$ //$NON-NLS-2$
-			} else {
-				return "dist-rawhide"; //$NON-NLS-1$
-			}
-		} else { 
-			return null;
-		}
-	}
-	
-	/**
-	 * Wrap a basic HttpClient object in an all trusting SSL enabled
-	 * HttpClient object.
-	 * 
-	 * @param base The HttpClient to wrap.
-	 * @return The SSL wrapped HttpClient.
-	 * @throws GeneralSecurityException
-	 */
-	public static HttpClient trustAllSslEnable(HttpClient base)
-			throws GeneralSecurityException {
-		// Get an initialized SSL context
-		// Create a trust manager that does not validate certificate chains
-		TrustManager[] trustAllCerts = new TrustManager[]{
-		    new X509TrustManager() {
-		        @Override
-				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-		            return null;
-		        }
-		        @Override
-				public void checkClientTrusted(
-		            java.security.cert.X509Certificate[] certs, String authType) {
-		        }
-		        @Override
-				public void checkServerTrusted(
-		            java.security.cert.X509Certificate[] certs, String authType) {
-		        }
-		    }
-		};
-
-		// set up the all-trusting trust manager
-		SSLContext sc = SSLContext.getInstance("SSL"); //$NON-NLS-1$
-		sc.init(null, trustAllCerts, new java.security.SecureRandom());		
-		
-		SSLSocketFactory sf = new SSLSocketFactory(
-				sc,	SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-		ClientConnectionManager ccm = base.getConnectionManager();
-		SchemeRegistry sr = ccm.getSchemeRegistry();
-		Scheme https = new Scheme("https", 443, sf); //$NON-NLS-1$
-		sr.register(https);
-		return new DefaultHttpClient(ccm, base.getParams());
 	}
 }

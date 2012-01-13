@@ -14,11 +14,14 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -39,6 +42,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
+import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.QuestionMessageDialog;
 import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
@@ -159,12 +163,12 @@ public class BodhiNewHandler extends FedoraPackagerAbstractHandler {
 			FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
 			logger.logError(e1.getMessage(), e1);
 		}
-		final String[] builds = { nvr };
+		final String[] selectedBuild = { nvr };
 		
 		
 		// open update dialog
 		final BodhiNewUpdateDialog updateDialog = new BodhiNewUpdateDialog(shell,
-				builds, bugIDs, clog);
+				getNVRsOfFedoraProjectsInWorkspace(), selectedBuild, bugIDs, clog);
 		int response = updateDialog.open();
 		if (response != Window.OK) {
 			return null; // cancel
@@ -407,6 +411,34 @@ public class BodhiNewHandler extends FedoraPackagerAbstractHandler {
 				this.shell, getProjectRoot());
 		Display.getDefault().syncExec(op);
 		return op.isOkPressed();
+	}
+	
+	/**
+	 * Get all N-V-R's of Fedora Git projects in the current workspace.
+	 * 
+	 * @return The list of corresponding N-V-R's as a String array.
+	 */
+	protected String[] getNVRsOfFedoraProjectsInWorkspace() {
+		List<String> nvrs = new ArrayList<String>();
+		for (IProject fedoraProject: FedoraPackagerUtils.getAllFedoraGitProjects()) {
+			if (fedoraProject.isOpen()) {
+				// attempt to adapt to an IProjectRoot
+				IProjectRoot root = null;
+				try {
+					root = FedoraPackagerUtils.getProjectRoot(fedoraProject);
+					String nvr = null;
+					try {
+						nvr = RPMUtils.getNVR(root, FedoraPackagerUtils.getVcsHandler(root).getBranchConfig());
+						nvrs.add(nvr);
+					} catch (IOException e) {
+						// skip
+					}
+				} catch (InvalidProjectRootException e) {
+					// skip
+				}
+			}
+		}
+		return nvrs.toArray(new String[] {});
 	}
 
 }
