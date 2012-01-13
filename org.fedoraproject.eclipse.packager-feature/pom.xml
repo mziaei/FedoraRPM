@@ -9,7 +9,7 @@
   </parent>
   <groupId>org.fedoraproject.eclipse.packager</groupId>
   <artifactId>org.fedoraproject.eclipse.packager.feature</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.3.0-SNAPSHOT</version>
   <packaging>eclipse-feature</packaging>
 
   <name>Fedora Packager for Eclipse Feature</name>

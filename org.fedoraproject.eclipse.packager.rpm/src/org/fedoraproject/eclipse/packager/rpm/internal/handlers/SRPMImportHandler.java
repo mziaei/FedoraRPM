@@ -26,8 +26,11 @@ import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
 import org.fedoraproject.eclipse.packager.api.FileDialogRunable;
+import org.fedoraproject.eclipse.packager.api.IPreferenceHandler;
+import org.fedoraproject.eclipse.packager.api.UploadSourceCommand;
 import org.fedoraproject.eclipse.packager.rpm.RPMPlugin;
 import org.fedoraproject.eclipse.packager.rpm.RpmText;
+import org.fedoraproject.eclipse.packager.rpm.api.ISRPMImportCommandSLLPolicyCallback;
 import org.fedoraproject.eclipse.packager.rpm.api.SRPMImportCommand;
 import org.fedoraproject.eclipse.packager.rpm.api.SRPMImportResult;
 import org.fedoraproject.eclipse.packager.rpm.api.errors.SRPMImportCommandException;
@@ -37,9 +40,10 @@ import org.fedoraproject.eclipse.packager.utils.FedoraHandlerUtils;
  * Import handler for SRPMImportCommand
  * 
  */
-public class SRPMImportHandler extends FedoraPackagerAbstractHandler {
+public class SRPMImportHandler extends FedoraPackagerAbstractHandler implements IPreferenceHandler, ISRPMImportCommandSLLPolicyCallback{
 	private final FedoraPackagerLogger logger = FedoraPackagerLogger
 			.getInstance();
+	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = getShell(event);
@@ -57,6 +61,7 @@ public class SRPMImportHandler extends FedoraPackagerAbstractHandler {
 		} else {
 			fpr = eventResource.getParent();
 		}
+		final SRPMImportHandler self = this;
 		final IContainer fprContainer = fpr;
 		Job job = new Job(RpmText.SRPMImportHandler_ImportingFromSRPM) {
 			@Override
@@ -68,7 +73,7 @@ public class SRPMImportHandler extends FedoraPackagerAbstractHandler {
 							SRPMImportCommand.class.getName()));
 					SRPMImportCommand srpmImport = new SRPMImportCommand(srpm,
 							fprContainer.getProject(), fprContainer,
-							getUploadUrl());
+							getPreference(), self);
 					monitor.setTaskName(RpmText.SRPMImportJob_ExtractingSRPM);
 					SRPMImportResult importResult;
 					importResult = srpmImport.call(monitor);
@@ -91,9 +96,16 @@ public class SRPMImportHandler extends FedoraPackagerAbstractHandler {
 		job.schedule();
 		return null;
 	}
-	
-	protected String getUploadUrl() {
+
+	@Override
+	public String getPreference() {
 		return PackagerPlugin
 				.getStringPreference(FedoraPackagerPreferencesConstants.PREF_LOOKASIDE_UPLOAD_URL);
+	}
+
+	@Override
+	public void setSSLPolicy(UploadSourceCommand uploadCmd, String uploadUrl) {
+		// enable SLL authentication
+		uploadCmd.setFedoraSSLEnabled(true);
 	}
 }

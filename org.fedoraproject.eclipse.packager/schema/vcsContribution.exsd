@@ -6,7 +6,9 @@
          <meta.schema plugin="org.fedoraproject.eclipse.packager" id="vcsContribution" name="VCS interaction"/>
       </appinfo>
       <documentation>
-         [Enter description of this extension point.]
+         Fedora Packager for Eclipse supports version control specific code
+which is used for determining build targets and and dist tags, etc.
+This is the extension point supporting this.
       </documentation>
    </annotation>
 
@@ -18,7 +20,7 @@
       </annotation>
       <complexType>
          <sequence>
-    	 	<element ref="vcs" minOccurs="1" maxOccurs="unbounded"/>
+            <element ref="vcs" minOccurs="1" maxOccurs="unbounded"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -46,7 +48,7 @@
          </attribute>
       </complexType>
    </element>
-   
+
    <element name="vcs">
       <complexType>
          <attribute name="name" type="string" use="required">
@@ -68,9 +70,16 @@
                <documentation>
                   
                </documentation>
-               <appInfo>
+               <appinfo>
                   <meta.attribute kind="java"/>
-               </appInfo>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="contribPlugin" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
             </annotation>
          </attribute>
       </complexType>
@@ -81,7 +90,7 @@
          <meta.section type="since"/>
       </appinfo>
       <documentation>
-         [Enter the first release in which this extension point appears.]
+         0.1
       </documentation>
    </annotation>
 

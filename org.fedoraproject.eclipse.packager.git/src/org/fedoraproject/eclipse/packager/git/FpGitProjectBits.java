@@ -61,6 +61,8 @@ import org.fedoraproject.eclipse.packager.IProjectRoot;
  */
 public class FpGitProjectBits implements IFpProjectBits {
 
+	/** The project root as passed in to {@link FpGitProjectBits#initialize(IProjectRoot)} */
+	protected IProjectRoot projectRoot;
 	private IResource project; // The underlying project
 	private HashMap<String, String> branches; // All branches
 	private Git git; // The Git repository abstraction for this project
@@ -74,9 +76,11 @@ public class FpGitProjectBits implements IFpProjectBits {
 	// Severin, 2011-01-11: Make '/master' postfix of branch name optional.
 	private final Pattern BRANCH_PATTERN = Pattern
 			.compile(".*(fc?)(\\d\\d?).*|" + //$NON-NLS-1$
-					".*(master).*|.*(el)(\\d).*|" + //$NON-NLS-1$
+					".*(master).*|.*(rhel)-(\\d(?:\\.\\d)?).*|.*(el)(\\d).*|" + //$NON-NLS-1$
 					".*(olpc)(\\d).*" //$NON-NLS-1$
 			);
+	
+	
 	/**
 	 * See {@link IFpProjectBits#getBranchName(String)}
 	 */
@@ -157,7 +161,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 	 * 
 	 * @return The SHA1 as hex in String form.
 	 */
-	private String getCommitHash() {
+	protected String getCommitHash() {
 		String commitHash = null;
 		try {
 			String currentBranchRefString = git.getRepository().getFullBranch();
@@ -205,6 +209,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 	 */
 	@Override
 	public void initialize(IProjectRoot fedoraprojectRoot) {
+		this.projectRoot = fedoraprojectRoot;
 		this.project = fedoraprojectRoot.getProject();
 		// now set Git Repository object
 		this.git = new Git(getGitRepository());
@@ -457,7 +462,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 			BufferedReader br;
 			try {
 				br = new BufferedReader(new InputStreamReader(FileLocator.find(Platform
-						.getBundle("org.fedoraproject.eclipse.packager.git"), //$NON-NLS-1$
+						.getBundle(projectRoot.getPluginID()),
 						new Path("resources/branchinfo.txt"), null).openStream())); //$NON-NLS-1$
 				while (br.ready()) {
 					String line = br.readLine();
@@ -492,6 +497,7 @@ public class FpGitProjectBits implements IFpProjectBits {
 			} catch (InterruptedException e) {
 				return null;
 			} catch (ExecutionException e) {
+				// ExecutionException may be thrown if user clicked "Cancel"
 				e.printStackTrace();
 				return null;
 			}
@@ -521,6 +527,11 @@ public class FpGitProjectBits implements IFpProjectBits {
 			distro = "rhel"; //$NON-NLS-1$
 			distroSuffix = ".el" + version; //$NON-NLS-1$
 			buildTarget = "dist-" + version + "E-epel-testing-candidate"; //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (branchName.startsWith("RHEL-")) { //$NON-NLS-1$
+			// RHEL *NOT* EL specific things
+			distro = "rhel"; //$NON-NLS-1$
+			distroSuffix = ".el" + version.replace(".", "_"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			buildTarget = "rhel-" + version + "-candidate"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return new BranchConfigInstance(distroSuffix, version, distro,
 				buildTarget, branchName);

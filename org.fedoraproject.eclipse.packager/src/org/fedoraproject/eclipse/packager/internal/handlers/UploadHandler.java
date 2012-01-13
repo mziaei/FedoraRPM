@@ -14,7 +14,6 @@ package org.fedoraproject.eclipse.packager.internal.handlers;
 import java.io.File;
 import java.net.MalformedURLException;
 
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
@@ -33,11 +32,11 @@ import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.FedoraPackagerPreferencesConstants;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
-import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.SourcesFile;
 import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
+import org.fedoraproject.eclipse.packager.api.IPreferenceHandler;
 import org.fedoraproject.eclipse.packager.api.SourcesFileUpdater;
 import org.fedoraproject.eclipse.packager.api.UploadSourceCommand;
 import org.fedoraproject.eclipse.packager.api.UploadSourceResult;
@@ -62,7 +61,7 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
  * @see VCSIgnoreFileUpdater
  * @see SourcesFileUpdater
  */
-public class UploadHandler extends FedoraPackagerAbstractHandler {
+public class UploadHandler extends FedoraPackagerAbstractHandler implements IPreferenceHandler {
 
 	/**
 	 *  Performs upload of sources (independent of VCS used), updates "sources"
@@ -75,16 +74,15 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 		final Shell shell = getShell(event);
 		final FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
 		final IResource resource = FedoraHandlerUtils.getResource(event);
-		final IProjectRoot fedoraProjectRoot;
 		try {
-			fedoraProjectRoot = FedoraPackagerUtils.getProjectRoot(resource);
+			setProjectRoot(FedoraPackagerUtils.getProjectRoot(resource));
 		} catch (InvalidProjectRootException e) {
 			logger.logError(FedoraPackagerText.invalidFedoraProjectRootError, e);
 			FedoraHandlerUtils.showErrorDialog(shell, "Error", //$NON-NLS-1$
 					FedoraPackagerText.invalidFedoraProjectRootError);
 			return null;
 		}
-		FedoraPackager packager = new FedoraPackager(fedoraProjectRoot);
+		FedoraPackager packager = new FedoraPackager(getProjectRoot());
 		final UploadSourceCommand uploadCmd;
 		try {
 			// Get DownloadSourceCommand from Fedora packager registry
@@ -93,15 +91,15 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 		} catch (FedoraPackagerCommandNotFoundException e) {
 			logger.logError(e.getMessage(), e);
 			FedoraHandlerUtils.showErrorDialog(shell,
-					fedoraProjectRoot.getProductStrings().getProductName(), e.getMessage());
+					getProjectRoot().getProductStrings().getProductName(), e.getMessage());
 			return null;
 		} catch (FedoraPackagerCommandInitializationException e) {
 			logger.logError(e.getMessage(), e);
 			FedoraHandlerUtils.showErrorDialog(shell,
-					fedoraProjectRoot.getProductStrings().getProductName(), e.getMessage());
+					getProjectRoot().getProductStrings().getProductName(), e.getMessage());
 			return null;
 		}
-		final IFpProjectBits projectBits = FedoraPackagerUtils.getVcsHandler(fedoraProjectRoot);
+		final IFpProjectBits projectBits = FedoraPackagerUtils.getVcsHandler(getProjectRoot());
 		// Do the uploading
 		Job job = new Job(FedoraPackagerText.UploadHandler_taskName) {
 
@@ -111,7 +109,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 				monitor.beginTask(FedoraPackagerText.UploadHandler_taskName, 1);
 
 				File newUploadFile = resource.getLocation().toFile();
-				SourcesFile sourceFile = fedoraProjectRoot.getSourcesFile();
+				SourcesFile sourceFile = getProjectRoot().getSourcesFile();
 				if (sourceFile.getSources().containsKey(resource.getName())) {
 					String checksum = SourcesFile.calculateChecksum(newUploadFile);
 					if (checksum.equals(sourceFile.getSources().get(resource.getName()))) {
@@ -120,7 +118,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 								FedoraPackagerText.UploadHandler_versionOfFileExistsAndUpToDate,
 								resource.getName()));
 						FedoraHandlerUtils.showInformationDialog(shell,
-								fedoraProjectRoot.getProductStrings().getProductName(),
+								getProjectRoot().getProductStrings().getProductName(),
 								NLS.bind(
 										FedoraPackagerText.UploadHandler_versionOfFileExistsAndUpToDate,
 										resource.getName()));
@@ -128,24 +126,24 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 					}
 				}
 
-				SourcesFileUpdater sourcesUpdater = new SourcesFileUpdater(fedoraProjectRoot,
+				SourcesFileUpdater sourcesUpdater = new SourcesFileUpdater(getProjectRoot(),
 						newUploadFile);
 				sourcesUpdater.setShouldReplace(shouldReplaceSources());
 				// Note that ignore file may not exist, yet
-				IFile gitIgnore = fedoraProjectRoot.getIgnoreFile();
+				IFile gitIgnore = getProjectRoot().getIgnoreFile();
 				VCSIgnoreFileUpdater vcsIgnoreFileUpdater = new VCSIgnoreFileUpdater(newUploadFile, gitIgnore);
 				
 				UploadSourceResult result = null;
 				try {
-					String uploadUrl = PackagerPlugin
-							.getStringPreference(FedoraPackagerPreferencesConstants.PREF_LOOKASIDE_UPLOAD_URL);
+					String uploadUrl = getPreference();
 					if (uploadUrl != null) {
 						// "http://upload-cgi/cgi-bin/upload.cgi"
 						uploadCmd.setUploadURL(uploadUrl);
 					}
 					uploadCmd.setFileToUpload(newUploadFile);
-					// enable SLL authentication
-					uploadCmd.setFedoraSSLEnabled(true);
+					// Set the SSL policy. We have different policies for Fedora and
+					// RHEL. This should be kept in placed as it is overridden in the Red Hat version.
+					setSSLPolicy(uploadCmd, uploadUrl);
 					uploadCmd.addCommandListener(sourcesUpdater);
 					uploadCmd.addCommandListener(vcsIgnoreFileUpdater);
 					logger.logDebug(NLS.bind(FedoraPackagerText.callingCommand,
@@ -161,7 +159,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 						vcsIgnoreFileUpdater.postExecution();
 						// report that there was no upload required.
 						FedoraHandlerUtils.showInformationDialog(shell,
-								fedoraProjectRoot.getProductStrings().getProductName(),
+								getProjectRoot().getProductStrings().getProductName(),
 								e.getMessage());
 						return Status.OK_STATUS;
 					} 
@@ -190,7 +188,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 					if (e.isCertificateExpired()) {
 						String msg = NLS
 								.bind(FedoraPackagerText.UploadHandler_expiredCertificateError,
-										fedoraProjectRoot.getProductStrings()
+										getProjectRoot().getProductStrings()
 												.getDistributionName());
 						logger.logError(msg, e);
 						return FedoraHandlerUtils.errorStatus(
@@ -201,7 +199,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 					if (e.isCertificateRevoked()) {
 						String msg = NLS
 								.bind(FedoraPackagerText.UploadHandler_revokedCertificateError,
-										fedoraProjectRoot.getProductStrings()
+										getProjectRoot().getProductStrings()
 												.getDistributionName());
 						logger.logError(msg, e);
 						return FedoraHandlerUtils.errorStatus(
@@ -214,7 +212,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 				} catch (InvalidUploadFileException e) {
 					logger.logDebug(e.getMessage(), e);
 					FedoraHandlerUtils.showInformationDialog(shell,
-							fedoraProjectRoot.getProductStrings().getProductName(),
+							getProjectRoot().getProductStrings().getProductName(),
 							e.getMessage());
 					return Status.OK_STATUS;
 				} catch (MalformedURLException e) {
@@ -225,7 +223,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 							e.getMessage());
 					logger.logDebug(message, e);
 					FedoraHandlerUtils.showInformationDialog(shell,
-							fedoraProjectRoot.getProductStrings().getProductName(), message);
+							getProjectRoot().getProductStrings().getProductName(), message);
 					return Status.OK_STATUS;
 				}
 
@@ -245,7 +243,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 
 				IStatus res = Status.OK_STATUS;
 				// Do VCS update
-				res = projectBits.updateVCS(fedoraProjectRoot, monitor);
+				res = projectBits.updateVCS(getProjectRoot(), monitor);
 				if (res.isOK()) {
 					if (monitor.isCanceled()) {
 						throw new OperationCanceledException();
@@ -253,7 +251,7 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 				}
 				
 				// Refresh project
-				IProject project = fedoraProjectRoot.getProject();
+				IProject project = getProjectRoot().getProject();
 				if (project != null) {
 					try {
 						project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -280,5 +278,19 @@ public class UploadHandler extends FedoraPackagerAbstractHandler {
 	 */
 	protected boolean shouldReplaceSources() {
 		return false;
+	}
+
+	/**
+	 * Sets the SSL policy for this handler.
+	 */
+	protected void setSSLPolicy(UploadSourceCommand uploadCmd, String uploadUrl) {
+		// enable SLL authentication
+		uploadCmd.setFedoraSSLEnabled(true);
+	}
+	
+	@Override
+	public String getPreference() {
+		return PackagerPlugin
+				.getStringPreference(FedoraPackagerPreferencesConstants.PREF_LOOKASIDE_UPLOAD_URL);
 	}
 }

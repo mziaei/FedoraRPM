@@ -26,12 +26,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.FedoraPackagerPreferencesConstants;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
-import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.DownloadSourceCommand;
 import org.fedoraproject.eclipse.packager.api.DownloadSourcesJob;
 import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
+import org.fedoraproject.eclipse.packager.api.IPreferenceHandler;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
@@ -50,24 +50,23 @@ import org.fedoraproject.eclipse.packager.utils.FedoraPackagerUtils;
  * if patches apply propperly.
  * 
  */
-public class PrepHandler extends FedoraPackagerAbstractHandler {
+public class PrepHandler extends FedoraPackagerAbstractHandler implements IPreferenceHandler {
 
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final Shell shell = getShell(event);
 		final FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
-		final IProjectRoot fedoraProjectRoot;
 		try {
 			IResource eventResource = FedoraHandlerUtils.getResource(event);
-			fedoraProjectRoot = FedoraPackagerUtils
-					.getProjectRoot(eventResource);
+			setProjectRoot(FedoraPackagerUtils
+					.getProjectRoot(eventResource));
 		} catch (InvalidProjectRootException e) {
 			logger.logError(FedoraPackagerText.invalidFedoraProjectRootError, e);
 			FedoraHandlerUtils.showErrorDialog(shell, "Error", //$NON-NLS-1$
 					FedoraPackagerText.invalidFedoraProjectRootError);
 			return null;
 		}
-		FedoraPackager fp = new FedoraPackager(fedoraProjectRoot);
+		FedoraPackager fp = new FedoraPackager(getProjectRoot());
 		final RpmBuildCommand prepCommand;
 		final DownloadSourceCommand download;
 		try {
@@ -79,28 +78,27 @@ public class PrepHandler extends FedoraPackagerAbstractHandler {
 					.getCommandInstance(RpmBuildCommand.ID);
 		} catch (FedoraPackagerCommandNotFoundException e) {
 			logger.logError(e.getMessage(), e);
-			FedoraHandlerUtils.showErrorDialog(shell, fedoraProjectRoot
+			FedoraHandlerUtils.showErrorDialog(shell, getProjectRoot()
 					.getProductStrings().getProductName(), e.getMessage());
 			return null;
 		} catch (FedoraPackagerCommandInitializationException e) {
 			logger.logError(e.getMessage(), e);
-			FedoraHandlerUtils.showErrorDialog(shell, fedoraProjectRoot
+			FedoraHandlerUtils.showErrorDialog(shell, getProjectRoot()
 					.getProductStrings().getProductName(), e.getMessage());
 			return null;
 		}
 		// Need to nest jobs into this job for it to show up properly in the UI
 		// in terms of progress
-		Job job = new Job(fedoraProjectRoot.getProductStrings()
+		Job job = new Job(getProjectRoot().getProductStrings()
 				.getProductName()) {
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				// Make sure we have sources locally
-				final String downloadUrlPreference = PackagerPlugin
-						.getStringPreference(FedoraPackagerPreferencesConstants.PREF_LOOKASIDE_DOWNLOAD_URL);
+				final String downloadUrlPreference = getPreference();
 				Job downloadSourcesJob = new DownloadSourcesJob(
 						RpmText.PrepHandler_downloadSourcesForPrep, download,
-						fedoraProjectRoot, shell, downloadUrlPreference, true);
+						getProjectRoot(), shell, downloadUrlPreference, true);
 				downloadSourcesJob.setUser(true);
 				downloadSourcesJob.schedule();
 				try {
@@ -114,7 +112,7 @@ public class PrepHandler extends FedoraPackagerAbstractHandler {
 					return downloadSourcesJob.getResult();
 				}
 				// Do the prep job
-				Job prepJob = new Job(fedoraProjectRoot.getProductStrings()
+				Job prepJob = new Job(getProjectRoot().getProductStrings()
 						.getProductName()) {
 					@Override
 					protected IStatus run(IProgressMonitor monitor) {
@@ -131,10 +129,10 @@ public class PrepHandler extends FedoraPackagerAbstractHandler {
 										.branchConfig(
 												FedoraPackagerUtils
 														.getVcsHandler(
-																fedoraProjectRoot)
+																getProjectRoot())
 														.getBranchConfig())
 										.call(monitor);
-								fedoraProjectRoot.getProject().refreshLocal(
+								getProjectRoot().getProject().refreshLocal(
 										IResource.DEPTH_INFINITE, monitor);
 							} catch (CommandMisconfiguredException e) {
 								// This shouldn't happen, but report error
@@ -183,6 +181,12 @@ public class PrepHandler extends FedoraPackagerAbstractHandler {
 		job.setSystem(true); // suppress UI. That's done in encapsulated jobs.
 		job.schedule();
 		return null;
+	}
+
+	@Override
+	public String getPreference() {
+		return PackagerPlugin
+				.getStringPreference(FedoraPackagerPreferencesConstants.PREF_LOOKASIDE_DOWNLOAD_URL);
 	}
 
 }

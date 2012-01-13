@@ -41,9 +41,9 @@ import org.fedoraproject.eclipse.packager.git.GitUtils;
  * Fixture for Git based projects.
  */
 public class GitTestProject {
-	private IProject project;
-	private Git git;
-
+	protected IProject project;
+	protected Git git;
+	
 	public GitTestProject(final String packageName) throws InterruptedException {
 		Job cloneProjectJob = new Job(packageName) {
 
@@ -51,9 +51,7 @@ public class GitTestProject {
 			protected IStatus run(IProgressMonitor monitor) {
 				FedoraPackagerGitCloneOperation cloneOp = new FedoraPackagerGitCloneOperation();
 				try {
-					cloneOp.setCloneURI(
-							GitUtils.getFullGitURL(
-									GitUtils.getAnonymousGitBaseUrl(), packageName))
+					cloneOp.setCloneURI(getGitCloneUrl(packageName))
 							.setPackageName(packageName);
 				} catch (URISyntaxException e1) {
 					// ignore
@@ -92,13 +90,7 @@ public class GitTestProject {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		try {
-			project.setPersistentProperty(PackagerPlugin.PROJECT_PROP,
-			"true" /* unused value */);
-		} catch (CoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		setPersistentProperty();
 		ConnectProviderOperation connect = new ConnectProviderOperation(
 				project);
 		try {
@@ -165,5 +157,20 @@ public class GitTestProject {
 		checkoutCmd.call();
 		// refresh after checkout
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+	}
+	
+	public String getGitCloneUrl(String packageName) {
+		return GitUtils.getFullGitURL(GitUtils.getAnonymousGitBaseUrl(),
+				packageName);
+	}
+	
+	protected void setPersistentProperty() {
+		try {
+			project.setPersistentProperty(PackagerPlugin.PROJECT_PROP,
+			"true" /* unused value */);
+		} catch (CoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 }

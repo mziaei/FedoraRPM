@@ -11,6 +11,7 @@
 package org.fedoraproject.eclipse.packager.utils;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,16 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -48,6 +59,11 @@ public class FedoraPackagerUtils {
 		"projectRootProvider"; //$NON-NLS-1$
 	private static final String PROJECT_ROOT_ELEMENT_NAME = "projectRoot"; //$NON-NLS-1$
 	private static final String PROJECT_ROOT_CLASS_ATTRIBUTE_NAME = "class"; //$NON-NLS-1$
+	private static final String VCS_CONTRIBUTION_EXTENSIONPOINT_NAME = "vcsContribution"; //$NON-NLS-1$
+	private static final String VCS_CONTRIBUTION_ELEMENT_NAME = "vcs"; //$NON-NLS-1$
+	private static final String VCS_CONTRIBUTION_TYPE_ATTRIBUTE_NAME = "type"; //$NON-NLS-1$
+	private static final String VCS_CONTRIBUTION_CONTRIB_PLUGIN_ID_ATTRIBUTE_NAME = "contribPlugin"; //$NON-NLS-1$
+	private static final String VCS_CONTRIBUTION_CLASS_ATTRIBUTE_NAME = "class"; //$NON-NLS-1$
 
 	private static final String GIT_REPOSITORY = "org.eclipse.egit.core.GitProvider"; //$NON-NLS-1$
 	private static final String CVS_REPOSITORY = "org.eclipse.team.cvs.core.cvsnature"; //$NON-NLS-1$
@@ -143,23 +159,32 @@ public class FedoraPackagerUtils {
 	public static IFpProjectBits getVcsHandler(IProjectRoot fedoraprojectRoot) {
 		IResource project = fedoraprojectRoot.getProject();
 		ProjectType type = getProjectType(project);
+		QualifiedName propertyName = fedoraprojectRoot.getSupportedProjectPropertyNames()[0];
 		IExtensionPoint vcsExtensions = Platform.getExtensionRegistry()
-				.getExtensionPoint(fedoraprojectRoot.getPluginID(), "vcsContribution"); //$NON-NLS-1$
+				.getExtensionPoint(PackagerPlugin.PLUGIN_ID, VCS_CONTRIBUTION_EXTENSIONPOINT_NAME);
 		if (vcsExtensions != null) {
 			IConfigurationElement[] elements = vcsExtensions
 					.getConfigurationElements();
 			for (int i = 0; i < elements.length; i++) {
-				if (elements[i].getName().equals("vcs") //$NON-NLS-1$
-						&& (elements[i].getAttribute("type") //$NON-NLS-1$
-								.equals(type.name()))) {
+				if (elements[i].getName().equals(VCS_CONTRIBUTION_ELEMENT_NAME)
+						&& elements[i]
+								.getAttribute(
+										VCS_CONTRIBUTION_CONTRIB_PLUGIN_ID_ATTRIBUTE_NAME)
+								.startsWith(propertyName.getQualifier())
+						&& elements[i].getAttribute(
+								VCS_CONTRIBUTION_TYPE_ATTRIBUTE_NAME).equals(
+								type.name())) {
 					try {
 						IConfigurationElement bob = elements[i];
 						IFpProjectBits vcsContributor = (IFpProjectBits) bob
-								.createExecutableExtension("class");  //$NON-NLS-1$
+								.createExecutableExtension(VCS_CONTRIBUTION_CLASS_ATTRIBUTE_NAME);
 						// Do initialization
 						if (vcsContributor != null) {
 							vcsContributor.initialize(fedoraprojectRoot);
 						}
+						FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
+						logger.logDebug("Using " + vcsContributor.getClass().getName() + //$NON-NLS-1$
+								" as IFpProjectBits"); //$NON-NLS-1$
 						return vcsContributor;
 					} catch (CoreException e) {
 						e.printStackTrace();
@@ -320,5 +345,47 @@ public class FedoraPackagerUtils {
 		} else { 
 			return null;
 		}
+	}
+	
+	/**
+	 * Wrap a basic HttpClient object in an all trusting SSL enabled
+	 * HttpClient object.
+	 * 
+	 * @param base The HttpClient to wrap.
+	 * @return The SSL wrapped HttpClient.
+	 * @throws GeneralSecurityException
+	 */
+	public static HttpClient trustAllSslEnable(HttpClient base)
+			throws GeneralSecurityException {
+		// Get an initialized SSL context
+		// Create a trust manager that does not validate certificate chains
+		TrustManager[] trustAllCerts = new TrustManager[]{
+		    new X509TrustManager() {
+		        @Override
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+		            return null;
+		        }
+		        @Override
+				public void checkClientTrusted(
+		            java.security.cert.X509Certificate[] certs, String authType) {
+		        }
+		        @Override
+				public void checkServerTrusted(
+		            java.security.cert.X509Certificate[] certs, String authType) {
+		        }
+		    }
+		};
+
+		// set up the all-trusting trust manager
+		SSLContext sc = SSLContext.getInstance("SSL"); //$NON-NLS-1$
+		sc.init(null, trustAllCerts, new java.security.SecureRandom());		
+		
+		SSLSocketFactory sf = new SSLSocketFactory(
+				sc,	SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+		ClientConnectionManager ccm = base.getConnectionManager();
+		SchemeRegistry sr = ccm.getSchemeRegistry();
+		Scheme https = new Scheme("https", 443, sf); //$NON-NLS-1$
+		sr.register(https);
+		return new DefaultHttpClient(ccm, base.getParams());
 	}
 }
