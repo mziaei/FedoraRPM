@@ -81,13 +81,6 @@ such as Koji, Bodhi and Fedora Git.
          unpack="false"/>
 
    <plugin
-         id="org.fedoraproject.eclipse.packager.cvs"
-         download-size="0"
-         install-size="0"
-         version="0.3.0.qualifier"
-         unpack="false"/>
-
-   <plugin
          id="org.fedoraproject.eclipse.packager.koji"
          download-size="0"
          install-size="0"
