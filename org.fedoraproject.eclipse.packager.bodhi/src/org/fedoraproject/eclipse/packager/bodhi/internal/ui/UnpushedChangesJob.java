@@ -8,13 +8,12 @@
  * Contributors:
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
-package org.fedoraproject.eclipse.packager.api;
+package org.fedoraproject.eclipse.packager.bodhi.internal.ui;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
+import org.fedoraproject.eclipse.packager.api.UnpushedChangesListener;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.UnpushedChangesException;
 
@@ -22,26 +21,27 @@ import org.fedoraproject.eclipse.packager.api.errors.UnpushedChangesException;
  * Job checking for unpushed changes.
  *
  */
-public class UnpushedChangesJob extends Job {
+public class UnpushedChangesJob implements IRunnableWithProgress {
 
 	// Check for unpushed changes
 	private boolean unpushedChanges = false;
 	private IProjectRoot fedoraProjectRoot;
+	private String jobName;
 	
 	/**
 	 * @param name
 	 * @param fedoraProjectRoot
 	 */
 	public UnpushedChangesJob(String name, IProjectRoot fedoraProjectRoot) {
-		super(name);
+		this.jobName = name;
 		this.fedoraProjectRoot = fedoraProjectRoot;
 	}
 				
 	@Override
-	protected IStatus run(IProgressMonitor monitor) {
+	public void run(IProgressMonitor monitor) {
 		UnpushedChangesListener unpushedChangesListener = new UnpushedChangesListener(
 				fedoraProjectRoot, monitor);
-		monitor.beginTask(getName(), 30);
+		monitor.beginTask(this.jobName, 30);
 		try {
 			unpushedChangesListener.preExecution();
 		} catch (CommandListenerException e) {
@@ -50,7 +50,6 @@ public class UnpushedChangesJob extends Job {
 			}
 		}
 		monitor.done();
-		return Status.OK_STATUS;
 	}
 	
 	/**

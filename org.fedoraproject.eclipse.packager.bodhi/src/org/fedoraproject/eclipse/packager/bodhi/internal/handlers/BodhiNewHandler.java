@@ -11,6 +11,7 @@
 package org.fedoraproject.eclipse.packager.bodhi.internal.handlers;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -34,13 +35,13 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.IProgressService;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.IFpProjectBits;
 import org.fedoraproject.eclipse.packager.QuestionMessageDialog;
 import org.fedoraproject.eclipse.packager.api.FedoraPackager;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
-import org.fedoraproject.eclipse.packager.api.UnpushedChangesJob;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
 import org.fedoraproject.eclipse.packager.api.errors.FedoraPackagerCommandInitializationException;
@@ -55,6 +56,7 @@ import org.fedoraproject.eclipse.packager.bodhi.api.errors.BodhiClientException;
 import org.fedoraproject.eclipse.packager.bodhi.api.errors.BodhiClientLoginException;
 import org.fedoraproject.eclipse.packager.bodhi.internal.ui.BodhiNewUpdateDialog;
 import org.fedoraproject.eclipse.packager.bodhi.internal.ui.BodhiUpdateInfoDialog;
+import org.fedoraproject.eclipse.packager.bodhi.internal.ui.UnpushedChangesJob;
 import org.fedoraproject.eclipse.packager.bodhi.internal.ui.UserValidationDialog;
 import org.fedoraproject.eclipse.packager.bodhi.internal.ui.UserValidationResponse;
 import org.fedoraproject.eclipse.packager.bodhi.internal.ui.ValidationJob;
@@ -92,17 +94,18 @@ public class BodhiNewHandler extends FedoraPackagerAbstractHandler {
 			return null;
 		}
 		// check for unpushed changes
-		Job unpushedChangesJob = new UnpushedChangesJob(
+		final IProgressService service = (IProgressService) PlatformUI.getWorkbench().getService(IProgressService.class);
+		UnpushedChangesJob unpushedChangesJob = new UnpushedChangesJob(
 				BodhiText.BodhiNewHandler_unpushedChangesJobMsg,
 				getProjectRoot());
-		unpushedChangesJob.setUser(true);
-		unpushedChangesJob.schedule();
 		try {
-			unpushedChangesJob.join();
-		} catch (InterruptedException e1) {
-			return null; //cancel
+			service.busyCursorWhile(unpushedChangesJob);
+		} catch (InvocationTargetException e2) {
+			e2.printStackTrace();
+		} catch (InterruptedException e2) {
+			return null; // cancel
 		}
-		if (((UnpushedChangesJob)unpushedChangesJob).isUnpushedChanges()) {
+		if (unpushedChangesJob.isUnpushedChanges()) {
 			if (!confirmIfShouldPushUpdate()) {
 				return null; // cancel
 			}
@@ -124,10 +127,10 @@ public class BodhiNewHandler extends FedoraPackagerAbstractHandler {
 					BodhiText.BodhiNewHandler_validationJobName,
 					userDialog.getUsername(), userDialog.getPassword(),
 					bodhiUrl);
-			validationJob.setUser(true);
-			validationJob.schedule();
 			try {
-				validationJob.join();
+				service.busyCursorWhile(validationJob);
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
 			} catch (InterruptedException e) {
 				return null; // cancel
 			}

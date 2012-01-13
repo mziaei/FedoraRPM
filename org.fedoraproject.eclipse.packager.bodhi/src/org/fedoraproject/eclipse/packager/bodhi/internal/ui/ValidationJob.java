@@ -13,22 +13,21 @@ package org.fedoraproject.eclipse.packager.bodhi.internal.ui;
 import java.net.URL;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 
 /**
  * 
  * Validating username/password by attempting a login on the server.
  *
  */
-public class ValidationJob extends Job {
+public class ValidationJob implements IRunnableWithProgress {
 
 	
 	private UserValidationResponse response;
 	private String username;
 	private String password;
 	private URL bodhiUrl;
+	private String jobName;
 	
 	/**
 	 * 
@@ -38,19 +37,18 @@ public class ValidationJob extends Job {
 	 * @param bodhiUrl
 	 */
 	public ValidationJob(String jobName, String username, String password, URL bodhiUrl) {
-		super(jobName);
+		this.jobName = jobName;
 		this.username = username;
 		this.password = password;
 		this.bodhiUrl = bodhiUrl;
 	}
 	
 	@Override
-	protected IStatus run(IProgressMonitor monitor) {
-		monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
+	public void run(IProgressMonitor monitor) {
+		monitor.beginTask(this.jobName, IProgressMonitor.UNKNOWN);
 		// validate log-in credentials
 		response = new UserValidationResponse(username, password, bodhiUrl);
 		monitor.done();
-		return Status.OK_STATUS;
 	}
 	
 	/**
