@@ -10,20 +10,44 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.rpm.api;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+
 /**
  * Result of a call to {@link MockBuildCommand}.
  */
 public class MockBuildResult extends Result {
 
-	private String resultDir;
+	private IContainer resultDir;
 	
 	private boolean success;
 	
 	/**
-	 * @param cmdList
-	 * @param resultDir The directory specified to put mock build results into.
+	 * The MockBuildResult(String[], IResource) constructor should be used instead.
+	 * 
+	 * @param cmdList The command list used for the mock call.
+	 * @param resultDir The directory where mock build result logs reside.
 	 */
 	public MockBuildResult(String[] cmdList, String resultDir) {
+		super(cmdList);
+		IWorkspace workspace= ResourcesPlugin.getWorkspace();    
+		IPath resultLocation= Path.fromOSString(resultDir); 
+		IContainer dir = workspace.getRoot().getContainerForLocation(resultLocation);
+		this.resultDir = dir;
+		// will be set to false by an observer if there was an error
+		this.success = true;
+	}
+	
+	/**
+	 * @param cmdList
+	 *            The command list used for the mock call.
+	 * @param resultDir
+	 *            The directory where mock build result logs reside.
+	 */
+	public MockBuildResult(String[] cmdList, IContainer resultDir) {
 		super(cmdList);
 		this.resultDir = resultDir;
 		// will be set to false by an observer if there was an error
@@ -48,7 +72,7 @@ public class MockBuildResult extends Result {
 	 *
 	 * @return The relative path to the directory containing mock build results.
 	 */
-	public String getResultDirectoryPath() {
+	public IContainer getResultDirectoryPath() {
 		return this.resultDir;
 	}
 	

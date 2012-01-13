@@ -42,6 +42,8 @@ public class RpmText extends NLS {
 	/****/ public static String MockBuildHandler_creatingSRPMForMockBuild;
 	/****/ public static String AbstractMockJob_mockFailedMsg;
 	/****/ public static String AbstractMockJob_mockSucceededMsg;
+	/****/ public static String AbstractMockJob_mockFailedMsgHTML;
+	/****/ public static String AbstractMockJob_mockSucceededMsgHTML;
 	/****/ public static String AbstractMockJob_mockCancelledMsg;
 	/****/ public static String MockBuildHandler_FileSystemDialogTitle;
 	/****/ public static String MockBuildHandler_RootListMessage;
