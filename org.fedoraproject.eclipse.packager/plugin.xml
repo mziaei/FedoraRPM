@@ -243,16 +243,13 @@
     
     <extension
          point="org.eclipse.ui.newWizards">
-		<category 
-			id="org.fedoraproject.eclipse.packager.category.localwizards" 
-			name="%LocalFedoraPackagerWizardName">
-		</category>
 		<wizard
-        category="org.fedoraproject.eclipse.packager.category.localwizards"
+        category="org.eclipse.linuxtools.rpm.ui.editor"
         class="org.fedoraproject.eclipse.packager.internal.ui.LocalFedoraPackagerProjectWizard"
         icon="icons/fedora16x16.png"
         id="org.fedoraproject.eclipse.packager.newlocalprojectwizard"
-        name="%FedoraGitWizardCommandName">
+        name="%FedoraGitWizardCommandName"
+        project="true">
 		</wizard>
 	</extension>
 </plugin>
