@@ -80,6 +80,16 @@
          </iterate>
       </definition>
    </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="org.fedoraproject.eclipse.packager.internal.expressions.FedoraCertFileExistsPropertyTester"
+            id="org.fedoraproject.eclipse.packager.fedoraCertExistsTester"
+            namespace="org.fedoraproject.eclipse.packager"
+            properties="fedoraCertExists"
+            type="org.eclipse.core.resources.IResource">
+      </propertyTester>
+   </extension>
 
    <extension point="org.eclipse.ui.menus">
       <menuContribution
@@ -88,6 +98,10 @@
                icon="icons/fedora16x16.png"
                id="org.eclipse.fedoraproject.packager.main"
                label="%MenuProductName">
+            <separator
+                  name="org.fedoraproject.eclipse.packager.convsep"
+                  visible="true">
+            </separator>
             <separator
                   name="org.fedoraproject.eclipse.packager.kojisep"
                   visible="false">

@@ -78,6 +78,46 @@
                                        definitionId="org.fedoraproject.eclipse.packager.project">
                                  </reference>
                               </with>
+                              <with
+                                    variable="activeMenuSelection">
+                                 <and>
+                                    <reference
+                                          definitionId="org.fedoraproject.eclipse.packager.localproject">
+                                    </reference>
+                                    <iterate
+                                          ifEmpty="false"
+                                          operator="and">
+                                       <adapt
+                                             type="org.eclipse.core.resources.IResource">
+                                          <test
+                                                forcePluginActivation="false"
+                                                property="org.fedoraproject.eclipse.packager.fedoraCertExists"
+                                                value="true">
+                                          </test>
+                                       </adapt>
+                                    </iterate>
+                                 </and>
+                              </with>
+                              <with
+                                    variable="activeMenuEditorInput">
+                                 <and>
+                                    <reference
+                                          definitionId="org.fedoraproject.eclipse.packager.localproject">
+                                    </reference>
+                                    <iterate
+                                          ifEmpty="false"
+                                          operator="and">
+                                       <adapt
+                                             type="org.eclipse.core.resources.IResource">
+                                          <test
+                                                forcePluginActivation="false"
+                                                property="org.fedoraproject.eclipse.packager.fedoraCertExists"
+                                                value="true">
+                                          </test>
+                                       </adapt>
+                                    </iterate>
+                                 </and>
+                              </with>
                            </or>
                         </visibleWhen>
                      </command>

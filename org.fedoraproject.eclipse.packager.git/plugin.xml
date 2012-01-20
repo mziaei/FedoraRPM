@@ -80,7 +80,7 @@
     </extension>
     <extension point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="popup:org.eclipse.fedoraproject.packager.main?before=org.fedoraproject.eclipse.packager.cvssep">
+            locationURI="popup:org.eclipse.fedoraproject.packager.main?before=org.fedoraproject.eclipse.packager.convsep">
          <command
                   commandId="org.fedoraproject.eclipse.packager.ConvertLocalToRemoteCommand"
                   label="%LabelConvertLocalToRemote"
