@@ -27,7 +27,10 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.FedoraPackagerPreferencesConstants;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
@@ -132,8 +135,9 @@ public class KojiBuildHandler extends FedoraPackagerAbstractHandler {
 													buildResult.getTaskId(),
 													kojiWebUrl));
 									// open dialog
-									getKojiMsgDialog(buildResult.getTaskId(),
-											kojiWebUrl).open();
+									openBrowser(buildResult.getTaskId(), kojiWebUrl);
+//									getKojiMsgDialog(buildResult.getTaskId(),
+//											kojiWebUrl).open();
 								}
 							}
 						});
@@ -167,5 +171,26 @@ public class KojiBuildHandler extends FedoraPackagerAbstractHandler {
 				msgContentImage,
 				getProjectRoot().getProductStrings().getBuildToolName());
 		return msgDialog;
+	}
+	
+	protected void openBrowser(int taskId, URL kojiWebUrl) {
+		try {
+			final String url = KojiUrlUtils.constructTaskUrl(taskId, kojiWebUrl);
+			IWebBrowser browser = PlatformUI
+					.getWorkbench()
+					.getBrowserSupport()
+					.createBrowser(
+							IWorkbenchBrowserSupport.NAVIGATION_BAR
+									| IWorkbenchBrowserSupport.LOCATION_BAR
+									| IWorkbenchBrowserSupport.STATUS,
+							"koji_task", null, null); //$NON-NLS-1$
+			browser.openURL(new URL(url));
+		} catch (PartInitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
