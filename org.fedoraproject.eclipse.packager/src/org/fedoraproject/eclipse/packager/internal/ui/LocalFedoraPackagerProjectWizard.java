@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.internal.ui;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -34,6 +35,7 @@ import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.fedoraproject.eclipse.packager.FedoraSSL;
 import org.fedoraproject.eclipse.packager.LocalProjectType;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.LocalFedoraPackagerProjectCreator;
@@ -77,8 +79,11 @@ public class LocalFedoraPackagerProjectWizard extends Wizard implements
 		super.addPages();
 		pageOne = new LocalFedoraPackagerPageOne(PAGE_ONE);
 		addPage(pageOne);
-		pageTwo = new LocalFedoraPackagerPageTwo(PAGE_TWO);
-		addPage(pageTwo);
+		File fedoraCert = new File(FedoraSSL.DEFAULT_CERT_FILE);
+		if (!fedoraCert.exists()) {
+			pageTwo = new LocalFedoraPackagerPageTwo(PAGE_TWO);
+			addPage(pageTwo);
+		}
 		pageThree = new LocalFedoraPackagerPageThree(PAGE_THREE);
 		addPage(pageThree);
 	}
