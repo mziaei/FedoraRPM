@@ -10,13 +10,10 @@
  *******************************************************************************/
 package org.fedoraproject.eclipse.packager.internal.ui;
 
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 
@@ -25,7 +22,6 @@ import org.fedoraproject.eclipse.packager.FedoraPackagerText;
  * 
  */
 public class LocalFedoraPackagerPageOne extends WizardNewProjectCreationPage {
-	private Label lblNoteGit;
 
 	/**
 	 * Create the wizard.
@@ -52,13 +48,10 @@ public class LocalFedoraPackagerPageOne extends WizardNewProjectCreationPage {
 
 		GridLayout layout = new GridLayout();
 		container.setLayout(layout);
-		lblNoteGit = new Label(container, SWT.NONE);
-		lblNoteGit
-				.setText(FedoraPackagerText.LocalFedoraPackagerPageOne_lblNoteGit);
-		lblNoteGit.setForeground(Display.getDefault().getSystemColor(
-				SWT.COLOR_BLUE));
-		GridData layoutData = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
-		lblNoteGit.setLayoutData(layoutData);
+		
+		// Advise the user that a new Git repository will be created
+		setMessage(FedoraPackagerText.LocalFedoraPackagerPageOne_lblNoteGit,
+				IMessageProvider.INFORMATION);
 
 		setControl(container);
 	}

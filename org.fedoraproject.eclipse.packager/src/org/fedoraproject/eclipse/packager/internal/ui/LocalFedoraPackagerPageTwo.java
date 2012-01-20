@@ -41,7 +41,6 @@ import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 public class LocalFedoraPackagerPageTwo extends WizardPage {
 	private Group grpAccount;
 	private Button btnNewMaintainer;
-	private Button btnExistingMaintainer;
 	private Label lblTextFAS;
 	private Link linkIntroduce;
 	private Link linkInitial;
@@ -81,15 +80,7 @@ public class LocalFedoraPackagerPageTwo extends WizardPage {
 		grpAccount
 				.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_grpAccountSetup);
 
-		btnExistingMaintainer = new Button(grpAccount, SWT.RADIO);
-		btnExistingMaintainer
-				.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_btnRadioExistMaintainer);
-		layoutData = new GridData();
-		layoutData.horizontalSpan = 3;
-		btnExistingMaintainer.setLayoutData(layoutData);
-		btnExistingMaintainer.setSelection(true);
-
-		btnNewMaintainer = new Button(grpAccount, SWT.RADIO);
+		btnNewMaintainer = new Button(grpAccount, SWT.CHECK);
 		btnNewMaintainer
 				.setText(FedoraPackagerText.LocalFedoraPackagerPageTwo_btnRadioNewMaintainer);
 		layoutData = new GridData();
@@ -140,13 +131,6 @@ public class LocalFedoraPackagerPageTwo extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectControl();
-			}
-		});
-
-		btnExistingMaintainer.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setPageComplete(checkPageComplete());
 			}
 		});
 
@@ -216,7 +200,7 @@ public class LocalFedoraPackagerPageTwo extends WizardPage {
 	 * @return boolean
 	 */
 	private boolean checkPageComplete() {
-		return (btnExistingMaintainer.getSelection())
-				|| (textFAS.getText().length() > 0);
+		return (btnNewMaintainer.getSelection())
+				&& (textFAS.getText().length() > 0);
 	}
 }
