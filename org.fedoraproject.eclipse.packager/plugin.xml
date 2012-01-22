@@ -177,6 +177,30 @@
                   </or>
                </visibleWhen>
          </command>
+         <command
+               commandId="org.fedoraproject.eclipse.packager.ScpCommand"
+               label="%LabelScpToFasAccount"
+               mnemonic="%MnemonicScpToFasAccount"
+               style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <or>
+                     <with
+                           variable="activeMenuSelection">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.localproject">
+                        </reference>
+                     </with>
+                     <with
+                           variable="activeMenuEditorInput">
+                        <reference
+                              definitionId="org.fedoraproject.eclipse.packager.localproject">
+                        </reference>
+                     </with>
+                  </or>
+               </visibleWhen>
+         </command>
+         
        </menuContribution>
     </extension>
     
@@ -197,6 +221,11 @@
             id="org.fedoraproject.eclipse.packager.NewSourcesCommand"
             name="Replace">
       </command>
+      <command
+            defaultHandler="org.fedoraproject.eclipse.packager.internal.handlers.ScpHandler"
+            id="org.fedoraproject.eclipse.packager.ScpCommand"
+            name="Scp">
+      </command>      
     </extension>
     
     <extension
@@ -221,6 +250,9 @@
        <command id="DownloadSourceCommand"
                 class="org.fedoraproject.eclipse.packager.api.DownloadSourceCommand">
        </command>
+       <command id="ScpCommand"
+                class="org.fedoraproject.eclipse.packager.api.ScpCommand">
+       </command>       
     </extension>
     <!-- Keyboard shortcut definitions -->
     <extension
