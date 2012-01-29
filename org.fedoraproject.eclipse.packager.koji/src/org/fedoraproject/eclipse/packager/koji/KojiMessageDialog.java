@@ -30,8 +30,10 @@ import org.eclipse.ui.forms.widgets.FormText;
 
 /**
  * Message dialog showing the link to the Koji Web page showing build info.
+ * This is deprecated. Open the browser directly instead.
  *
  */
+@Deprecated
 public class KojiMessageDialog extends MessageDialog {
 	private int taskId;
 	private URL kojiWebUrl;

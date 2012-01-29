@@ -21,21 +21,18 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.FedoraPackagerPreferencesConstants;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.FedoraPackagerAbstractHandler;
 import org.fedoraproject.eclipse.packager.api.errors.InvalidProjectRootException;
-import org.fedoraproject.eclipse.packager.koji.KojiMessageDialog;
-import org.fedoraproject.eclipse.packager.koji.KojiPlugin;
 import org.fedoraproject.eclipse.packager.koji.KojiText;
 import org.fedoraproject.eclipse.packager.koji.KojiUrlUtils;
 import org.fedoraproject.eclipse.packager.koji.api.BuildResult;
@@ -131,9 +128,8 @@ public class KojiBuildHandler extends FedoraPackagerAbstractHandler {
 											+ KojiUrlUtils.constructTaskUrl(
 													buildResult.getTaskId(),
 													kojiWebUrl));
-									// open dialog
-									getKojiMsgDialog(buildResult.getTaskId(),
-											kojiWebUrl).open();
+									// opens browser with URL to task ID
+									openBrowser(buildResult.getTaskId(), kojiWebUrl);
 								}
 							}
 						});
@@ -142,30 +138,32 @@ public class KojiBuildHandler extends FedoraPackagerAbstractHandler {
 		return listener;
 	}
 	
-	/**
-	 * Create KojiMessageDialog based on taskId and kojiWebUrl.
-	 * 
+	/** 
 	 * @param taskId
-	 *            The task ID to use for the message.
+	 *            The task ID to use for the URL.
 	 * @param kojiWebUrl
 	 *            The url to Koji Web without any parameters.
-	 * @return A new KojiMessageDialog for the given Web Url and task Id.
 	 */
-	public KojiMessageDialog getKojiMsgDialog(int taskId, URL kojiWebUrl) {
-		ImageDescriptor descriptor = KojiPlugin
-				.getImageDescriptor("icons/Artwork_DesignService_koji-icon-16.png"); //$NON-NLS-1$
-		Image titleImage = descriptor.createImage();
-		Image msgContentImage = KojiPlugin.getImageDescriptor("icons/koji.png") //$NON-NLS-1$
-				.createImage();
-		KojiMessageDialog msgDialog = new KojiMessageDialog(shell, NLS.bind(
-				KojiText.KojiBuildHandler_kojiBuild,
-				getProjectRoot().getProductStrings().getBuildToolName()), titleImage,
-				MessageDialog.NONE, new String[] { IDialogConstants.OK_LABEL },
-				0, kojiWebUrl, taskId, NLS.bind(
-						KojiText.KojiMessageDialog_buildResponseMsg,
-						getProjectRoot().getProductStrings().getBuildToolName()),
-				msgContentImage,
-				getProjectRoot().getProductStrings().getBuildToolName());
-		return msgDialog;
+	protected void openBrowser(int taskId, URL kojiWebUrl) {
+		try {
+			final String url = KojiUrlUtils.constructTaskUrl(taskId, kojiWebUrl);
+			IWebBrowser browser = PlatformUI
+					.getWorkbench()
+					.getBrowserSupport()
+					.createBrowser(
+							IWorkbenchBrowserSupport.NAVIGATION_BAR
+									| IWorkbenchBrowserSupport.LOCATION_BAR
+									| IWorkbenchBrowserSupport.STATUS,
+							"koji_task", null, null); //$NON-NLS-1$
+			browser.openURL(new URL(url));
+		} catch (PartInitException e) {
+			FedoraPackagerLogger logger = FedoraPackagerLogger
+					.getInstance();
+			logger.logError(e.getMessage(), e);
+		} catch (MalformedURLException e) {
+			FedoraPackagerLogger logger = FedoraPackagerLogger
+					.getInstance();
+			logger.logError(e.getMessage(), e);
+		}
 	}
 }
