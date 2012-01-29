@@ -23,6 +23,8 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
+import org.fedoraproject.eclipse.packager.FedoraSSL;
+import org.fedoraproject.eclipse.packager.FedoraSSLFactory;
 import org.fedoraproject.eclipse.packager.IProjectRoot;
 import org.fedoraproject.eclipse.packager.PackagerPlugin;
 import org.fedoraproject.eclipse.packager.api.FedoraPackager;
@@ -115,14 +117,11 @@ public class ScpHandler extends FedoraPackagerAbstractHandler {
 					}
 				}
 
-				// hardcoded this for now. until i find the problem with my fedora.cert
-				// TODO uncomment this later
-				// String fasAccount =
-					// FedoraSSLFactory.getInstance().getUsernameFromCert();
-				String fasAccount = "mziaei1"; //$NON-NLS-1$
-				scpCmd.setFasAccount(fasAccount);
+				 String fasAccount =
+					 FedoraSSLFactory.getInstance().getUsernameFromCert();
 
 				try {
+					scpCmd.setFasAccount(fasAccount);
 					result = scpCmd.call(monitor);
 					String message = null;
 					message = NLS.bind(

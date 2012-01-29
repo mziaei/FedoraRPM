@@ -142,11 +142,13 @@ public class FedoraPackagerText extends NLS {
 	/****/ public static String ScpCommand_filesToScpMissing;
 	/****/ public static String ScpCommand_notificationTitle;
 	/****/ public static String ScpCommand_filesToScpExist;
+	/****/ public static String ScpCommand_filesToScpNonReadable;
 	// ScpHandler
 	/****/ public static String ScpHandler_taskName;
 	/****/ public static String ScpHandler_notificationTitle;
 	/****/ public static String ScpHandler_scpFilesNotifier;
 	/****/ public static String ScpHandler_failToScp;
+	/****/ public static String ScpHandler_fasAccountMissing;
 
 	static {
 		initializeMessages(BUNDLE_NAME,	FedoraPackagerText.class);

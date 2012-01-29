@@ -18,15 +18,17 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Vector;
 
-import javax.swing.JFileChooser;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jsch.ui.UserInfoPrompter;
 import org.eclipse.ui.PlatformUI;
+import org.fedoraproject.eclipse.packager.FedoraPackagerLogger;
 import org.fedoraproject.eclipse.packager.FedoraPackagerText;
+import org.fedoraproject.eclipse.packager.FedoraSSL;
 import org.fedoraproject.eclipse.packager.api.errors.CommandListenerException;
 import org.fedoraproject.eclipse.packager.api.errors.CommandMisconfiguredException;
 import org.fedoraproject.eclipse.packager.api.errors.ScpFailedException;
@@ -38,6 +40,9 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
+import org.eclipse.jsch.internal.core.IConstants;
+import org.eclipse.jsch.internal.core.JSchCorePlugin;
+import org.eclipse.jsch.internal.core.PreferenceInitializer;
 
 /**
  * A class used to execute a {@code Scp} command. It has setters for all
@@ -46,6 +51,7 @@ import com.jcraft.jsch.UserInfo;
  * instance of this class should only be used for one invocation of the command
  * (means: one call to {@link #call(IProgressMonitor)})
  */
+@SuppressWarnings("restriction")
 public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 	/**
@@ -62,6 +68,8 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 
 	private boolean scpconfirmed;
 	private String fileScpConfirm;
+
+	final static FedoraPackagerLogger logger = FedoraPackagerLogger.getInstance();
 
 	/*
 	 * Implementation of the {@code ScpCommand}.
@@ -91,15 +99,16 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		}
 
 		JSch jsch = new JSch();
-//	      JFileChooser chooser = new JFileChooser();
-//	      chooser.setDialogTitle("Choose your privatekey(ex. ~/.ssh/id_dsa)");
-//	      chooser.setFileHidingEnabled(false);
-//	      int returnVal = chooser.showOpenDialog(null);
 
-		FileDialogRunable fdr = new FileDialogRunable(null,
-				FedoraPackagerText.ScpCommand_choosePrivateKey);
-		PlatformUI.getWorkbench().getDisplay().syncExec(fdr);
-		String privateKeyFile = fdr.getFile();
+	    IPreferencesService service = Platform.getPreferencesService();
+	    String ssh_home = service.getString(JSchCorePlugin.ID,
+	        IConstants.KEY_SSH2HOME, PreferenceInitializer.SSH_HOME_DEFAULT, null);
+		String ssh_keys = service.getString(JSchCorePlugin.ID,
+	        IConstants.KEY_PRIVATEKEY, "id_rsa", null); //$NON-NLS-1$
+
+	    String[] ssh_key = ssh_keys.split(","); //$NON-NLS-1$
+
+	    String privateKeyFile = ssh_home.concat("/").concat(ssh_key[1]); //$NON-NLS-1$
 
 		try {
 			if (privateKeyFile != null) {
@@ -140,7 +149,6 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			}
 
 			session.disconnect();
-//			System.exit(0);
 
 		} catch (Exception e) {
 			if (e instanceof OperationCanceledException) {
@@ -261,7 +269,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			channel.connect();
 
 			if (checkAck(in) != 0) {
-				System.exit(0);
+				throw new ScpFailedException(FedoraPackagerText.ScpCommand_filesToScpNonReadable);
 			}
 
 			// send "C0644 filesize filename", where filename should not include
@@ -281,7 +289,7 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			out.write(command.getBytes());
 			out.flush();
 			if (checkAck(in) != 0) {
-				System.exit(0);
+				throw new ScpFailedException(FedoraPackagerText.ScpCommand_filesToScpNonReadable);
 			}
 
 			// send a content of localFile
@@ -300,7 +308,8 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 			out.write(buf, 0, 1);
 			out.flush();
 			if (checkAck(in) != 0) {
-				System.exit(0);
+				throw new ScpFailedException
+					(FedoraPackagerText.ScpCommand_filesToScpNonReadable);
 			}
 			out.close();
 
@@ -321,9 +330,14 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 	 * @param fasAccount
 	 *            sets the FAS account
 	 * @return this instance
+	 * @throws ScpFailedException
 	 */
-	public ScpCommand setFasAccount(String fasAccount) {
+	public ScpCommand setFasAccount(String fasAccount) throws ScpFailedException {
 		this.fasAccount = fasAccount;
+		if (fasAccount == FedoraSSL.UNKNOWN_USER) {
+			throw new ScpFailedException
+				(FedoraPackagerText.ScpHandler_fasAccountMissing);
+		}
 		return this;
 	}
 
@@ -341,6 +355,14 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 		this.srpmFile = srpmFile;
 	}
 
+	/*
+	 *
+	 * @param in
+	 *
+	 * @throws IOException
+	 *
+	 * @return 0 if successful
+	 */
 	static int checkAck(InputStream in) throws IOException {
 		int b = in.read();
 		// b may be 0 for success, 1 for error,
@@ -358,10 +380,10 @@ public class ScpCommand extends FedoraPackagerCommand<ScpResult> {
 				sb.append((char) c);
 			} while (c != '\n');
 			if (b == 1) { // error
-				System.out.print(sb.toString());
+				logger.logError(sb.toString());
 			}
 			if (b == 2) { // fatal error
-				System.out.print(sb.toString());
+				logger.logError(sb.toString());
 			}
 		}
 		return b;
